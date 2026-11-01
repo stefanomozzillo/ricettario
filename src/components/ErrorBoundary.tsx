@@ -1,5 +1,9 @@
 /**
- * Error Boundary per catturare errori di rendering React
+ * Error Boundary per catturare errori di rendering React.
+ *
+ * NOTA: la classe NON usa hook (useNavigate ecc.) — gli hook funzionano solo
+ * nei function component. La navigazione è passata via prop dal wrapper
+ * ErrorBoundaryWithRouter, che è un function component dentro il Router.
  */
 
 import { Component } from 'react'
@@ -10,6 +14,7 @@ import { useNavigate } from 'react-router-dom'
 interface Props {
   children: ReactNode
   fallback?: ReactNode
+  onNavigateHome?: () => void
 }
 
 interface State {
@@ -17,17 +22,17 @@ interface State {
   error: Error | null
 }
 
-export class ErrorBoundary extends Component<Props, State> {
+class ErrorBoundaryClass extends Component<Props, State> {
   public state: State = { hasError: false, error: null }
-  private navigate = useNavigate()
 
   public static getDerivedStateFromError(error: Error): State {
     return { hasError: true, error }
   }
 
   public componentDidCatch(error: Error, errorInfo: ErrorInfo) {
-    console.error('ErrorBoundary caught:', error, errorInfo)
-    // Qui potresti inviare a un servizio di error tracking (Sentry, etc.)
+    // Log esplicito in console: mostra l'errore originale catturato
+    console.error('[ErrorBoundary] Errore catturato:', error)
+    console.error('[ErrorBoundary] Component stack:', errorInfo.componentStack)
   }
 
   private handleRetry = () => {
@@ -35,7 +40,11 @@ export class ErrorBoundary extends Component<Props, State> {
   }
 
   private handleGoHome = () => {
-    this.navigate('/')
+    if (this.props.onNavigateHome) {
+      this.props.onNavigateHome()
+    } else {
+      window.location.assign('/')
+    }
     this.setState({ hasError: false, error: null })
   }
 
@@ -51,7 +60,7 @@ export class ErrorBoundary extends Component<Props, State> {
             <AlertTriangle size={48} className="error-icon" />
             <h2>Qualcosa è andato storto</h2>
             <p className="error-message">
-              Si è verificato un errore imprevisto. Il team è stato notificato.
+              Si è verificato un errore imprevisto.
             </p>
             {this.state.error && (
               <details className="error-details">
@@ -78,12 +87,22 @@ export class ErrorBoundary extends Component<Props, State> {
 }
 
 /**
- * Hook per usare l'Error Boundary in modo programmatico
- * (richiede che ErrorBoundary sia un ancestore)
+ * Wrapper function component: usa useNavigate (lecito qui) e passa
+ * la navigazione alla classe via prop.
+ */
+export function ErrorBoundary({ children, fallback }: { children: ReactNode; fallback?: ReactNode }) {
+  const navigate = useNavigate()
+  return (
+    <ErrorBoundaryClass fallback={fallback} onNavigateHome={() => navigate('/')}>
+      {children}
+    </ErrorBoundaryClass>
+  )
+}
+
+/**
+ * Hook per lanciare errori verso l'Error Boundary (uso programmatico).
  */
 export function useErrorHandler() {
-  // In un'app reale, useresti un context per comunicare con l'ErrorBoundary
-  // Per ora restituiamo una funzione che lancia l'errore
   return (error: Error) => {
     throw error
   }

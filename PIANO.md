@@ -28,7 +28,7 @@ FASE A in corso — codice completato, **verifiche mancanti**.
 
 ## Da fare (verifiche FASE A)
 
-- [ ] git init + primo commit (repo GitHub **privato**)
+- [x] git init + primo commit `a1b8cc9` (repo GitHub privato da collegare)
 - [ ] Verifica login con utente abilitato (dall'app)
 - [ ] Verifica registrazione nuova rifiutata (via REST API, non SQL Editor)
 - [ ] Test RLS da app/REST: utente abilitato → INSERT ok; anon → INSERT fallisce (mai da SQL Editor)
