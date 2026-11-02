@@ -109,7 +109,7 @@ export const MOOD_LABELS: Record<Mood, string> = {
   gourmet: 'Gourmet',
   pasticceria: 'Pasticceria',
   comfort: 'Comfort',
-  fresca: '<Green>',
+  fresca: 'Green',
   etnici: 'Piatti etnici',
 };
 
