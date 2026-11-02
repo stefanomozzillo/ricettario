@@ -1,5 +1,6 @@
 /**
  * Pagina Impostazioni: profilo, logout, export JSON, gestione basi ignore
+ * Usa componenti condivisi: Header, Button, Badge
  */
 
 import { useState, useEffect, useCallback } from 'react'
@@ -9,6 +10,8 @@ import { clsx } from 'clsx'
 import { useAuth } from '../contexts/AuthContext'
 import { supabase } from '../lib/supabase'
 import { DEFAULT_IGNORED_INGREDIENTS } from '../lib/config'
+import { Header } from '../components/Header'
+import { Button } from '../components/Button'
 
 const STORAGE_KEY_IGNORED = 'ricettario-ignored-ingredients'
 
@@ -153,13 +156,15 @@ export function SettingsPage() {
   if (authLoading) {
     return (
       <div className="page-container settings-page">
-        <header className="settings-header">
-          <h1>Impostazioni</h1>
-        </header>
-        <div className="loading-skeleton">
-          <div className="skeleton-card">
-            <div className="skeleton-line" style={{ width: '40%' }} />
-            <div className="skeleton-line" style={{ width: '60%' }} />
+        <Header title="Impostazioni" />
+        <div className="max-w-[720px] mx-auto px-4">
+          <div className="loading-skeleton space-y-4">
+            <div className="skeleton-card bg-[var(--card)] rounded-2xl border border-[var(--bordo)] p-4 animate-pulse">
+              <div className="h-6 w-3/4 bg-[var(--bordo)] rounded mb-2" />
+              <div className="h-4 w-1/2 bg-[var(--bordo)] rounded mb-3" />
+              <div className="h-4 w-1/3 bg-[var(--bordo)] rounded mb-3" />
+              <div className="h-4 w-1/4 bg-[var(--bordo)] rounded" />
+            </div>
           </div>
         </div>
       </div>
@@ -169,202 +174,217 @@ export function SettingsPage() {
   if (!user) {
     return (
       <div className="page-container settings-page">
-        <header className="settings-header">
-          <h1>Impostazioni</h1>
-        </header>
-        <div className="card auth-required">
-          <AlertCircle size={48} />
-          <h2>Accesso richiesto</h2>
-          <p>Accedi per gestire le impostazioni</p>
-        </div>
+        <Header title="Impostazioni" />
+        <main className="max-w-[720px] mx-auto px-4 pb-24">
+          <div className="card bg-[var(--card)] rounded-2xl border border-[var(--bordo)] p-8 text-center">
+            <AlertCircle size={48} className="mx-auto mb-4 text-[var(--accento)]" />
+            <h2 className="text-xl font-semibold text-[var(--testo)] mb-2">Accesso richiesto</h2>
+            <p className="text-[var(--secondario)]">Accedi per gestire le impostazioni</p>
+          </div>
+        </main>
       </div>
     )
   }
 
   return (
     <div className="page-container settings-page">
-      <header className="settings-header">
-        <h1>Impostazioni</h1>
-      </header>
+      <Header title="Impostazioni" />
 
       {message && (
-        <div className={clsx('toast', message.type)}>
-          <span>{message.type === 'success' ? <CheckCircle size={18} /> : <AlertCircle size={18} />}</span>
-          <span>{message.text}</span>
-          <button onClick={() => setMessage(null)} aria-label="Chiudi"><X size={18} /></button>
+        <div className={clsx('toast fixed top-4 left-4 right-4 max-w-[720px] mx-auto z-50 px-4', message.type === 'success' ? 'bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-300' : 'bg-red-100 dark:bg-red-900/30 text-red-800 dark:text-red-300')}>
+          <div className="flex items-center gap-3 p-4 rounded-xl border border-current/20 animate-in slide-in-from-top-2 duration-200">
+            {message.type === 'success' ? <CheckCircle size={18} /> : <AlertCircle size={18} />}
+            <span className="flex-1 text-sm">{message.text}</span>
+            <Button variant="ghost" size="sm" onClick={() => setMessage(null)} aria-label="Chiudi">
+              <X size={18} />
+            </Button>
+          </div>
         </div>
       )}
 
-      {/* Tab navigation */}
-      <nav className="settings-tabs" role="tablist">
-        <button
-          role="tab"
-          aria-selected={activeTab === 'profile'}
-          className={clsx('tab-btn', activeTab === 'profile' && 'active')}
-          onClick={() => setActiveTab('profile')}
-        >
-          <User size={18} /> Profilo
-        </button>
-        <button
-          role="tab"
-          aria-selected={activeTab === 'data'}
-          className={clsx('tab-btn', activeTab === 'data' && 'active')}
-          onClick={() => setActiveTab('data')}
-        >
-          <Database size={18} /> Dati
-        </button>
-        <button
-          role="tab"
-          aria-selected={activeTab === 'pantry'}
-          className={clsx('tab-btn', activeTab === 'pantry' && 'active')}
-          onClick={() => setActiveTab('pantry')}
-        >
-          <SettingsIcon size={18} /> Cosa ho in casa
-        </button>
-      </nav>
+      <main className="max-w-[720px] mx-auto px-4 pb-24">
+        {/* Tab navigation */}
+        <nav className="settings-tabs flex gap-2 mb-6 overflow-x-auto pb-2" role="tablist" aria-label="Sezioni impostazioni">
+          <Button
+            variant={activeTab === 'profile' ? 'primary' : 'secondary'}
+            onClick={() => setActiveTab('profile')}
+            className="whitespace-nowrap gap-2"
+          >
+            <User size={18} /> Profilo
+          </Button>
+          <Button
+            variant={activeTab === 'data' ? 'primary' : 'secondary'}
+            onClick={() => setActiveTab('data')}
+            className="whitespace-nowrap gap-2"
+          >
+            <Database size={18} /> Dati
+          </Button>
+          <Button
+            variant={activeTab === 'pantry' ? 'primary' : 'secondary'}
+            onClick={() => setActiveTab('pantry')}
+            className="whitespace-nowrap gap-2"
+          >
+            <SettingsIcon size={18} /> Cosa ho in casa
+          </Button>
+        </nav>
 
-      {/* Tab: Profilo */}
-      {activeTab === 'profile' && (
-        <section className="settings-section card">
-          <h2>Profilo</h2>
-          <div className="profile-info">
-            <div className="avatar-placeholder">
-              {user.email?.charAt(0).toUpperCase() || '?'}
+        {/* Tab: Profilo */}
+        {activeTab === 'profile' && (
+          <section className="card bg-[var(--card)] rounded-2xl border border-[var(--bordo)] p-4 mb-4">
+            <h2 className="text-lg font-semibold text-[var(--testo)] mb-4">Profilo</h2>
+            <div className="profile-info flex items-center gap-4 p-4 bg-[var(--sfondo)] rounded-xl mb-4">
+              <div className="avatar-placeholder w-16 h-16 rounded-2xl bg-[var(--accento)] text-[var(--accento-test)] flex items-center justify-center text-2xl font-bold flex-shrink-0">
+                {user.email?.charAt(0).toUpperCase() || '?'}
+              </div>
+              <div className="profile-details flex-1 min-w-0">
+                <p className="profile-email font-medium text-[var(--testo)] truncate">{user.email}</p>
+                <p className="profile-role text-sm text-[var(--secondario)]">Ruolo: {user.user_metadata?.ruolo || 'user'}</p>
+                <p className="profile-member text-sm text-[var(--secondario)]">Membro dal: {new Date(user.created_at).toLocaleDateString('it-IT')}</p>
+              </div>
             </div>
-            <div className="profile-details">
-              <p className="profile-email">{user.email}</p>
-              <p className="profile-role">Ruolo: {user.user_metadata?.ruolo || 'user'}</p>
-              <p className="profile-member">Membro dal: {new Date(user.created_at).toLocaleDateString('it-IT')}</p>
+
+            <div className="settings-actions">
+              <Button variant="danger" onClick={handleLogout} className="w-full gap-2">
+                <LogOut size={18} /> Esci
+              </Button>
             </div>
-          </div>
-
-          <div className="settings-actions">
-            <button className="btn-danger" onClick={handleLogout}>
-              <LogOut size={18} /> Esci
-            </button>
-          </div>
-        </section>
-      )}
-
-      {/* Tab: Dati */}
-      {activeTab === 'data' && (
-        <>
-          <section className="settings-section card">
-            <h2>Esporta dati</h2>
-            <p className="section-desc">Scarica un backup JSON di tutte le ricette. Il file include ingredienti, passaggi, tag e metadati.</p>
-            <button
-              className="btn-primary"
-              onClick={handleExport}
-              disabled={exporting}
-            >
-              {exporting ? <AlertCircle size={18} className="spin" /> : <Download size={18} />}
-              {exporting ? 'Esportazione...' : 'Esporta tutto (JSON)'}
-            </button>
           </section>
+        )}
 
-          <section className="settings-section card">
-            <h2>Importa dati</h2>
-            <p className="section-desc">Importa ricette da un file JSON esportato precedentemente. Le ricette verranno aggiunte (non sovrascritte).</p>
-            <div className="import-area">
-              <input
-                type="file"
-                accept=".json"
-                onChange={e => setImportFile(e.target.files?.[0] || null)}
-                className="file-input"
-                id="import-file"
-                disabled={importing}
-              />
-              <label htmlFor="import-file" className="btn-secondary">
-                <Upload size={18} /> Scegli file JSON
-              </label>
-              {importFile && (
-                <span className="file-name">{importFile.name}</span>
+        {/* Tab: Dati */}
+        {activeTab === 'data' && (
+          <>
+            <section className="card bg-[var(--card)] rounded-2xl border border-[var(--bordo)] p-4 mb-4">
+              <h2 className="text-lg font-semibold text-[var(--testo)] mb-2">Esporta dati</h2>
+              <p className="section-desc text-sm text-[var(--secondario)] mb-4">Scarica un backup JSON di tutte le ricette. Il file include ingredienti, passaggi, tag e metadati.</p>
+              <Button
+                variant="primary"
+                onClick={handleExport}
+                disabled={exporting}
+                className="w-full gap-2"
+              >
+                {exporting ? <AlertCircle size={18} className="animate-spin" /> : <Download size={18} />}
+                {exporting ? 'Esportazione...' : 'Esporta tutto (JSON)'}
+              </Button>
+            </section>
+
+            <section className="card bg-[var(--card)] rounded-2xl border border-[var(--bordo)] p-4 mb-4">
+              <h2 className="text-lg font-semibold text-[var(--testo)] mb-2">Importa dati</h2>
+              <p className="section-desc text-sm text-[var(--secondario)] mb-4">Importa ricette da un file JSON esportato precedentemente. Le ricette verranno aggiunte (non sovrascritte).</p>
+              <div className="import-area space-y-3">
+                <input
+                  type="file"
+                  accept=".json"
+                  onChange={e => setImportFile(e.target.files?.[0] || null)}
+                  className="file-input w-full px-4 py-3 rounded-xl border border-[var(--bordo)] bg-[var(--sfondo)] text-[var(--testo)] focus:outline-none focus:ring-2 focus:ring-[var(--accento)] focus:border-transparent transition-all duration-150"
+                  id="import-file"
+                  disabled={importing}
+                />
+                {importFile && (
+                  <p className="file-name text-sm text-[var(--secondario)] flex items-center gap-2">
+                    <CheckCircle size={16} className="text-green-500" />
+                    {importFile.name}
+                  </p>
+                )}
+                <Button
+                  variant="secondary"
+                  className="w-full gap-2"
+                  onClick={() => document.getElementById('import-file')?.click()}
+                  disabled={importing}
+                >
+                  <Upload size={18} /> Scegli file JSON
+                </Button>
+                <Button
+                  variant="primary"
+                  onClick={handleImport}
+                  disabled={importing || !importFile}
+                  className="w-full gap-2"
+                >
+                  {importing ? <AlertCircle size={18} className="animate-spin" /> : <Upload size={18} />}
+                  {importing ? 'Importazione...' : 'Importa'}
+                </Button>
+              </div>
+            </section>
+
+            <section className="card bg-[var(--card)] rounded-2xl border border-[var(--bordo)] p-4 mb-4 border-amber-200 dark:border-amber-800 bg-amber-50/50 dark:bg-amber-900/10">
+              <h2 className="text-lg font-semibold text-[var(--testo)] mb-2 flex items-center gap-2">
+                <AlertCircle size={20} className="text-amber-600 dark:text-amber-400" />
+                Reset dati locali
+              </h2>
+              <p className="section-desc text-sm text-[var(--secondario)] mb-4">Cancella solo i dati salvati nel browser (lista ingredienti ignorati, preferenze mood). Le ricette su Supabase NON vengono toccate.</p>
+              <Button
+                variant="danger"
+                onClick={() => {
+                  if (window.confirm('Cancellare tutti i dati locali del browser?')) {
+                    localStorage.clear()
+                    showMessage('success', 'Dati locali cancellati. Ricarica la pagina.')
+                  }
+                }}
+                className="w-full gap-2"
+              >
+                <Trash2 size={18} /> Cancella dati locali
+              </Button>
+            </section>
+          </>
+        )}
+
+        {/* Tab: Cosa ho in casa */}
+        {activeTab === 'pantry' && (
+          <section className="card bg-[var(--card)] rounded-2xl border border-[var(--bordo)] p-4 mb-4">
+            <h2 className="text-lg font-semibold text-[var(--testo)] mb-2">Ingredienti base da ignorare</h2>
+            <p className="section-desc text-sm text-[var(--secondario)] mb-4">
+              Questi ingredienti non vengono considerati nel calcolo "Cosa ho in casa".
+              Modifica la lista secondo le tue abitudini.
+            </p>
+
+            <div className="ignored-list">
+              {ignoredIngredients.length === 0 ? (
+                <p className="empty-hint text-center text-[var(--secondario)] py-8">Nessun ingrediente ignorato</p>
+              ) : (
+                <ul className="space-y-2">
+                  {ignoredIngredients.map(ing => (
+                    <li key={ing} className="ignored-item flex items-center justify-between p-3 bg-[var(--sfondo)] rounded-xl">
+                      <span className="text-[var(--testo)]">{ing}</span>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => handleRemoveIgnored(ing)}
+                        aria-label={`Rimuovi ${ing}`}
+                      >
+                        <Trash2 size={16} />
+                      </Button>
+                    </li>
+                  ))}
+                </ul>
               )}
+
+              <div className="add-ignored flex gap-2 mt-4">
+                <input
+                  type="text"
+                  value={newIgnoredInput}
+                  onChange={e => setNewIgnoredInput(e.target.value)}
+                  onKeyDown={e => e.key === 'Enter' && handleAddIgnored()}
+                  placeholder="Aggiungi ingrediente da ignorare (es. burro)"
+                  className="form-input flex-1 px-4 py-3 rounded-xl border border-[var(--bordo)] bg-[var(--sfondo)] text-[var(--testo)] placeholder-[var(--secondario)] focus:outline-none focus:ring-2 focus:ring-[var(--accento)] focus:border-transparent transition-all duration-150"
+                />
+                <Button variant="secondary" onClick={handleAddIgnored} className="gap-2">
+                  <Plus size={18} /> Aggiungi
+                </Button>
+              </div>
+
+              <Button variant="ghost" onClick={handleResetIgnored} className="mt-4 w-full">
+                Ripristina predefiniti ({DEFAULT_IGNORED_INGREDIENTS.join(', ')})
+              </Button>
             </div>
-            <button
-              className="btn-primary"
-              onClick={handleImport}
-              disabled={importing || !importFile}
-            >
-              {importing ? <AlertCircle size={18} className="spin" /> : <Upload size={18} />}
-              {importing ? 'Importazione...' : 'Importa'}
-            </button>
           </section>
+        )}
 
-          <section className="settings-section card warning">
-            <h2>Reset dati locali</h2>
-            <p className="section-desc">Cancella solo i dati salvati nel browser (lista ingredienti ignorati, preferenze mood). Le ricette su Supabase NON vengono toccate.</p>
-            <button
-              className="btn-danger"
-              onClick={() => {
-                if (window.confirm('Cancellare tutti i dati locali del browser?')) {
-                  localStorage.clear()
-                  showMessage('success', 'Dati locali cancellati. Ricarica la pagina.')
-                }
-              }}
-            >
-              <Trash2 size={18} /> Cancella dati locali
-            </button>
-          </section>
-        </>
-      )}
-
-      {/* Tab: Cosa ho in casa */}
-      {activeTab === 'pantry' && (
-        <section className="settings-section card">
-          <h2>Ingredienti base da ignorare</h2>
-          <p className="section-desc">
-            Questi ingredienti non vengono considerati nel calcolo "Cosa ho in casa".
-            Modifica la lista secondo le tue abitudini.
-          </p>
-
-          <div className="ignored-list">
-            {ignoredIngredients.length === 0 ? (
-              <p className="empty-hint">Nessun ingrediente ignorato</p>
-            ) : (
-              <ul>
-                {ignoredIngredients.map(ing => (
-                  <li key={ing} className="ignored-item">
-                    <span>{ing}</span>
-                    <button
-                      type="button"
-                      className="btn-remove-small"
-                      onClick={() => handleRemoveIgnored(ing)}
-                      aria-label={`Rimuovi ${ing}`}
-                    >
-                      <Trash2 size={16} />
-                    </button>
-                  </li>
-                ))}
-              </ul>
-            )}
-
-            <div className="add-ignored">
-              <input
-                type="text"
-                value={newIgnoredInput}
-                onChange={e => setNewIgnoredInput(e.target.value)}
-                onKeyDown={e => e.key === 'Enter' && handleAddIgnored()}
-                placeholder="Aggiungi ingrediente da ignorare (es. burro)"
-                className="form-input"
-              />
-              <button className="btn-secondary" onClick={handleAddIgnored}>
-                <Plus size={18} /> Aggiungi
-              </button>
-            </div>
-
-            <button className="btn-text" onClick={handleResetIgnored}>
-              Ripristina predefiniti ({DEFAULT_IGNORED_INGREDIENTS.join(', ')})
-            </button>
-          </div>
-        </section>
-      )}
-
-      {/* Info versione */}
-      <footer className="settings-footer">
-        <p>Ricettario v1.0.0</p>
-        <p>Dati su Supabase · Hosting Cloudflare Pages</p>
-      </footer>
+        {/* Info versione */}
+        <footer className="settings-footer text-center text-sm text-[var(--secondario)] py-8">
+          <p>Ricettario v1.0.0</p>
+          <p>Dati su Supabase · Hosting Cloudflare Pages</p>
+        </footer>
+      </main>
     </div>
   )
 }

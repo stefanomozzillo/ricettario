@@ -1,13 +1,14 @@
 /**
  * Form Ricetta: add/edit con react-hook-form + zod validation
  * Supporta modalità "Da completare" (solo titolo) e completa
+ * Usa componenti condivisi: Header, Button, Badge
  */
 
 import { useState, useEffect, useCallback } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { useForm, useFieldArray, Controller } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { ChevronLeft, Plus, GripVertical, Trash2, AlertCircle, CheckCircle, Loader2 } from 'lucide-react'
+import { Plus, GripVertical, Trash2, AlertCircle, CheckCircle, Loader2 } from 'lucide-react'
 import { clsx } from 'clsx'
 import { useAuth } from '../contexts/AuthContext'
 import { useMood } from '../contexts/MoodContext'
@@ -24,6 +25,8 @@ import {
   prepareRecipeForDb,
   normalizeRecipeFromDb,
 } from '../lib/types'
+import { Header } from '../components/Header'
+import { Button } from '../components/Button'
 
 interface RecipeFormComponentProps {
   isEditing: boolean
@@ -89,7 +92,6 @@ function RecipeFormComponent({ isEditing }: RecipeFormComponentProps) {
             const formData = normalizeRecipeFromDb(data)
             reset({
               ...formData,
-              // Override per campi che devono essere undefined invece di null per i default values
               categoria: formData.categoria ?? undefined,
               mood: formData.mood ?? undefined,
               tempo_minuti: formData.tempo_minuti ?? null,
@@ -162,83 +164,89 @@ function RecipeFormComponent({ isEditing }: RecipeFormComponentProps) {
   if (loading) {
     return (
       <div className="page-container form-page">
-        <header className="form-header">
-          <button className="btn-back" disabled><ChevronLeft size={24} /></button>
-          <div className="loading-skeleton">
-            <div className="skeleton-line" style={{ width: '50%' }} />
+        <Header title={isEditing ? 'Modifica ricetta' : 'Nuova ricetta'} />
+        <div className="max-w-[720px] mx-auto px-4">
+          <div className="loading-skeleton space-y-4">
+            <div className="skeleton-card bg-[var(--card)] rounded-2xl border border-[var(--bordo)] p-4 animate-pulse">
+              <div className="h-6 w-3/4 bg-[var(--bordo)] rounded mb-2" />
+              <div className="h-4 w-1/2 bg-[var(--bordo)] rounded mb-3" />
+              <div className="h-4 w-1/3 bg-[var(--bordo)] rounded mb-3" />
+              <div className="h-4 w-1/4 bg-[var(--bordo)] rounded" />
+            </div>
           </div>
-        </header>
+        </div>
       </div>
     )
   }
 
   return (
     <div className="page-container form-page">
-      <header className="form-header">
-        <button className="btn-back" onClick={() => navigate(-1)} aria-label="Indietro">
-          <ChevronLeft size={24} />
-        </button>
-        <h1>{isEditing ? 'Modifica ricetta' : 'Nuova ricetta'}</h1>
-        <div className="header-spacer" />
-      </header>
+      <Header title={isEditing ? 'Modifica ricetta' : 'Nuova ricetta'} />
 
-      <form onSubmit={handleSubmit(onSubmit as any)} className="form-content" noValidate>
-        {error && <div className="form-error"><AlertCircle size={18} /> {error}</div>}
+      <form onSubmit={handleSubmit(onSubmit as any)} className="form-content max-w-[720px] mx-auto px-4 pb-24" noValidate>
+        {error && (
+          <div className="form-error card bg-[var(--card)] rounded-xl border border-[var(--bordo)] p-4 mb-4 flex items-start gap-2 text-[var(--accento)]">
+            <AlertCircle size={18} className="mt-0.5 flex-shrink-0" />
+            <span className="text-sm">{error}</span>
+          </div>
+        )}
 
         {/* Titolo (sempre obbligatorio) */}
-        <section className="form-section card">
+        <section className="form-section card bg-[var(--card)] rounded-2xl border border-[var(--bordo)] p-4 mb-4">
           <div className="form-field">
-            <label htmlFor="titolo">Titolo *</label>
+            <label htmlFor="titolo" className="block text-sm font-medium text-[var(--testo)] mb-1">Titolo <span className="text-[var(--accento)]">*</span></label>
             <input
               id="titolo"
               type="text"
               placeholder="Es. Carbonara classica"
               {...register('titolo')}
-              className={clsx('form-input', errors.titolo && 'error')}
+              className={clsx('form-input w-full px-4 py-3 rounded-xl border border-[var(--bordo)] bg-[var(--sfondo)] text-[var(--testo)] placeholder-[var(--secondario)] focus:outline-none focus:ring-2 focus:ring-[var(--accento)] focus:border-transparent transition-all duration-150', errors.titolo && 'border-[var(--accento)]')}
             />
-            {errors.titolo && <span className="field-error">{errors.titolo.message}</span>}
+            {errors.titolo && <p className="field-error text-sm text-[var(--accento)] mt-1">{errors.titolo.message}</p>}
           </div>
 
-          <div className="form-field">
-            <label htmlFor="autore">Autore</label>
+          <div className="form-field mt-4">
+            <label htmlFor="autore" className="block text-sm font-medium text-[var(--testo)] mb-1">Autore</label>
             <input
               id="autore"
               type="text"
               placeholder="Es. Nonna Maria"
               {...register('autore')}
-              className="form-input"
+              className="form-input w-full px-4 py-3 rounded-xl border border-[var(--bordo)] bg-[var(--sfondo)] text-[var(--testo)] placeholder-[var(--secondario)] focus:outline-none focus:ring-2 focus:ring-[var(--accento)] focus:border-transparent transition-all duration-150"
             />
           </div>
         </section>
 
         {/* Stato */}
-        <section className="form-section card">
+        <section className="form-section card bg-[var(--card)] rounded-2xl border border-[var(--bordo)] p-4 mb-4">
           <fieldset>
-            <legend>Stato ricetta *</legend>
-            <div className="radio-group">
+            <legend className="block text-sm font-medium text-[var(--testo)] mb-3">Stato ricetta <span className="text-[var(--accento)]">*</span></legend>
+            <div className="radio-group flex gap-6">
               {STATO_RICETTA.map(stato => (
-                <label key={stato} className="radio-label">
+                <label key={stato} className="radio-label flex items-center gap-2 cursor-pointer">
                   <input
                     type="radio"
                     value={stato}
                     {...register('stato')}
-                    className="radio-input"
+                    className="radio-input w-4 h-4 text-[var(--accento)] border-[var(--bordo)] focus:ring-2 focus:ring-[var(--accento)] focus:ring-offset-2 focus:ring-offset-[var(--sfondo)]"
                   />
-                  <span>{STATO_LABELS[stato as keyof typeof STATO_LABELS]}</span>
+                  <span className="text-[var(--testo)]">{STATO_LABELS[stato as keyof typeof STATO_LABELS]}</span>
                 </label>
               ))}
             </div>
-            {errors.stato && <span className="field-error">{errors.stato.message}</span>}
+            {errors.stato && <p className="field-error text-sm text-[var(--accento)] mt-2">{errors.stato.message}</p>}
           </fieldset>
 
           {isComplete && (
-            <p className="form-hint">
-              <CheckCircle size={16} className="hint-icon" /> Modalità completa: servono categoria, mood, almeno un ingrediente e un passaggio.
+            <p className="form-hint flex items-center gap-2 text-sm text-[var(--secondario)] mt-3 p-3 bg-[var(--sfondo)] rounded-xl">
+              <CheckCircle size={16} className="hint-icon text-[var(--accento)] flex-shrink-0" />
+              Modalità completa: servono categoria, mood, almeno un ingrediente e un passaggio.
             </p>
           )}
           {!isComplete && (
-            <p className="form-hint warning">
-              <AlertCircle size={16} className="hint-icon" /> Modalità "Da completare": solo il titolo è obbligatorio. Potrai completare dopo.
+            <p className="form-hint warning flex items-center gap-2 text-sm text-[var(--secondario)] mt-3 p-3 bg-amber-50 dark:bg-amber-900/20 rounded-xl border border-amber-200 dark:border-amber-800">
+              <AlertCircle size={16} className="hint-icon text-amber-600 dark:text-amber-400 flex-shrink-0" />
+              Modalità "Da completare": solo il titolo è obbligatorio. Potrai completare dopo.
             </p>
           )}
         </section>
@@ -246,34 +254,34 @@ function RecipeFormComponent({ isEditing }: RecipeFormComponentProps) {
         {/* Campi solo per ricette complete */}
         {isComplete && (
           <>
-            <section className="form-section card">
-              <div className="form-row">
+            <section className="form-section card bg-[var(--card)] rounded-2xl border border-[var(--bordo)] p-4 mb-4">
+              <div className="form-row grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div className="form-field">
-                  <label htmlFor="categoria">Categoria *</label>
-                  <select id="categoria" {...register('categoria')} className={clsx('form-select', errors.categoria && 'error')}>
+                  <label htmlFor="categoria" className="block text-sm font-medium text-[var(--testo)] mb-1">Categoria <span className="text-[var(--accento)]">*</span></label>
+                  <select id="categoria" {...register('categoria')} className={clsx('form-select w-full px-4 py-3 rounded-xl border border-[var(--bordo)] bg-[var(--sfondo)] text-[var(--testo)] focus:outline-none focus:ring-2 focus:ring-[var(--accento)] focus:border-transparent transition-all duration-150 appearance-none', errors.categoria && 'border-[var(--accento)]')}>
                     <option value="">Seleziona categoria</option>
                     {CATEGORIE.map(cat => (
                       <option key={cat} value={cat}>{CATEGORIE_LABELS[cat]}</option>
                     ))}
                   </select>
-                  {errors.categoria && <span className="field-error">{errors.categoria.message}</span>}
+                  {errors.categoria && <p className="field-error text-sm text-[var(--accento)] mt-1">{errors.categoria.message}</p>}
                 </div>
 
                 <div className="form-field">
-                  <label htmlFor="mood">Mood *</label>
-                  <select id="mood" {...register('mood')} className={clsx('form-select', errors.mood && 'error')}>
+                  <label htmlFor="mood" className="block text-sm font-medium text-[var(--testo)] mb-1">Mood <span className="text-[var(--accento)]">*</span></label>
+                  <select id="mood" {...register('mood')} className={clsx('form-select w-full px-4 py-3 rounded-xl border border-[var(--bordo)] bg-[var(--sfondo)] text-[var(--testo)] focus:outline-none focus:ring-2 focus:ring-[var(--accento)] focus:border-transparent transition-all duration-150 appearance-none', errors.mood && 'border-[var(--accento)]')}>
                     <option value="">Seleziona mood</option>
                     {MOODS.map(m => (
                       <option key={m} value={m}>{MOOD_LABELS[m as Mood]}</option>
                     ))}
                   </select>
-                  {errors.mood && <span className="field-error">{errors.mood.message}</span>}
+                  {errors.mood && <p className="field-error text-sm text-[var(--accento)] mt-1">{errors.mood.message}</p>}
                 </div>
               </div>
 
-              <div className="form-row">
+              <div className="form-row grid grid-cols-1 sm:grid-cols-3 gap-4 mt-4">
                 <div className="form-field">
-                  <label htmlFor="tempo_minuti">Tempo (minuti)</label>
+                  <label htmlFor="tempo_minuti" className="block text-sm font-medium text-[var(--testo)] mb-1">Tempo (minuti)</label>
                   <input
                     id="tempo_minuti"
                     type="number"
@@ -282,12 +290,12 @@ function RecipeFormComponent({ isEditing }: RecipeFormComponentProps) {
                     step="1"
                     placeholder="30"
                     {...register('tempo_minuti', { valueAsNumber: true })}
-                    className="form-input"
+                    className="form-input w-full px-4 py-3 rounded-xl border border-[var(--bordo)] bg-[var(--sfondo)] text-[var(--testo)] placeholder-[var(--secondario)] focus:outline-none focus:ring-2 focus:ring-[var(--accento)] focus:border-transparent transition-all duration-150"
                   />
                 </div>
 
                 <div className="form-field">
-                  <label htmlFor="porzioni">Porzioni</label>
+                  <label htmlFor="porzioni" className="block text-sm font-medium text-[var(--testo)] mb-1">Porzioni</label>
                   <input
                     id="porzioni"
                     type="number"
@@ -296,29 +304,29 @@ function RecipeFormComponent({ isEditing }: RecipeFormComponentProps) {
                     step="1"
                     placeholder="4"
                     {...register('porzioni', { valueAsNumber: true })}
-                    className="form-input"
+                    className="form-input w-full px-4 py-3 rounded-xl border border-[var(--bordo)] bg-[var(--sfondo)] text-[var(--testo)] placeholder-[var(--secondario)] focus:outline-none focus:ring-2 focus:ring-[var(--accento)] focus:border-transparent transition-all duration-150"
                   />
                 </div>
 
                 <div className="form-field">
-                  <label htmlFor="porzioni_unita">Unità</label>
+                  <label htmlFor="porzioni_unita" className="block text-sm font-medium text-[var(--testo)] mb-1">Unità</label>
                   <input
                     id="porzioni_unita"
                     type="text"
                     placeholder="porzioni"
                     {...register('porzioni_unita')}
-                    className="form-input"
+                    className="form-input w-full px-4 py-3 rounded-xl border border-[var(--bordo)] bg-[var(--sfondo)] text-[var(--testo)] placeholder-[var(--secondario)] focus:outline-none focus:ring-2 focus:ring-[var(--accento)] focus:border-transparent transition-all duration-150"
                   />
                 </div>
               </div>
             </section>
 
             {/* Tag */}
-            <section className="form-section card">
-              <label>Tag</label>
-              <div className="tag-checkboxes">
+            <section className="form-section card bg-[var(--card)] rounded-2xl border border-[var(--bordo)] p-4 mb-4">
+              <label className="block text-sm font-medium text-[var(--testo)] mb-3">Tag</label>
+              <div className="tag-checkboxes flex flex-wrap gap-2">
                 {ALL_TAGS.map(tag => (
-                  <label key={tag} className="tag-checkbox">
+                  <label key={tag} className="tag-checkbox inline-flex items-center gap-2 cursor-pointer px-3 py-1.5 rounded-full bg-[var(--bordo)] text-[var(--secondario)] hover:bg-[var(--accento)]/10 transition-all duration-150">
                     <Controller
                       name="tags"
                       control={control}
@@ -328,67 +336,70 @@ function RecipeFormComponent({ isEditing }: RecipeFormComponentProps) {
                           type="checkbox"
                           checked={field.value?.includes(tag) || false}
                           onChange={() => handleTagToggle(tag)}
+                          className="w-4 h-4 text-[var(--accento)] border-[var(--bordo)] rounded focus:ring-2 focus:ring-[var(--accento)] focus:ring-offset-2 focus:ring-offset-[var(--sfondo)]"
                         />
                       )}
                     />
-                    <span>{TAG_LABELS[tag]}</span>
+                    <span className="text-sm">{TAG_LABELS[tag]}</span>
                   </label>
                 ))}
               </div>
             </section>
 
             {/* Ingredienti */}
-            <section className="form-section card">
-              <div className="section-header">
-                <h2>Ingredienti <span className="required">*</span></h2>
-                <button type="button" className="btn-add" onClick={handleAddIngredient}>
+            <section className="form-section card bg-[var(--card)] rounded-2xl border border-[var(--bordo)] p-4 mb-4">
+              <div className="section-header flex items-center justify-between mb-4">
+                <h2 className="text-lg font-semibold text-[var(--testo)]">Ingredienti <span className="text-[var(--accento)]">*</span></h2>
+                <Button variant="secondary" size="sm" onClick={handleAddIngredient} className="gap-2">
                   <Plus size={18} /> Aggiungi
-                </button>
+                </Button>
               </div>
 
-              {errors.ingredienti && <span className="field-error">{errors.ingredienti.message}</span>}
+              {errors.ingredienti && <p className="field-error text-sm text-[var(--accento)] mb-3">{errors.ingredienti.message}</p>}
 
-              <ul className="form-array">
+              <ul className="form-array space-y-4">
                 {ingredientFields.map((field, index) => (
-                  <li key={field.id} className="array-item ingredient-row">
+                  <li key={field.id} className="array-item ingredient-row flex gap-3 p-4 bg-[var(--sfondo)] rounded-xl">
                     <button
                       type="button"
-                      className="drag-handle"
+                      className="drag-handle flex items-center justify-center p-2 text-[var(--secondario)] hover:text-[var(--testo)] hover:bg-[var(--bordo)] rounded-lg transition-colors touch-manipulation"
                       onMouseDown={e => { e.preventDefault(); }}
                       aria-label="Trascina per riordinare"
                     >
                       <GripVertical size={18} />
                     </button>
 
-                    <div className="ingredient-fields">
+                    <div className="ingredient-fields flex-1 flex flex-col sm:flex-row gap-3 min-w-0">
                       <div className="form-field flex-1">
-                        <label htmlFor={`ing-${index}-nome`}>Nome *</label>
-                        <div className="autocomplete-wrapper">
+                        <label htmlFor={`ing-${index}-nome`} className="block text-sm font-medium text-[var(--testo)] mb-1">Nome <span className="text-[var(--accento)]">*</span></label>
+                        <div className="autocomplete-wrapper relative">
                           <input
                             id={`ing-${index}-nome`}
                             type="text"
                             placeholder="Es. spaghetti"
                             {...register(`ingredienti.${index}.nome`)}
-                            className={clsx('form-input', errors.ingredienti?.[index]?.nome && 'error')}
+                            className={clsx('form-input w-full px-4 py-3 rounded-xl border border-[var(--bordo)] bg-[var(--card)] text-[var(--testo)] placeholder-[var(--secondario)] focus:outline-none focus:ring-2 focus:ring-[var(--accento)] focus:border-transparent transition-all duration-150 pr-12', errors.ingredienti?.[index]?.nome && 'border-[var(--accento)]')}
                             onFocus={() => setShowAutocomplete(`ing-${index}`)}
                             onBlur={() => setTimeout(() => setShowAutocomplete(null), 200)}
                             autoComplete="off"
                           />
                           {showAutocomplete === `ing-${index}` && (
-                            <ul className="autocomplete-dropdown">
+                            <ul className="autocomplete-dropdown absolute z-10 top-full left-0 right-0 mt-1 bg-[var(--card)] border border-[var(--bordo)] rounded-xl shadow-lg overflow-hidden max-h-60 overflow-y-auto">
                               {filteredIngredients(watch(`ingredienti.${index}.nome`) || '').map((ing, i) => (
-                                <li key={i} onClick={() => handleIngredientSelect(index, ing)}>{ing}</li>
+                                <li key={i} onClick={() => handleIngredientSelect(index, ing)} className="px-4 py-3 hover:bg-[var(--bordo)] cursor-pointer text-[var(--testo)] border-b border-[var(--bordo)] last:border-0">
+                                  {ing}
+                                </li>
                               ))}
                             </ul>
                           )}
                         </div>
                         {errors.ingredienti?.[index]?.nome && (
-                          <span className="field-error">{errors.ingredienti[index].nome.message}</span>
+                          <p className="field-error text-sm text-[var(--accento)] mt-1">{errors.ingredienti[index].nome.message}</p>
                         )}
                       </div>
 
-                      <div className="form-field qty-field">
-                        <label>Quantità</label>
+                      <div className="form-field qty-field w-full sm:w-[100px]">
+                        <label className="block text-sm font-medium text-[var(--testo)] mb-1">Quantità</label>
                         <Controller
                           name={`ingredienti.${index}.quantita`}
                           control={control}
@@ -403,241 +414,249 @@ function RecipeFormComponent({ isEditing }: RecipeFormComponentProps) {
                                 const num = parseFloat(val.replace(',', '.'))
                                 field.onChange(isNaN(num) ? val : num)
                               }}
-                              className="form-input"
+                              className="form-input w-full px-4 py-3 rounded-xl border border-[var(--bordo)] bg-[var(--card)] text-[var(--testo)] placeholder-[var(--secondario)] focus:outline-none focus:ring-2 focus:ring-[var(--accento)] focus:border-transparent transition-all duration-150"
                             />
                           )}
                         />
                       </div>
 
-                      <div className="form-field unit-field">
-                        <label>Unità</label>
-                        <select {...register(`ingredienti.${index}.unita`)} className="form-select">
+                      <div className="form-field unit-field w-full sm:w-[100px]">
+                        <label className="block text-sm font-medium text-[var(--testo)] mb-1">Unità</label>
+                        <select {...register(`ingredienti.${index}.unita`)} className="form-select w-full px-4 py-3 rounded-xl border border-[var(--bordo)] bg-[var(--card)] text-[var(--testo)] focus:outline-none focus:ring-2 focus:ring-[var(--accento)] focus:border-transparent transition-all duration-150 appearance-none">
                           <option value="">—</option>
                           {COMMON_UNITS.map(u => <option key={u} value={u}>{u}</option>)}
                         </select>
                       </div>
 
-                      <div className="form-field">
-                        <label>Gruppo</label>
-                        <select {...register(`ingredienti.${index}.gruppo`)} className="form-select">
+                      <div className="form-field w-full sm:w-[120px]">
+                        <label className="block text-sm font-medium text-[var(--testo)] mb-1">Gruppo</label>
+                        <select {...register(`ingredienti.${index}.gruppo`)} className="form-select w-full px-4 py-3 rounded-xl border border-[var(--bordo)] bg-[var(--card)] text-[var(--testo)] focus:outline-none focus:ring-2 focus:ring-[var(--accento)] focus:border-transparent transition-all duration-150 appearance-none">
                           <option value="">—</option>
                           {COMMON_GROUPS.map(g => <option key={g} value={g}>{g}</option>)}
                         </select>
                       </div>
 
-                      <button
-                        type="button"
-                        className="btn-remove"
+                      <Button
+                        variant="ghost"
+                        size="sm"
                         onClick={() => removeIngredient(index)}
                         aria-label="Rimuovi ingrediente"
+                        className="flex-shrink-0 self-end mb-1"
                       >
                         <Trash2 size={18} />
-                      </button>
+                      </Button>
                     </div>
                   </li>
                 ))}
               </ul>
 
               {ingredientFields.length === 0 && (
-                <p className="empty-hint">Nessun ingrediente. Clicca "Aggiungi" per iniziare.</p>
+                <p className="empty-hint text-center text-[var(--secondario)] py-8">Nessun ingrediente. Clicca "Aggiungi" per iniziare.</p>
               )}
             </section>
 
             {/* Passaggi */}
-            <section className="form-section card">
-              <div className="section-header">
-                <h2>Passaggi <span className="required">*</span></h2>
-                <button type="button" className="btn-add" onClick={handleAddStep}>
+            <section className="form-section card bg-[var(--card)] rounded-2xl border border-[var(--bordo)] p-4 mb-4">
+              <div className="section-header flex items-center justify-between mb-4">
+                <h2 className="text-lg font-semibold text-[var(--testo)]">Passaggi <span className="text-[var(--accento)]">*</span></h2>
+                <Button variant="secondary" size="sm" onClick={handleAddStep} className="gap-2">
                   <Plus size={18} /> Aggiungi
-                </button>
+                </Button>
               </div>
 
-              {errors.passaggi && <span className="field-error">{errors.passaggi.message}</span>}
+              {errors.passaggi && <p className="field-error text-sm text-[var(--accento)] mb-3">{errors.passaggi.message}</p>}
 
-              <ol className="form-array steps-array">
+              <ol className="form-array steps-array space-y-4">
                 {stepFields.map((field, index) => (
-                  <li key={field.id} className="array-item step-row">
+                  <li key={field.id} className="array-item step-row flex gap-3 p-4 bg-[var(--sfondo)] rounded-xl">
                     <button
                       type="button"
-                      className="drag-handle"
+                      className="drag-handle flex items-center justify-center p-2 text-[var(--secondario)] hover:text-[var(--testo)] hover:bg-[var(--bordo)] rounded-lg transition-colors touch-manipulation"
                       onMouseDown={e => { e.preventDefault(); }}
                       aria-label="Trascina per riordinare"
                     >
                       <GripVertical size={18} />
                     </button>
 
-                    <div className="step-fields">
-                      <span className="step-index">{index + 1}.</span>
+                    <div className="step-fields flex-1 flex flex-col gap-4 min-w-0">
+                      <div className="flex items-start gap-3">
+                        <span className="step-index text-lg font-bold text-[var(--accento)] flex-shrink-0 mt-1 w-8 text-right">{index + 1}.</span>
 
-                      <div className="form-field flex-1">
-                        <label htmlFor={`step-${index}-titolo`}>Titolo (opzionale)</label>
-                        <input
-                          id={`step-${index}-titolo`}
-                          type="text"
-                          placeholder="Es. Preparazione impasto"
-                          {...register(`passaggi.${index}.titolo`)}
-                          className="form-input"
-                        />
+                        <div className="form-field flex-1">
+                          <label htmlFor={`step-${index}-titolo`} className="block text-sm font-medium text-[var(--testo)] mb-1">Titolo (opzionale)</label>
+                          <input
+                            id={`step-${index}-titolo`}
+                            type="text"
+                            placeholder="Es. Preparazione impasto"
+                            {...register(`passaggi.${index}.titolo`)}
+                            className="form-input w-full px-4 py-3 rounded-xl border border-[var(--bordo)] bg-[var(--card)] text-[var(--testo)] placeholder-[var(--secondario)] focus:outline-none focus:ring-2 focus:ring-[var(--accento)] focus:border-transparent transition-all duration-150"
+                          />
+                        </div>
                       </div>
 
-                      <div className="form-field flex-1">
-                        <label htmlFor={`step-${index}-testo`}>Testo *</label>
+                      <div className="form-field">
+                        <label htmlFor={`step-${index}-testo`} className="block text-sm font-medium text-[var(--testo)] mb-1">Testo <span className="text-[var(--accento)]">*</span></label>
                         <textarea
                           id={`step-${index}-testo`}
                           rows={3}
                           placeholder="Descrizione del passaggio..."
                           {...register(`passaggi.${index}.testo`)}
-                          className={clsx('form-textarea', errors.passaggi?.[index]?.testo && 'error')}
+                          className={clsx('form-textarea w-full px-4 py-3 rounded-xl border border-[var(--bordo)] bg-[var(--card)] text-[var(--testo)] placeholder-[var(--secondario)] focus:outline-none focus:ring-2 focus:ring-[var(--accento)] focus:border-transparent transition-all duration-150 resize-y', errors.passaggi?.[index]?.testo && 'border-[var(--accento)]')}
                         />
                         {errors.passaggi?.[index]?.testo && (
-                          <span className="field-error">{errors.passaggi[index].testo.message}</span>
+                          <p className="field-error text-sm text-[var(--accento)] mt-1">{errors.passaggi[index].testo.message}</p>
                         )}
                       </div>
 
                       <div className="form-field video-field">
-                        <label htmlFor={`step-${index}-video`}>Video: secondo (opzionale)</label>
+                        <label htmlFor={`step-${index}-video`} className="block text-sm font-medium text-[var(--testo)] mb-1">Video: secondo (opzionale)</label>
                         <input
                           id={`step-${index}-video`}
                           type="number"
                           min="0"
                           placeholder="Es. 45"
                           {...register(`passaggi.${index}.video_secondi`, { valueAsNumber: true })}
-                          className={clsx('form-input', errors.passaggi?.[index]?.video_secondi && 'error')}
+                          className={clsx('form-input w-full px-4 py-3 rounded-xl border border-[var(--bordo)] bg-[var(--card)] text-[var(--testo)] placeholder-[var(--secondario)] focus:outline-none focus:ring-2 focus:ring-[var(--accento)] focus:border-transparent transition-all duration-150', errors.passaggi?.[index]?.video_secondi && 'border-[var(--accento)]')}
                         />
                         {errors.passaggi?.[index]?.video_secondi && (
-                          <span className="field-error">{errors.passaggi[index].video_secondi.message}</span>
+                          <p className="field-error text-sm text-[var(--accento)] mt-1">{errors.passaggi[index].video_secondi.message}</p>
                         )}
-                        <p className="form-hint">Secondo nel video della fonte (richiede URL fonte nella ricetta)</p>
+                        <p className="form-hint text-xs text-[var(--secondario)] mt-1">Secondo nel video della fonte (richiede URL fonte nella ricetta)</p>
                       </div>
 
-                      <button
-                        type="button"
-                        className="btn-remove"
+                      <Button
+                        variant="ghost"
+                        size="sm"
                         onClick={() => removeStep(index)}
                         aria-label="Rimuovi passaggio"
+                        className="self-end"
                       >
                         <Trash2 size={18} />
-                      </button>
+                      </Button>
                     </div>
                   </li>
                 ))}
               </ol>
 
               {stepFields.length === 0 && (
-                <p className="empty-hint">Nessun passaggio. Clicca "Aggiungi" per iniziare.</p>
+                <p className="empty-hint text-center text-[var(--secondario)] py-8">Nessun passaggio. Clicca "Aggiungi" per iniziare.</p>
               )}
             </section>
 
             {/* Varianti */}
-            <section className="form-section card">
-              <div className="section-header">
-                <label>Varianti (opzionale)</label>
-                <button type="button" className="btn-add" onClick={handleAddVariant}>
+            <section className="form-section card bg-[var(--card)] rounded-2xl border border-[var(--bordo)] p-4 mb-4">
+              <div className="section-header flex items-center justify-between mb-4">
+                <label className="text-lg font-semibold text-[var(--testo)]">Varianti (opzionale)</label>
+                <Button variant="secondary" size="sm" onClick={handleAddVariant} className="gap-2">
                   <Plus size={18} /> Aggiungi
-                </button>
+                </Button>
               </div>
 
-              <ol className="form-array variants-array">
+              <ol className="form-array variants-array space-y-4">
                 {variantFields.map((field, index) => (
-                  <li key={field.id} className="array-item variant-row">
+                  <li key={field.id} className="array-item variant-row flex gap-3 p-4 bg-[var(--sfondo)] rounded-xl">
                     <button
                       type="button"
-                      className="drag-handle"
+                      className="drag-handle flex items-center justify-center p-2 text-[var(--secondario)] hover:text-[var(--testo)] hover:bg-[var(--bordo)] rounded-lg transition-colors touch-manipulation"
                       onMouseDown={e => { e.preventDefault(); }}
                       aria-label="Trascina per riordinare"
                     >
                       <GripVertical size={18} />
                     </button>
 
-                    <div className="variant-fields">
+                    <div className="variant-fields flex-1 flex flex-col gap-4 min-w-0">
                       <div className="form-field flex-1">
-                        <label htmlFor={`variant-${index}-titolo`}>Titolo *</label>
+                        <label htmlFor={`variant-${index}-titolo`} className="block text-sm font-medium text-[var(--testo)] mb-1">Titolo <span className="text-[var(--accento)]">*</span></label>
                         <input
                           id={`variant-${index}-titolo`}
                           type="text"
                           placeholder="Es. Versione vegetariana"
                           {...register(`varianti.${index}.titolo`)}
-                          className={clsx('form-input', errors.varianti?.[index]?.titolo && 'error')}
+                          className={clsx('form-input w-full px-4 py-3 rounded-xl border border-[var(--bordo)] bg-[var(--card)] text-[var(--testo)] placeholder-[var(--secondario)] focus:outline-none focus:ring-2 focus:ring-[var(--accento)] focus:border-transparent transition-all duration-150', errors.varianti?.[index]?.titolo && 'border-[var(--accento)]')}
                         />
                         {errors.varianti?.[index]?.titolo && (
-                          <span className="field-error">{errors.varianti[index].titolo.message}</span>
+                          <p className="field-error text-sm text-[var(--accento)] mt-1">{errors.varianti[index].titolo.message}</p>
                         )}
                       </div>
 
                       <div className="form-field flex-1">
-                        <label htmlFor={`variant-${index}-testo`}>Testo *</label>
+                        <label htmlFor={`variant-${index}-testo`} className="block text-sm font-medium text-[var(--testo)] mb-1">Testo <span className="text-[var(--accento)]">*</span></label>
                         <textarea
                           id={`variant-${index}-testo`}
                           rows={2}
                           placeholder="Descrizione della variante..."
                           {...register(`varianti.${index}.testo`)}
-                          className={clsx('form-textarea', errors.varianti?.[index]?.testo && 'error')}
+                          className={clsx('form-textarea w-full px-4 py-3 rounded-xl border border-[var(--bordo)] bg-[var(--card)] text-[var(--testo)] placeholder-[var(--secondario)] focus:outline-none focus:ring-2 focus:ring-[var(--accento)] focus:border-transparent transition-all duration-150 resize-y', errors.varianti?.[index]?.testo && 'border-[var(--accento)]')}
                         />
                         {errors.varianti?.[index]?.testo && (
-                          <span className="field-error">{errors.varianti[index].testo.message}</span>
+                          <p className="field-error text-sm text-[var(--accento)] mt-1">{errors.varianti[index].testo.message}</p>
                         )}
                       </div>
 
                       <div className="form-field video-field">
-                        <label htmlFor={`variant-${index}-video`}>Video: secondo (opzionale)</label>
+                        <label htmlFor={`variant-${index}-video`} className="block text-sm font-medium text-[var(--testo)] mb-1">Video: secondo (opzionale)</label>
                         <input
                           id={`variant-${index}-video`}
                           type="number"
                           min="0"
                           placeholder="Es. 120"
                           {...register(`varianti.${index}.video_secondi`, { valueAsNumber: true })}
-                          className={clsx('form-input', errors.varianti?.[index]?.video_secondi && 'error')}
+                          className={clsx('form-input w-full px-4 py-3 rounded-xl border border-[var(--bordo)] bg-[var(--card)] text-[var(--testo)] placeholder-[var(--secondario)] focus:outline-none focus:ring-2 focus:ring-[var(--accento)] focus:border-transparent transition-all duration-150', errors.varianti?.[index]?.video_secondi && 'border-[var(--accento)]')}
                         />
                         {errors.varianti?.[index]?.video_secondi && (
-                          <span className="field-error">{errors.varianti[index].video_secondi.message}</span>
+                          <p className="field-error text-sm text-[var(--accento)] mt-1">{errors.varianti[index].video_secondi.message}</p>
                         )}
-                        <p className="form-hint">Secondo nel video della fonte</p>
+                        <p className="form-hint text-xs text-[var(--secondario)] mt-1">Secondo nel video della fonte</p>
                       </div>
 
-                      <button
-                        type="button"
-                        className="btn-remove"
+                      <Button
+                        variant="ghost"
+                        size="sm"
                         onClick={() => removeVariant(index)}
                         aria-label="Rimuovi variante"
+                        className="self-end"
                       >
                         <Trash2 size={18} />
-                      </button>
+                      </Button>
                     </div>
                   </li>
                 ))}
               </ol>
 
               {variantFields.length === 0 && (
-                <p className="empty-hint">Nessuna variante. Clicca "Aggiungi" per iniziare.</p>
+                <p className="empty-hint text-center text-[var(--secondario)] py-8">Nessuna variante. Clicca "Aggiungi" per iniziare.</p>
               )}
             </section>
 
             {/* Note */}
-            <section className="form-section card">
-              <label>Note (opzionale)</label>
+            <section className="form-section card bg-[var(--card)] rounded-2xl border border-[var(--bordo)] p-4 mb-4">
+              <label className="block text-sm font-medium text-[var(--testo)] mb-2">Note (opzionale)</label>
               <textarea
                 {...register('note')}
                 placeholder="Note, consigli, abbinamenti..."
                 rows={3}
-                className="form-textarea"
+                className="form-textarea w-full px-4 py-3 rounded-xl border border-[var(--bordo)] bg-[var(--sfondo)] text-[var(--testo)] placeholder-[var(--secondario)] focus:outline-none focus:ring-2 focus:ring-[var(--accento)] focus:border-transparent transition-all duration-150 resize-y"
               />
             </section>
           </>
         )}
 
         {/* Pulsanti salvataggio */}
-        <footer className="form-footer">
-          <button type="button" className="btn-secondary" onClick={() => navigate(-1)}>
-            Annulla
-          </button>
-          <button
-            type="submit"
-            className="btn-primary"
-            disabled={!isValid || saving || !user}
-          >
-            {saving ? <Loader2 size={18} className="spin" /> : <CheckCircle size={18} />}
-            {isEditing ? 'Salva modifiche' : 'Crea ricetta'}
-          </button>
+        <footer className="form-footer fixed bottom-0 left-0 right-0 bg-[var(--sfondo)]/95 backdrop-blur supports-[backdrop-filter]:bg-[var(--sfondo)]/80 border-t border-[var(--bordo)] p-4 pb-safe max-w-[720px] mx-auto" style={{ paddingBottom: 'calc(env(safe-area-inset-bottom, 0px) + 1rem)' }}>
+          <div className="flex items-center justify-between gap-4">
+            <Button variant="secondary" onClick={() => navigate(-1)} className="flex-1">
+              Annulla
+            </Button>
+            <Button
+              variant="primary"
+              type="submit"
+              disabled={!isValid || saving || !user}
+              className="flex-1 gap-2"
+            >
+              {saving ? <Loader2 size={18} className="animate-spin" /> : <CheckCircle size={18} />}
+              {isEditing ? 'Salva modifiche' : 'Crea ricetta'}
+            </Button>
+          </div>
         </footer>
 
         {/* AI Import placeholder - FASE C */}

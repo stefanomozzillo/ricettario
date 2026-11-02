@@ -1,22 +1,26 @@
 /**
  * Pagina Dettaglio Ricetta con modalità cucina, scaling porzioni, ingredienti spuntabili
+ * Usa componenti condivisi: Header, Button, Badge
  */
 
 import { useState, useEffect, useMemo, useCallback } from 'react'
 import { useParams, useNavigate, Link } from 'react-router-dom'
 import {
-  ChevronLeft, Clock, Users, Tag, Heart, AlertCircle,
+  Clock, Users, Tag, Heart, AlertCircle,
   ChefHat, X, Check, ChevronUp, ChevronDown,
-  Plus, Minus, Edit, Trash2, MessageSquare, Loader2
+  Plus, Minus, Edit, MessageSquare
 } from 'lucide-react'
 import { clsx } from 'clsx'
 import { useAuth } from '../contexts/AuthContext'
-import { getRecipeById, incrementRecipeMade, deleteRecipe } from '../lib/supabase'
+import { getRecipeById, incrementRecipeMade } from '../lib/supabase'
 import {
   CATEGORIE_LABELS, MOOD_LABELS, STATO_LABELS,
   GRUPPI_INGREDIENTI, type Mood
 } from '../lib/config'
 import { type Ingrediente, type Passaggio, type Variante, normalizeRecipeFromDb } from '../lib/types'
+import { Header } from '../components/Header'
+import { Button } from '../components/Button'
+import { Badge } from '../components/Badge'
 
 interface RecipeDetailData {
   id: string
@@ -58,7 +62,6 @@ export function RecipeDetail() {
   const [cookingMode, setCookingMode] = useState(false)
   const [currentStep, setCurrentStep] = useState(0)
   const [checkedIngredients, setCheckedIngredients] = useState<Set<string>>(new Set())
-  const [deleting, setDeleting] = useState(false)
 
   const isAuthorized = user !== null
 
@@ -168,21 +171,6 @@ export function RecipeDetail() {
     }
   }
 
-  const handleDelete = async () => {
-    if (!recipe || !isAuthorized) return
-    if (!window.confirm('Eliminare definitivamente questa ricetta?')) return
-    setDeleting(true)
-    try {
-      await deleteRecipe(recipe.id)
-      navigate('/')
-    } catch (err) {
-      console.error('Errore eliminazione:', err)
-      alert('Errore durante l\'eliminazione')
-    } finally {
-      setDeleting(false)
-    }
-  }
-
   const formatDate = (dateStr: string | null) => {
     if (!dateStr) return ''
     return new Date(dateStr).toLocaleDateString('it-IT', {
@@ -193,18 +181,15 @@ export function RecipeDetail() {
   if (loading) {
     return (
       <div className="page-container detail-page">
-        <header className="detail-header">
-          <button className="btn-back" aria-label="Indietro"><ChevronLeft size={24} /></button>
-          <div className="loading-skeleton">
-            <div className="skeleton-line" style={{ width: '60%' }} />
-            <div className="skeleton-line" style={{ width: '40%' }} />
-          </div>
-        </header>
+        <Header title="Caricamento..." />
         <main className="detail-content">
-          <div className="skeleton-card">
-            <div className="skeleton-line" style={{ width: '80%' }} />
-            <div className="skeleton-line" style={{ width: '50%' }} />
-            <div className="skeleton-line" style={{ width: '70%' }} />
+          <div className="loading-skeleton space-y-4">
+            <div className="skeleton-card bg-[var(--card)] rounded-2xl border border-[var(--bordo)] p-4 animate-pulse">
+              <div className="h-6 w-3/4 bg-[var(--bordo)] rounded mb-2" />
+              <div className="h-4 w-1/2 bg-[var(--bordo)] rounded mb-3" />
+              <div className="h-4 w-1/3 bg-[var(--bordo)] rounded mb-3" />
+              <div className="h-4 w-1/4 bg-[var(--bordo)] rounded" />
+            </div>
           </div>
         </main>
       </div>
@@ -214,14 +199,12 @@ export function RecipeDetail() {
   if (error || !recipe) {
     return (
       <div className="page-container detail-page">
-        <header className="detail-header">
-          <button className="btn-back" onClick={() => navigate(-1)} aria-label="Indietro"><ChevronLeft size={24} /></button>
-        </header>
+        <Header title="Errore" />
         <main className="detail-content">
-          <div className="error-state card">
-            <AlertCircle size={48} />
-            <h2>{error || 'Ricetta non trovata'}</h2>
-            <button className="btn-primary" onClick={() => navigate('/')}>Torna all'elenco</button>
+          <div className="error-state card bg-[var(--card)] rounded-2xl border border-[var(--bordo)] p-8 text-center">
+            <AlertCircle size={48} className="mx-auto mb-4 text-[var(--accento)]" />
+            <h2 className="text-xl font-semibold text-[var(--testo)] mb-2">{error || 'Ricetta non trovata'}</h2>
+            <Button variant="primary" onClick={() => navigate('/')}>Torna all'elenco</Button>
           </div>
         </main>
       </div>
@@ -230,102 +213,95 @@ export function RecipeDetail() {
 
   const moodLabel = recipe.mood && recipe.mood in MOOD_LABELS ? MOOD_LABELS[recipe.mood as Mood] : '—'
   const categoriaLabel = recipe.categoria ? CATEGORIE_LABELS[recipe.categoria as keyof typeof CATEGORIE_LABELS] : '—'
-  // const tags = recipe.tags || [] // unused
   const passaggi = recipe.passaggi || []
 
   return (
     <div className="page-container detail-page">
-      {/* Header */}
-      <header className="detail-header">
-        <button className="btn-back" onClick={() => navigate(-1)} aria-label="Indietro">
-          <ChevronLeft size={24} />
-        </button>
-        <div className="header-info">
-          <h1>{recipe.titolo}</h1>
-          <div className="recipe-meta-inline">
-            {recipe.categoria && (
-              <span className="meta-chip"><Tag size={14} /> {categoriaLabel}</span>
-            )}
-            {recipe.mood && (
-              <span className="meta-chip"><Heart size={14} /> {moodLabel}</span>
-            )}
-            {recipe.stato === 'da_completare' && (
-              <span className="meta-chip warning"><AlertCircle size={14} /> {STATO_LABELS.da_completare}</span>
-            )}
-          </div>
+      {/* Header con azioni */}
+      <Header title={recipe.titolo}>
+        <div className="flex items-center gap-2">
+          {recipe.categoria && (
+            <Badge variant="tag">
+              <Tag size={12} className="mr-1" /> {categoriaLabel}
+            </Badge>
+          )}
+          {recipe.mood && (
+            <Badge variant="mood">
+              <Heart size={12} className="mr-1" /> {moodLabel}
+            </Badge>
+          )}
+          {recipe.stato === 'da_completare' && (
+            <Badge variant="stato">
+              <AlertCircle size={12} className="mr-1" /> {STATO_LABELS.da_completare}
+            </Badge>
+          )}
         </div>
-        {isAuthorized && (
-          <div className="header-actions">
-            <Link to={`/edit/${recipe.id}`} className="btn-icon" aria-label="Modifica">
-              <Edit size={20} />
-            </Link>
-            <button className="btn-icon danger" onClick={handleDelete} disabled={deleting} aria-label="Elimina">
-              {deleting ? <Loader2 size={20} className="spin" /> : <Trash2 size={20} />}
-            </button>
-          </div>
-        )}
-      </header>
+      </Header>
 
-      <main className="detail-content">
+      <main className="detail-content max-w-[720px] mx-auto px-4 pb-24">
         {/* Info principali */}
-        <section className="card detail-info">
-          <div className="info-grid">
+        <section className="card bg-[var(--card)] rounded-2xl border border-[var(--bordo)] p-4 mb-4">
+          <div className="grid grid-cols-2 gap-4 mb-4">
             {recipe.tempo_minuti && (
-              <div className="info-item">
-                <Clock size={20} />
+              <div className="info-item flex items-center gap-2 p-3 bg-[var(--sfondo)] rounded-xl">
+                <Clock size={20} className="text-[var(--accento)]" />
                 <div>
-                  <span className="info-label">Tempo</span>
-                  <span className="info-value">{recipe.tempo_minuti} min</span>
+                  <p className="text-xs text-[var(--secondario)]">Tempo</p>
+                  <p className="font-medium text-[var(--testo)]">{recipe.tempo_minuti} min</p>
                 </div>
               </div>
             )}
             {recipe.porzioni && (
-              <div className="info-item">
-                <Users size={20} />
-                <div>
-                  <span className="info-label">Porzioni</span>
-                  <span className="info-value">
-                    <div className="porzioni-control">
-                      <button className="btn-porzioni" onClick={() => handlePorzioniChange(-1)} aria-label="Meno porzioni"><Minus size={16} /></button>
-                      <span className="porzioni-value">{porzioni} {recipe.porzioni_unita || 'porzioni'}</span>
-                      <button className="btn-porzioni" onClick={() => handlePorzioniChange(1)} aria-label="Più porzioni"><Plus size={16} /></button>
-                    </div>
-                  </span>
+              <div className="info-item flex items-center gap-2 p-3 bg-[var(--sfondo)] rounded-xl">
+                <Users size={20} className="text-[var(--accento)]" />
+                <div className="flex items-center gap-2">
+                  <p className="text-xs text-[var(--secondario)]">Porzioni</p>
+                  <div className="flex items-center gap-2 bg-[var(--card)] border border-[var(--bordo)] rounded-lg px-2 py-1">
+                    <Button variant="ghost" size="sm" onClick={() => handlePorzioniChange(-1)} aria-label="Meno porzioni">
+                      <Minus size={16} />
+                    </Button>
+                    <span className="font-medium text-[var(--testo)] min-w-[3rem] text-center">{porzioni} {recipe.porzioni_unita || 'porzioni'}</span>
+                    <Button variant="ghost" size="sm" onClick={() => handlePorzioniChange(1)} aria-label="Più porzioni">
+                      <Plus size={16} />
+                    </Button>
+                  </div>
                 </div>
-              </div>
-            )}
-            {recipe.autore && (
-              <div className="info-item full-width">
-                <span className="info-label">Autore</span>
-                <span className="info-value">{recipe.autore}</span>
-              </div>
-            )}
-            {recipe.volte_fatta && recipe.volte_fatta > 0 && (
-              <div className="info-item full-width">
-                <span className="info-label">Fatta {recipe.volte_fatta} volte</span>
-                <span className="info-value">Ultima: {formatDate(recipe.ultima_volta)}</span>
               </div>
             )}
           </div>
 
+          {recipe.autore && (
+            <div className="info-item flex items-center gap-2 p-3 bg-[var(--sfondo)] rounded-xl mb-4">
+              <span className="text-xs text-[var(--secondario)]">Autore</span>
+              <span className="font-medium text-[var(--testo)] ml-auto">{recipe.autore}</span>
+            </div>
+          )}
+
+          {recipe.volte_fatta && recipe.volte_fatta > 0 && (
+            <div className="info-item flex items-center gap-2 p-3 bg-[var(--sfondo)] rounded-xl mb-4">
+              <span className="text-xs text-[var(--secondario)]">Fatta {recipe.volte_fatta} volte</span>
+              <span className="font-medium text-[var(--testo)] ml-auto">Ultima: {formatDate(recipe.ultima_volta)}</span>
+            </div>
+          )}
+
           {recipe.descrizione && (
-            <div className="note-section">
-              <h3>Descrizione</h3>
-              <p>{recipe.descrizione}</p>
+            <div className="note-section mb-4">
+              <h3 className="text-sm font-semibold text-[var(--testo)] mb-2">Descrizione</h3>
+              <p className="text-[var(--secondario)] text-sm">{recipe.descrizione}</p>
             </div>
           )}
 
           {recipe.varianti && recipe.varianti.length > 0 && (
-            <div className="varianti-section">
-              <h3>Varianti</h3>
-              <ul>
+            <div className="varianti-section mb-4">
+              <h3 className="text-sm font-semibold text-[var(--testo)] mb-2">Varianti</h3>
+              <ul className="space-y-2">
                 {recipe.varianti.map((v, i) => (
-                  <li key={i} className="variante-item">
-                    {v.titolo && <strong>{v.titolo}: </strong>}
+                  <li key={i} className="variante-item text-sm text-[var(--secondario)]">
+                    {v.titolo && <strong className="text-[var(--testo)]">{v.titolo}: </strong>}
                     <span>{v.testo}</span>
                     {v.video_secondi && recipe.fonte_url && (
-                      <a href={recipe.fonte_url} target="_blank" rel="noopener noreferrer" className="btn-video-link">
-                        <MessageSquare size={16} /> Guarda nel video al {v.video_secondi}s
+                      <a href={recipe.fonte_url} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 text-[var(--accento)] text-xs mt-1 hover:underline">
+                        <MessageSquare size={14} /> Guarda nel video al {v.video_secondi}s
                       </a>
                     )}
                   </li>
@@ -335,17 +311,17 @@ export function RecipeDetail() {
           )}
 
           {recipe.note && (
-            <div className="note-section">
-              <h3>Note</h3>
-              <p>{recipe.note}</p>
+            <div className="note-section mb-4">
+              <h3 className="text-sm font-semibold text-[var(--testo)] mb-2">Note</h3>
+              <p className="text-[var(--secondario)] text-sm">{recipe.note}</p>
             </div>
           )}
 
           {recipe.fonte_url && (
             <div className="note-section">
-              <h3>Fonte</h3>
-              <a href={recipe.fonte_url} target="_blank" rel="noopener noreferrer" className="btn-video-link">
-                <MessageSquare size={18} /> {recipe.fonte_url}
+              <h3 className="text-sm font-semibold text-[var(--testo)] mb-2">Fonte</h3>
+              <a href={recipe.fonte_url} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 text-[var(--accento)] text-sm hover:underline">
+                <MessageSquare size={16} /> {recipe.fonte_url}
               </a>
             </div>
           )}
@@ -353,46 +329,52 @@ export function RecipeDetail() {
 
         {/* Pulsante "Completa" per ricette da completare */}
         {recipe.stato === 'da_completare' && isAuthorized && (
-          <section className="card detail-actions">
-            <Link to={`/edit/${recipe.id}`} className="btn-primary" style={{ width: '100%', textAlign: 'center', display: 'block' }}>
-              <Edit size={20} /> Completa questa ricetta
+          <section className="card bg-[var(--card)] rounded-2xl border border-[var(--bordo)] p-4 mb-4">
+            <Link to={`/edit/${recipe.id}`}>
+              <Button variant="primary" className="w-full" size="lg">
+                <Edit size={20} className="mr-2" /> Completa questa ricetta
+              </Button>
             </Link>
           </section>
         )}
 
         {/* Ingredienti */}
-        <section className="card detail-ingredients">
-          <div className="section-header">
-            <h2>Ingredienti</h2>
+        <section className="card bg-[var(--card)] rounded-2xl border border-[var(--bordo)] p-4 mb-4">
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-lg font-semibold text-[var(--testo)]">Ingredienti</h2>
             {Object.keys(groupedIngredients).length > 0 && (
-              <button
-                className={clsx('btn-clear-checked', checkedIngredients.size > 0 && 'has-checked')}
+              <Button
+                variant="ghost"
+                size="sm"
                 onClick={() => setCheckedIngredients(new Set())}
+                className={clsx(checkedIngredients.size > 0 && 'text-[var(--accento)]')}
               >
                 {checkedIngredients.size > 0 ? `Deseleziona tutto (${checkedIngredients.size})` : 'Deseleziona tutto'}
-              </button>
+              </Button>
             )}
           </div>
 
           {Object.entries(groupedIngredients).map(([gruppo, ingredients]) => (
-            <div key={gruppo} className="ingredient-group">
-              <h3 className="group-title">{(GRUPPI_INGREDIENTI as readonly string[]).includes(gruppo) ? gruppo.charAt(0).toUpperCase() + gruppo.slice(1) : gruppo}</h3>
-              <ul className="ingredients-list">
+            <div key={gruppo} className="ingredient-group mb-4">
+              <h3 className="group-title text-sm font-semibold text-[var(--secondario)] uppercase tracking-wider mb-2 pb-2 border-b border-[var(--bordo)]">
+                {(GRUPPI_INGREDIENTI as readonly string[]).includes(gruppo) ? gruppo.charAt(0).toUpperCase() + gruppo.slice(1) : gruppo}
+              </h3>
+              <ul className="ingredients-list space-y-2">
                 {ingredients.map(ing => (
-                  <li key={`${ing.nome}-${ing.unita}-${ing.gruppo}`} className="ingredient-item">
-                    <label className="ingredient-checkbox">
+                  <li key={`${ing.nome}-${ing.unita}-${ing.gruppo}`} className="ingredient-item flex items-start gap-3 p-3 bg-[var(--sfondo)] rounded-xl">
+                    <label className="ingredient-checkbox flex items-center justify-center">
                       <input
                         type="checkbox"
                         checked={checkedIngredients.has(ing.nome)}
                         onChange={() => handleIngredientToggle(ing.nome)}
+                        className="w-5 h-5 rounded border-[var(--bordo)] text-[var(--accento)] focus:ring-2 focus:ring-[var(--accento)] focus:ring-offset-2 focus:ring-offset-[var(--sfondo)] cursor-pointer touch-manipulation"
                       />
-                      <span className="checkmark"></span>
                     </label>
-                    <div className="ingredient-details">
-                      <span className="ingredient-name">{ing.nome}</span>
-                      <span className="ingredient-qty">{ing.quantita_scalata} {ing.unita}</span>
+                    <div className="ingredient-details flex-1 min-w-0">
+                      <p className="ingredient-name font-medium text-[var(--testo)] truncate">{ing.nome}</p>
+                      <p className="ingredient-qty text-sm text-[var(--secondario)]">{ing.quantita_scalata} {ing.unita}</p>
                     </div>
-                    {ing.note && <span className="ingredient-note">({ing.note})</span>}
+                    {ing.note && <span className="ingredient-note text-xs text-[var(--secondario)] ml-2 whitespace-nowrap">({ing.note})</span>}
                   </li>
                 ))}
               </ul>
@@ -400,71 +382,83 @@ export function RecipeDetail() {
           ))}
 
           {recipe.stato === 'da_completare' && (
-            <p className="da-completare-notice">Ricetta da completare: mancano ingredienti dettagliati e passaggi.</p>
+            <p className="da-completare-notice text-sm text-[var(--secondario)] text-center py-4">
+              Ricetta da completare: mancano ingredienti dettagliati e passaggi.
+            </p>
           )}
         </section>
 
         {/* Passaggi */}
         {recipe.stato !== 'da_completare' && passaggi.length > 0 && (
-          <section className={clsx('card detail-steps', cookingMode && 'cooking-mode')}>
-            <div className="section-header">
-              <h2>Procedimento</h2>
-              <button
-                className={clsx('btn-cooking-mode', cookingMode && 'active')}
+          <section className={clsx('card bg-[var(--card)] rounded-2xl border border-[var(--bordo)] p-4 mb-4', cookingMode && 'cooking-mode')}>
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-lg font-semibold text-[var(--testo)]">Procedimento</h2>
+              <Button
+                variant={cookingMode ? 'primary' : 'secondary'}
                 onClick={() => {
                   setCookingMode(!cookingMode)
                   if (!cookingMode) setCurrentStep(0)
                 }}
+                className="gap-2"
               >
                 <ChefHat size={18} />
                 {cookingMode ? 'Esci modalità cucina' : 'Modalità cucina'}
-              </button>
+              </Button>
             </div>
 
             {cookingMode ? (
               <div className="cooking-mode-view">
-                <div className="cooking-progress">
-                  <div className="progress-bar">
-                    <div className="progress-fill" style={{ width: `${((currentStep + 1) / passaggi.length) * 100}%` }} />
+                <div className="cooking-progress mb-6">
+                  <div className="progress-bar h-2 bg-[var(--bordo)] rounded-full overflow-hidden mb-2">
+                    <div
+                      className="progress-fill h-full bg-[var(--accento)] transition-all duration-300 ease-out"
+                      style={{ width: `${((currentStep + 1) / passaggi.length) * 100}%` }}
+                    />
                   </div>
-                  <span className="progress-text">Passaggio {currentStep + 1} di {passaggi.length}</span>
+                  <p className="progress-text text-sm text-[var(--secondario)] text-center">Passaggio {currentStep + 1} di {passaggi.length}</p>
                 </div>
-                <div className="cooking-step">
-                  {passaggi[currentStep].titolo && <h4 className="step-titolo">{passaggi[currentStep].titolo}</h4>}
-                  <p className="step-text">{passaggi[currentStep].testo}</p>
+                <div className="cooking-step text-center mb-8">
+                  {passaggi[currentStep].titolo && (
+                    <h4 className="step-titolo text-xl font-semibold text-[var(--testo)] mb-3">{passaggi[currentStep].titolo}</h4>
+                  )}
+                  <p className="step-text text-lg text-[var(--testo)] leading-relaxed mb-6">{passaggi[currentStep].testo}</p>
                   {passaggi[currentStep].video_secondi && recipe.fonte_url && (
-                    <a href={recipe.fonte_url} target="_blank" rel="noopener noreferrer" className="btn-video-link">
-                      <MessageSquare size={18} /> Guarda nel video al {passaggi[currentStep].video_secondi}s
+                    <a href={recipe.fonte_url} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 text-[var(--accento)] hover:underline">
+                      <MessageSquare size={20} /> Guarda nel video al {passaggi[currentStep].video_secondi}s
                     </a>
                   )}
                 </div>
-                <div className="cooking-nav">
-                  <button
-                    className="btn-nav"
+                <div className="cooking-nav flex items-center justify-between">
+                  <Button
+                    variant="secondary"
                     onClick={() => setCurrentStep(prev => Math.max(0, prev - 1))}
                     disabled={currentStep === 0}
+                    className="gap-2"
                   >
-                    <ChevronUp size={24} /> Indietro
-                  </button>
-                  <button
-                    className="btn-nav primary"
+                    <ChevronUp size={24} />
+                  </Button>
+                  <Button
+                    variant="primary"
                     onClick={() => setCurrentStep(prev => Math.min(passaggi.length - 1, prev + 1))}
                     disabled={currentStep === passaggi.length - 1}
+                    className="gap-2"
                   >
                     Avanti <ChevronDown size={24} />
-                  </button>
+                  </Button>
                 </div>
               </div>
             ) : (
-              <ol className="steps-list">
+              <ol className="steps-list space-y-6">
                 {passaggi.map((step, i) => (
-                  <li key={i} className="step-item">
-                    <span className="step-number">{i + 1}</span>
-                    <div className="step-content">
-                      {step.titolo && <h4 className="step-titolo">{step.titolo}</h4>}
-                      <p>{step.testo}</p>
+                  <li key={i} className="step-item flex gap-4">
+                    <span className="step-number w-8 h-8 rounded-full bg-[var(--accento)] text-[var(--accento-test)] flex items-center justify-center font-bold text-lg flex-shrink-0 mt-1">
+                      {i + 1}
+                    </span>
+                    <div className="step-content flex-1">
+                      {step.titolo && <h4 className="step-titolo text-lg font-semibold text-[var(--testo)] mb-2">{step.titolo}</h4>}
+                      <p className="text-[var(--testo)] leading-relaxed mb-2">{step.testo}</p>
                       {step.video_secondi && recipe.fonte_url && (
-                        <a href={recipe.fonte_url} target="_blank" rel="noopener noreferrer" className="step-video">
+                        <a href={recipe.fonte_url} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 text-[var(--accento)] text-sm hover:underline">
                           <MessageSquare size={16} /> Guarda nel video al {step.video_secondi}s
                         </a>
                       )}
@@ -478,10 +472,10 @@ export function RecipeDetail() {
 
         {/* "La faccio!" button */}
         {isAuthorized && recipe.stato !== 'da_completare' && (
-          <section className="card detail-actions">
-            <button className="btn-made" onClick={handleMarkMade}>
-              <Check size={20} /> La faccio! (aggiorna contatore)
-            </button>
+          <section className="card bg-[var(--card)] rounded-2xl border border-[var(--bordo)] p-4 mb-4">
+            <Button variant="primary" size="lg" className="w-full" onClick={handleMarkMade}>
+              <Check size={20} className="mr-2" /> La faccio! (aggiorna contatore)
+            </Button>
           </section>
         )}
 
@@ -491,33 +485,53 @@ export function RecipeDetail() {
 
       {/* Modalità cucina overlay per mobile */}
       {cookingMode && (
-        <div className="cooking-overlay" onClick={() => setCookingMode(false)} aria-hidden="true">
-          <div className="cooking-overlay-content" onClick={e => e.stopPropagation()}>
-            <button className="close-cooking" onClick={() => setCookingMode(false)} aria-label="Chiudi modalità cucina">
-              <X size={24} />
-            </button>
-            <div className="cooking-progress">
-              <div className="progress-bar">
-                <div className="progress-fill" style={{ width: `${((currentStep + 1) / passaggi.length) * 100}%` }} />
+        <div className="cooking-overlay fixed inset-0 z-50 bg-black/50 backdrop-blur-sm" onClick={() => setCookingMode(false)} aria-hidden="true">
+          <div className="cooking-overlay-content absolute bottom-0 left-0 right-0 max-h-[90vh] overflow-y-auto bg-[var(--card)] rounded-t-3xl border-t-2 border-[var(--accento)]" onClick={e => e.stopPropagation()}>
+            <div className="p-4 pb-6">
+              <div className="flex items-center justify-between mb-6">
+                <h2 className="text-lg font-semibold text-[var(--testo)]">Modalità cucina</h2>
+                <Button variant="ghost" size="sm" onClick={() => setCookingMode(false)}>
+                  <X size={24} />
+                </Button>
               </div>
-              <span>Passaggio {currentStep + 1} di {passaggi.length}</span>
-            </div>
-            <div className="cooking-step">
-              {passaggi[currentStep]?.titolo && <h4 className="step-titolo">{passaggi[currentStep]!.titolo}</h4>}
-              <p className="cooking-step-text">{passaggi[currentStep]?.testo}</p>
-              {passaggi[currentStep]?.video_secondi && recipe.fonte_url && (
-                <a href={recipe.fonte_url} target="_blank" rel="noopener noreferrer" className="btn-video-link">
-                  <MessageSquare size={18} /> Guarda nel video al {passaggi[currentStep]!.video_secondi}s
-                </a>
-              )}
-            </div>
-            <div className="cooking-nav">
-              <button className="btn-nav" onClick={() => setCurrentStep(prev => Math.max(0, prev - 1))} disabled={currentStep === 0}>
-                <ChevronUp size={24} />
-              </button>
-              <button className="btn-nav primary" onClick={() => setCurrentStep(prev => Math.min(passaggi.length - 1, prev + 1))} disabled={currentStep === passaggi.length - 1}>
-                <ChevronDown size={24} />
-              </button>
+              <div className="cooking-progress mb-6">
+                <div className="progress-bar h-2 bg-[var(--bordo)] rounded-full overflow-hidden mb-2">
+                  <div
+                    className="progress-fill h-full bg-[var(--accento)] transition-all duration-300 ease-out"
+                    style={{ width: `${((currentStep + 1) / passaggi.length) * 100}%` }}
+                  />
+                </div>
+                <p className="progress-text text-sm text-[var(--secondario)] text-center">Passaggio {currentStep + 1} di {passaggi.length}</p>
+              </div>
+              <div className="cooking-step text-center mb-8">
+                {passaggi[currentStep]?.titolo && (
+                  <h4 className="step-titolo text-xl font-semibold text-[var(--testo)] mb-3">{passaggi[currentStep]!.titolo}</h4>
+                )}
+                <p className="cooking-step-text text-lg text-[var(--testo)] leading-relaxed mb-6">{passaggi[currentStep]?.testo}</p>
+                {passaggi[currentStep]?.video_secondi && recipe.fonte_url && (
+                  <a href={recipe.fonte_url} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 text-[var(--accento)] hover:underline">
+                    <MessageSquare size={20} /> Guarda nel video al {passaggi[currentStep]!.video_secondi}s
+                  </a>
+                )}
+              </div>
+              <div className="cooking-nav flex items-center justify-between">
+                <Button
+                  variant="secondary"
+                  onClick={() => setCurrentStep(prev => Math.max(0, prev - 1))}
+                  disabled={currentStep === 0}
+                  className="gap-2"
+                >
+                  <ChevronUp size={24} />
+                </Button>
+                <Button
+                  variant="primary"
+                  onClick={() => setCurrentStep(prev => Math.min(passaggi.length - 1, prev + 1))}
+                  disabled={currentStep === passaggi.length - 1}
+                  className="gap-2"
+                >
+                  <ChevronDown size={24} />
+                </Button>
+              </div>
             </div>
           </div>
         </div>

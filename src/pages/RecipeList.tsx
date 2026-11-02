@@ -1,15 +1,19 @@
 /**
  * Pagina Elenco Ricette con ricerca, filtri e cards
+ * Usa componenti condivisi: Header, RecipeCard, Button, Badge
  */
 
 import { useState, useEffect, useMemo, useCallback } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Search, Filter, X, Clock, AlertCircle, RotateCcw } from 'lucide-react'
+import { Search, X, AlertCircle, RotateCcw } from 'lucide-react'
 import { clsx } from 'clsx'
 import { getRecipes } from '../lib/supabase'
-import { CATEGORIE, CATEGORIE_LABELS, ALL_TAGS, TAG_LABELS, MOOD_LABELS, TEMPO_VELOCE_MINUTI, STATO_LABELS } from '../lib/config'
-import type { Mood } from '../lib/config'
+import { CATEGORIE, CATEGORIE_LABELS, ALL_TAGS, TAG_LABELS, MOOD_LABELS, TEMPO_VELOCE_MINUTI } from '../lib/config'
 import { useMood } from '../contexts/MoodContext'
+import { Header } from '../components/Header'
+import { RecipeCard } from '../components/RecipeCard'
+import { Button } from '../components/Button'
+import { BottomNav } from '../components/BottomNav'
 
 interface Recipe {
   id: string
@@ -78,19 +82,13 @@ export function RecipeList() {
     }
   }, [mood, debouncedSearch, filters.categoria, filters.tags, filters.daCompletare])
 
-  // Applica filtro mood lato client (perché mood è nel context)
-  const filteredRecipes = useMemo(() => {
-    return recipes
-  }, [recipes])
-
-  // Filtro veloce (< 30 min) lato client
   const finalRecipes = useMemo(() => {
-    let result = filteredRecipes
+    let result = recipes
     if (filters.veloce) {
       result = result.filter(r => r.tempo_minuti !== null && r.tempo_minuti <= TEMPO_VELOCE_MINUTI)
     }
     return result
-  }, [filteredRecipes, filters.veloce])
+  }, [recipes, filters.veloce])
 
   useEffect(() => {
     loadRecipes()
@@ -105,75 +103,73 @@ export function RecipeList() {
     setMood('tutti')
   }
 
-  const hasActiveFilters = filters.categoria || filters.tags.length > 0 || filters.veloce || filters.daCompletare || mood !== 'tutti'
+  const filterCount = (filters.categoria ? 1 : 0) + filters.tags.length + (filters.veloce ? 1 : 0) + (filters.daCompletare ? 1 : 0)
+  const hasActiveFilters = filterCount > 0 || mood !== 'tutti'
 
   if (loading) {
     return (
-      <div className="page-container">
-        <div className="loading-skeleton">
-          {[...Array(5)].map((_, i) => (
-            <div key={i} className="skeleton-card">
-              <div className="skeleton-line" style={{ width: '70%' }} />
-              <div className="skeleton-line" style={{ width: '40%' }} />
-              <div className="skeleton-line" style={{ width: '60%' }} />
-            </div>
-          ))}
+      <div className="page-container min-h-screen pb-24">
+        <Header title="Ricette" />
+        <div className="max-w-[720px] mx-auto px-4">
+          <div className="loading-skeleton space-y-4">
+            {[...Array(5)].map((_, i) => (
+              <div key={i} className="skeleton-card bg-[var(--card)] rounded-2xl border border-[var(--bordo)] p-4 animate-pulse">
+                <div className="h-6 w-3/4 bg-[var(--bordo)] rounded mb-2" />
+                <div className="h-4 w-1/2 bg-[var(--bordo)] rounded mb-3" />
+                <div className="h-4 w-1/3 bg-[var(--bordo)] rounded mb-3" />
+                <div className="h-4 w-1/4 bg-[var(--bordo)] rounded" />
+              </div>
+            ))}
+          </div>
         </div>
+        <BottomNav />
       </div>
     )
   }
 
   if (error) {
     return (
-      <div className="page-container">
-        <div className="error-state card">
-          <AlertCircle size={48} className="error-icon" />
-          <h2>Errore</h2>
-          <p>{error}</p>
-          <button className="btn-primary" onClick={loadRecipes}>Riprova</button>
+      <div className="page-container min-h-screen pb-24 flex flex-col items-center justify-center px-4">
+        <Header title="Ricette" />
+        <div className="error-state card bg-[var(--card)] rounded-2xl border border-[var(--bordo)] p-8 text-center w-full max-w-md">
+          <AlertCircle size={48} className="mx-auto mb-4 text-[var(--accento)]" />
+          <h2 className="text-xl font-semibold text-[var(--testo)] mb-2">Errore</h2>
+          <p className="text-[var(--secondario)] mb-6">{error}</p>
+          <Button variant="primary" onClick={loadRecipes}>Riprova</Button>
         </div>
+        <BottomNav />
       </div>
     )
   }
 
   return (
-    <div className="page-container">
-      {/* Header con titolo e filtri */}
-      <header className="list-header">
-        <div className="header-content">
-          <h1>Ricette</h1>
-          <button
-            type="button"
-            className={clsx('filter-toggle', showFilters && 'active')}
-            onClick={() => setShowFilters(!showFilters)}
-            aria-expanded={showFilters}
-          >
-            <Filter size={20} />
-            <span>Filtri</span>
-            {hasActiveFilters && <span className="filter-badge">{filters.tags.length + (filters.categoria ? 1 : 0) + (filters.veloce ? 1 : 0) + (filters.daCompletare ? 1 : 0) + (mood !== 'tutti' ? 1 : 0)}</span>}
-          </button>
-        </div>
-
-        {/* Pannello filtri */}
+    <div className="page-container min-h-screen pb-24">
+      <Header
+        title="Ricette"
+        showFilters={showFilters}
+        onFiltersToggle={() => setShowFilters(!showFilters)}
+        hasActiveFilters={hasActiveFilters}
+        filterCount={filterCount}
+      >
         {showFilters && (
-          <div className="filters-panel card">
+          <div className="filters-panel bg-[var(--card)] rounded-2xl border border-[var(--bordo)] p-4 animate-in slide-in-from-top-2 duration-200">
             {/* Ricerca */}
-            <div className="filter-group">
+            <div className="filter-group mb-4">
               <label htmlFor="search" className="sr-only">Cerca ricette</label>
-              <div className="search-input-wrapper">
-                <Search size={18} className="search-icon" />
+              <div className="relative">
+                <Search size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-[var(--secondario)]" aria-hidden="true" />
                 <input
                   type="search"
                   id="search"
                   placeholder="Cerca per titolo..."
                   value={filters.search}
                   onChange={e => handleFilterChange('search', e.target.value)}
-                  className="search-input"
+                  className="w-full pl-10 pr-10 py-2.5 rounded-xl border border-[var(--bordo)] bg-[var(--sfondo)] text-[var(--testo)] placeholder-[var(--secondario)] focus:outline-none focus:ring-2 focus:ring-[var(--accento)] focus:border-transparent transition-all duration-150"
                 />
                 {filters.search && (
                   <button
                     type="button"
-                    className="clear-search"
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-[var(--secondario)] hover:text-[var(--testo)] transition-colors"
                     onClick={() => handleFilterChange('search', '')}
                     aria-label="Cancella ricerca"
                   >
@@ -184,13 +180,14 @@ export function RecipeList() {
             </div>
 
             {/* Categoria */}
-            <div className="filter-group">
-              <label htmlFor="categoria">Categoria</label>
+            <div className="filter-group mb-4">
+              <label htmlFor="categoria" className="block text-sm font-medium text-[var(--testo)] mb-2">Categoria</label>
               <select
                 id="categoria"
                 value={filters.categoria}
                 onChange={e => handleFilterChange('categoria', e.target.value)}
-                className="filter-select"
+                className="w-full px-3 py-2.5 rounded-xl border border-[var(--bordo)] bg-[var(--sfondo)] text-[var(--testo)] focus:outline-none focus:ring-2 focus:ring-[var(--accento)] focus:border-transparent transition-all duration-150 appearance-none bg-no-repeat bg-right pr-10"
+                style={{ backgroundImage: `url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23666' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><polyline points='6 9 12 15 18 9'></polyline></svg>")`, backgroundPosition: 'right 0.75rem center' }}
               >
                 <option value="">Tutte le categorie</option>
                 {CATEGORIE.map(cat => (
@@ -200,14 +197,19 @@ export function RecipeList() {
             </div>
 
             {/* Tag */}
-            <div className="filter-group">
-              <label>Tag</label>
-              <div className="tag-filters">
+            <div className="filter-group mb-4">
+              <label className="block text-sm font-medium text-[var(--testo)] mb-2">Tag</label>
+              <div className="flex flex-wrap gap-2">
                 {ALL_TAGS.map(tag => (
                   <button
                     key={tag}
                     type="button"
-                    className={clsx('tag-filter', filters.tags.includes(tag) && 'active')}
+                    className={clsx(
+                      'px-3 py-1.5 rounded-full text-sm font-medium transition-all duration-150',
+                      filters.tags.includes(tag)
+                        ? 'bg-[var(--accento)] text-[var(--accento-test)]'
+                        : 'bg-[var(--bordo)] text-[var(--secondario)] hover:bg-[var(--accento)]/10'
+                    )}
                     onClick={() => handleFilterChange('tags',
                       filters.tags.includes(tag)
                         ? filters.tags.filter(t => t !== tag)
@@ -221,134 +223,75 @@ export function RecipeList() {
             </div>
 
             {/* Checkbox veloce e da completare */}
-            <div className="filter-checkboxes">
-              <label className="checkbox-label">
+            <div className="filter-group mb-4 space-y-2">
+              <label className="checkbox-label flex items-center gap-2 cursor-pointer">
                 <input
                   type="checkbox"
                   checked={filters.veloce}
                   onChange={e => handleFilterChange('veloce', e.target.checked)}
+                  className="w-4 h-4 rounded border-[var(--bordo)] text-[var(--accento)] focus:ring-2 focus:ring-[var(--accento)] focus:ring-offset-2 focus:ring-offset-[var(--sfondo)] transition-colors"
                 />
-                <span>{'Veloce (< ' + TEMPO_VELOCE_MINUTI + ' min)'}</span>
+                <span className="text-[var(--testo)]">Veloce ({'<'} {TEMPO_VELOCE_MINUTI} min)</span>
               </label>
-              <label className="checkbox-label">
+              <label className="checkbox-label flex items-center gap-2 cursor-pointer">
                 <input
                   type="checkbox"
                   checked={filters.daCompletare}
                   onChange={e => handleFilterChange('daCompletare', e.target.checked)}
+                  className="w-4 h-4 rounded border-[var(--bordo)] text-[var(--accento)] focus:ring-2 focus:ring-[var(--accento)] focus:ring-offset-2 focus:ring-offset-[var(--sfondo)] transition-colors"
                 />
-                <span>Da completare</span>
+                <span className="text-[var(--testo)]">Da completare</span>
               </label>
             </div>
 
             {hasActiveFilters && (
-              <button type="button" className="btn-secondary clear-filters" onClick={clearFilters}>
+              <Button variant="ghost" className="w-full" onClick={clearFilters}>
                 <X size={16} /> Cancella filtri
-              </button>
+              </Button>
             )}
           </div>
         )}
-      </header>
+      </Header>
 
       {/* Lista ricette */}
-      <main className="recipes-list">
+      <main className="max-w-[720px] mx-auto px-4 pb-24">
         {finalRecipes.length === 0 ? (
-          <div className="empty-state card">
-            <AlertCircle size={48} className="empty-icon" />
+          <div className="empty-state card bg-[var(--card)] rounded-2xl border border-[var(--bordo)] p-8 text-center animate-in fade-in duration-300">
+            <AlertCircle size={48} className="mx-auto mb-4 text-[var(--accento)]" />
             {mood !== 'tutti' ? (
               <>
-                <h2>Nessuna ricetta in questo mood</h2>
-                <p>Nessuna ricetta trovata per <strong>{MOOD_LABELS[mood]}</strong>.</p>
-                <button type="button" className="btn-primary" onClick={() => setMood('tutti')}>
+                <h2 className="text-xl font-semibold text-[var(--testo)] mb-2">Nessuna ricetta in questo mood</h2>
+                <p className="text-[var(--secondario)] mb-6">
+                  Nessuna ricetta trovata per <strong>{MOOD_LABELS[mood]}</strong>.
+                </p>
+                <Button variant="primary" onClick={() => setMood('tutti')}>
                   <RotateCcw size={16} /> Mostra tutti i mood
-                </button>
+                </Button>
               </>
             ) : (
               <>
-                <h2>Nessuna ricetta trovata</h2>
-                <p>{hasActiveFilters ? 'Prova a modificare i filtri' : 'Inizia aggiungendo la tua prima ricetta'}</p>
+                <h2 className="text-xl font-semibold text-[var(--testo)] mb-2">Nessuna ricetta trovata</h2>
+                <p className="text-[var(--secondario)] mb-6">
+                  {hasActiveFilters ? 'Prova a modificare i filtri' : 'Inizia aggiungendo la tua prima ricetta'}
+                </p>
                 {hasActiveFilters && (
-                  <button type="button" className="btn-secondary" onClick={clearFilters}>
+                  <Button variant="secondary" onClick={clearFilters}>
                     <X size={16} /> Cancella filtri
-                  </button>
+                  </Button>
                 )}
               </>
             )}
           </div>
         ) : (
-          <div className="recipes-grid" role="list">
+          <div className="recipes-grid grid grid-cols-1 sm:grid-cols-2 gap-4" role="list">
             {finalRecipes.map(recipe => (
               <RecipeCard key={recipe.id} recipe={recipe} onClick={() => navigate(`/recipe/${recipe.id}`)} />
             ))}
           </div>
         )}
       </main>
+
+      <BottomNav />
     </div>
-  )
-}
-
-/**
- * Card singola ricetta
- */
-interface RecipeCardProps {
-  recipe: Recipe
-  onClick: () => void
-}
-
-function RecipeCard({ recipe, onClick }: RecipeCardProps) {
-  const moodLabel = recipe.mood ? MOOD_LABELS[recipe.mood as Mood] : '—'
-  const categoriaLabel = recipe.categoria ? CATEGORIE_LABELS[recipe.categoria as keyof typeof CATEGORIE_LABELS] : '—'
-  const tags = recipe.tags || []
-  const firstTags = tags.slice(0, 2)
-  const remainingTags = tags.length - 2
-
-  return (
-    <article className="recipe-card card" onClick={onClick} role="listitem" tabIndex={0} onKeyDown={e => e.key === 'Enter' && onClick()}>
-      <div className="card-header">
-        <h3 className="recipe-title">{recipe.titolo}</h3>
-        {recipe.stato === 'da_completare' && (
-          <span className="badge badge-warning">{STATO_LABELS.da_completare}</span>
-        )}
-      </div>
-
-      {recipe.autore && (
-        <p className="recipe-autore">di {recipe.autore}</p>
-      )}
-
-      <div className="recipe-meta">
-        <span className="meta-item">
-          <span className="meta-label">Mood:</span> {moodLabel}
-        </span>
-        <span className="meta-item">
-          <span className="meta-label">Categoria:</span> {categoriaLabel}
-        </span>
-      </div>
-
-      {firstTags.length > 0 && (
-        <div className="recipe-tags">
-          {firstTags.map(tag => (
-            <span key={tag} className="badge badge-tag">{TAG_LABELS[tag as keyof typeof TAG_LABELS] || tag}</span>
-          ))}
-          {remainingTags > 0 && (
-            <span className="badge badge-tag more">+{remainingTags}</span>
-          )}
-        </div>
-      )}
-
-      <div className="recipe-footer">
-        {recipe.tempo_minuti && (
-          <span className="meta-item">
-            <Clock size={14} /> {recipe.tempo_minuti} min
-          </span>
-        )}
-        {recipe.porzioni && (
-          <span className="meta-item">
-            {recipe.porzioni} {recipe.porzioni_unita || 'porzioni'}
-          </span>
-        )}
-        {!recipe.tempo_minuti && (
-          <span className="meta-item no-time">Tempo non indicato</span>
-        )}
-      </div>
-    </article>
   )
 }
