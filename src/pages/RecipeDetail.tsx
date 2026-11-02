@@ -288,41 +288,41 @@ export function RecipeDetail() {
 
       <main className="detail-content max-w-[720px] mx-auto px-4 pb-24 pt-4">
         {/* Info principali - 3 riquadri di uguale larghezza */}
-        <section className="card bg-[var(--card)] rounded-2xl border border-[var(--bordo)] p-4 mb-4">
+        <section className="card bg-[var(--card)] rounded-2xl border border-[var(--card-bordo)] p-4 mb-4 shadow-[var(--elevazione-1)]">
           <div className="grid grid-cols-3 gap-3 mb-4">
             {/* Riquadro Tempo */}
-            <div className="info-box flex flex-col items-center justify-center p-4 bg-[var(--sfondo)] rounded-xl min-h-[80px]">
+            <div className="info-box flex flex-col items-center justify-center p-4 bg-[var(--sfondo)] rounded-xl min-h-[80px] border border-[var(--card-bordo)]">
               <Clock size={24} className="text-[var(--accento)] mb-2" aria-hidden="true" />
-              <p className="text-xs text-[var(--secondario)] text-center">Tempo</p>
-              <p className="font-medium text-[var(--testo)] text-center">{formatNumberOrPlaceholder(recipe.tempo_minuti, 'min')}</p>
+              <p className="text-xs text-[var(--secondario)] text-center font-medium uppercase tracking-wider">Tempo</p>
+              <p className="font-semibold text-[var(--testo)] text-center text-lg">{formatNumberOrPlaceholder(recipe.tempo_minuti, 'min')}</p>
             </div>
 
             {/* Riquadro Porzioni */}
-            <div className="info-box flex flex-col items-center justify-center p-4 bg-[var(--sfondo)] rounded-xl min-h-[80px]">
+            <div className="info-box flex flex-col items-center justify-center p-4 bg-[var(--sfondo)] rounded-xl min-h-[80px] border border-[var(--card-bordo)]">
               <Users size={24} className="text-[var(--accento)] mb-2" aria-hidden="true" />
-              <p className="text-xs text-[var(--secondario)] text-center">Porzioni</p>
+              <p className="text-xs text-[var(--secondario)] text-center font-medium uppercase tracking-wider">Porzioni</p>
               <div className="flex items-center justify-center gap-2">
-                <Button variant="ghost" size="sm" onClick={() => handlePorzioniChange(-1)} aria-label="Meno porzioni" className="p-1">
-                  <Minus size={16} />
+                <Button variant="ghost" size="sm" onClick={() => handlePorzioniChange(-1)} aria-label="Meno porzioni" className="p-2 rounded-xl hover:bg-[var(--card-bordo)]">
+                  <Minus size={18} />
                 </Button>
-                <span className="font-medium text-[var(--testo)] text-center min-w-[5rem]">{formatPorzioni(recipe.porzioni, recipe.porzioni_unita)}</span>
-                <Button variant="ghost" size="sm" onClick={() => handlePorzioniChange(1)} aria-label="Più porzioni" className="p-1">
-                  <Plus size={16} />
+                <span className="font-semibold text-[var(--testo)] text-center min-w-[5rem] text-lg">{formatPorzioni(recipe.porzioni, recipe.porzioni_unita)}</span>
+                <Button variant="ghost" size="sm" onClick={() => handlePorzioniChange(1)} aria-label="Più porzioni" className="p-2 rounded-xl hover:bg-[var(--card-bordo)]">
+                  <Plus size={18} />
                 </Button>
               </div>
             </div>
 
             {/* Riquadro Autore */}
-            <div className="info-box flex flex-col items-center justify-center p-4 bg-[var(--sfondo)] rounded-xl min-h-[80px]">
+            <div className="info-box flex flex-col items-center justify-center p-4 bg-[var(--sfondo)] rounded-xl min-h-[80px] border border-[var(--card-bordo)]">
               <Tag size={24} className="text-[var(--accento)] mb-2" aria-hidden="true" />
-              <p className="text-xs text-[var(--secondario)] text-center">Autore</p>
+              <p className="text-xs text-[var(--secondario)] text-center font-medium uppercase tracking-wider">Autore</p>
               <p className="font-medium text-[var(--testo)] text-center break-words">{formatAutore(recipe.autore)}</p>
             </div>
           </div>
 
           {recipe.volte_fatta != null && recipe.volte_fatta > 0 && (
-            <div className="info-item flex items-center justify-center gap-2 p-3 bg-[var(--sfondo)] rounded-xl mb-4 text-center">
-              <span className="text-xs text-[var(--secondario)]">Fatta {recipe.volte_fatta} volte</span>
+            <div className="info-item flex items-center justify-center gap-3 p-3 bg-[var(--sfondo)] rounded-xl mb-4 text-center border border-[var(--card-bordo)]">
+              <span className="text-sm text-[var(--secondario)]">Fatta {recipe.volte_fatta} {recipe.volte_fatta === 1 ? 'volta' : 'volte'}</span>
               <span className="font-medium text-[var(--testo)]">Ultima: {formatDate(recipe.ultima_volta)}</span>
             </div>
           )}
@@ -372,7 +372,7 @@ export function RecipeDetail() {
 
         {/* Pulsante "Completa" per ricette da completare */}
         {recipe.stato === 'da_completare' && isAuthorized && (
-          <section className="card bg-[var(--card)] rounded-2xl border border-[var(--bordo)] p-4 mb-4">
+          <section className="card bg-[var(--card)] rounded-2xl border border-[var(--card-bordo)] p-4 mb-4 shadow-[var(--elevazione-1)]">
             <Link to={`/edit/${recipe.id}`}>
               <Button variant="primary" className="w-full" size="lg">
                 <Edit size={20} className="mr-2" /> Completa questa ricetta
@@ -382,7 +382,7 @@ export function RecipeDetail() {
         )}
 
         {/* Ingredienti */}
-        <section className="card bg-[var(--card)] rounded-2xl border border-[var(--bordo)] p-4 mb-4">
+        <section className="card bg-[var(--card)] rounded-2xl border border-[var(--card-bordo)] p-4 mb-4 shadow-[var(--elevazione-1)]">
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-lg font-semibold text-[var(--testo)]">Ingredienti</h2>
             {Object.keys(groupedIngredients).length > 0 && (
@@ -399,18 +399,18 @@ export function RecipeDetail() {
 
           {Object.entries(groupedIngredients).map(([gruppo, ingredients]) => (
             <div key={gruppo} className="ingredient-group mb-4">
-              <h3 className="group-title text-sm font-semibold text-[var(--secondario)] uppercase tracking-wider mb-2 pb-2 border-b border-[var(--bordo)]">
+              <h3 className="group-title text-sm font-semibold text-[var(--secondario)] uppercase tracking-wider mb-2 pb-2 border-b border-[var(--card-bordo)]">
                 {(GRUPPI_INGREDIENTI as readonly string[]).includes(gruppo) ? gruppo.charAt(0).toUpperCase() + gruppo.slice(1) : gruppo}
               </h3>
               <ul className="ingredients-list space-y-2">
                 {ingredients.map(ing => (
-                  <li key={`${ing.nome}-${ing.unita}-${ing.gruppo}`} className="ingredient-item flex items-start gap-3 p-3 bg-[var(--sfondo)] rounded-xl">
+                  <li key={`${ing.nome}-${ing.unita}-${ing.gruppo}`} className="ingredient-item flex items-start gap-3 p-3 bg-[var(--sfondo)] rounded-xl border border-[var(--card-bordo)] transition-[background-color,border-color] duration-150 ease-out hover:border-[var(--accento)]">
                     <label className="ingredient-checkbox flex items-center justify-center">
                       <input
                         type="checkbox"
                         checked={checkedIngredients.has(ing.nome)}
                         onChange={() => handleIngredientToggle(ing.nome)}
-                        className="w-5 h-5 rounded border-[var(--bordo)] text-[var(--accento)] focus:ring-2 focus:ring-[var(--accento)] focus:ring-offset-2 focus:ring-offset-[var(--sfondo)] cursor-pointer touch-manipulation"
+                        className="w-5 h-5 rounded border-[var(--card-bordo)] text-[var(--accento)] focus:ring-2 focus:ring-[var(--accento)] focus:ring-offset-2 focus:ring-offset-[var(--sfondo)] cursor-pointer touch-manipulation"
                       />
                     </label>
                     <div className="ingredient-details flex-1 min-w-0">
@@ -433,7 +433,7 @@ export function RecipeDetail() {
 
         {/* Passaggi */}
         {recipe.stato !== 'da_completare' && passaggi.length > 0 && (
-          <section className={clsx('card bg-[var(--card)] rounded-2xl border border-[var(--bordo)] p-4 mb-4', cookingMode && 'cooking-mode')}>
+          <section className={clsx('card bg-[var(--card)] rounded-2xl border border-[var(--card-bordo)] p-4 mb-4 shadow-[var(--elevazione-1)]', cookingMode && 'cooking-mode')}>
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-lg font-semibold text-[var(--testo)]">Procedimento</h2>
               <Button
@@ -452,13 +452,16 @@ export function RecipeDetail() {
             {cookingMode ? (
               <div className="cooking-mode-view">
                 <div className="cooking-progress mb-6">
-                  <div className="progress-bar h-2 bg-[var(--bordo)] rounded-full overflow-hidden mb-2">
+                  <div className="progress-bar h-2 bg-[var(--card-bordo)] rounded-full overflow-hidden mb-2">
                     <div
-                      className="progress-fill h-full bg-[var(--accento)] transition-all duration-300 ease-out"
-                      style={{ width: `${((currentStep + 1) / passaggi.length) * 100}%` }}
+                      className="progress-fill h-full bg-[var(--accento)]"
+                      style={{
+                        width: `${((currentStep + 1) / passaggi.length) * 100}%`,
+                        transition: 'width 200ms cubic-bezier(0.23, 1, 0.32, 1)'
+                      }}
                     />
                   </div>
-                  <p className="progress-text text-sm text-[var(--secondario)] text-center">Passaggio {currentStep + 1} di {passaggi.length}</p>
+                  <p className="progress-text text-sm text-[var(--secondario)] text-center font-medium">Passaggio {currentStep + 1} di {passaggi.length}</p>
                 </div>
                 <div className="cooking-step text-center mb-8">
                   {passaggi[currentStep].titolo && (
@@ -494,7 +497,7 @@ export function RecipeDetail() {
               <ol className="steps-list space-y-6">
                 {passaggi.map((step, i) => (
                   <li key={i} className="step-item flex gap-4">
-                    <span className="step-number w-8 h-8 rounded-full bg-[var(--accento)] text-[var(--accento-test)] flex items-center justify-center font-bold text-lg flex-shrink-0 mt-1">
+                    <span className="step-number w-10 h-10 rounded-full bg-[var(--accento)] text-[var(--accento-test)] flex items-center justify-center font-bold text-lg flex-shrink-0 mt-1 shadow-[var(--elevazione-1)]">
                       {i + 1}
                     </span>
                     <div className="step-content flex-1">
@@ -515,7 +518,7 @@ export function RecipeDetail() {
 
         {/* "La faccio!" button */}
         {isAuthorized && recipe.stato !== 'da_completare' && (
-          <section className="card bg-[var(--card)] rounded-2xl border border-[var(--bordo)] p-4 mb-4">
+          <section className="card bg-[var(--card)] rounded-2xl border border-[var(--card-bordo)] p-4 mb-4 shadow-[var(--elevazione-1)]">
             <Button variant="primary" size="lg" className="w-full" onClick={handleMarkMade}>
               <Check size={20} className="mr-2" /> La faccio! (aggiorna contatore)
             </Button>
@@ -531,12 +534,12 @@ export function RecipeDetail() {
         <div className="cooking-overlay fixed inset-0 z-50 bg-black/50 backdrop-blur-sm" onClick={() => setCookingMode(false)} aria-hidden="true"
           style={{
             opacity: 1,
-            transition: 'opacity 200ms cubic-bezier(0.23, 1, 0.32, 1)',
+            transition: 'opacity 200ms var(--ease-out)',
           }}>
-          <div className="cooking-overlay-content absolute bottom-0 left-0 right-0 max-h-[90vh] overflow-y-auto bg-[var(--card)] rounded-t-3xl border-t-2 border-[var(--accento)]" onClick={e => e.stopPropagation()}
+          <div className="cooking-overlay-content absolute bottom-0 left-0 right-0 max-h-[90vh] overflow-y-auto bg-[var(--card)] rounded-t-3xl border-t-2 border-[var(--accento)] shadow-[var(--elevazione-overlay)]" onClick={e => e.stopPropagation()}
             style={{
               transform: 'translateY(0)',
-              transition: 'transform 300ms cubic-bezier(0.32, 0.72, 0, 1)',
+              transition: 'transform 300ms var(--ease-drawer)',
             }}>
             <div className="p-4 pb-6">
               <div className="flex items-center justify-between mb-6">
@@ -546,16 +549,16 @@ export function RecipeDetail() {
                 </Button>
               </div>
               <div className="cooking-progress mb-6">
-                <div className="progress-bar h-2 bg-[var(--bordo)] rounded-full overflow-hidden mb-2">
+                <div className="progress-bar h-2 bg-[var(--card-bordo)] rounded-full overflow-hidden mb-2">
                   <div
                     className="progress-fill h-full bg-[var(--accento)]"
                     style={{
                       width: `${((currentStep + 1) / passaggi.length) * 100}%`,
-                      transition: 'width 200ms cubic-bezier(0.23, 1, 0.32, 1)'
+                      transition: 'width 200ms var(--ease-out)'
                     }}
                   />
                 </div>
-                <p className="progress-text text-sm text-[var(--secondario)] text-center">Passaggio {currentStep + 1} di {passaggi.length}</p>
+                <p className="progress-text text-sm text-[var(--secondario)] text-center font-medium">Passaggio {currentStep + 1} di {passaggi.length}</p>
               </div>
               <div className="cooking-step text-center mb-8">
                 {passaggi[currentStep]?.titolo && (

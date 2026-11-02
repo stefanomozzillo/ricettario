@@ -42,10 +42,11 @@ export function RecipeCard({ recipe, onClick }: RecipeCardProps) {
   return (
     <article
       className={clsx(
-        'card relative bg-[var(--card)] rounded-2xl shadow-sm border border-[var(--bordo)]',
-        'transition-[transform,box-shadow] duration-200',
-        'hover:-translate-y-1 hover:shadow-md',
-        'active:scale-[0.99]',
+        'card relative bg-[var(--card)] rounded-2xl border border-[var(--card-bordo)]',
+        'shadow-[var(--elevazione-1)]',
+        'transition-[transform,box-shadow] duration-200 ease-out',
+        'hover:-translate-y-1 hover:shadow-[var(--elevazione-2)]',
+        'active:scale-[0.99] active:shadow-[var(--elevazione-1)]',
         'touch-manipulation'
       )}
       onClick={onClick}
@@ -53,22 +54,22 @@ export function RecipeCard({ recipe, onClick }: RecipeCardProps) {
       role="listitem"
       tabIndex={0}
     >
-      <div className="p-4">
-        <div className="flex items-start justify-between gap-2 mb-2">
-          <h3 className="text-lg font-semibold text-[var(--testo)] line-clamp-1 flex-1 min-w-0">
+      <div className="p-4 sm:p-5">
+        <div className="flex items-start justify-between gap-2 mb-3">
+          <h3 className="text-base sm:text-lg font-semibold text-[var(--testo)] line-clamp-1 flex-1 min-w-0 leading-snug">
             {recipe.titolo}
           </h3>
           {recipe.stato === 'da_completare' && (
-            <Badge variant="stato">{STATO_LABELS.da_completare}</Badge>
+            <Badge variant="stato" className="flex-shrink-0">{STATO_LABELS.da_completare}</Badge>
           )}
         </div>
 
-        <p className="text-sm text-[var(--secondario)] mb-3">di {formatAutore(recipe.autore)}</p>
+        <p className="text-sm text-[var(--secondario)] mb-3 leading-relaxed">di {formatAutore(recipe.autore)}</p>
 
-        <div className="flex items-center gap-3 text-sm text-[var(--secondario)] mb-3 flex-wrap">
+        <div className="flex items-center gap-2 sm:gap-3 text-sm text-[var(--secondario)] mb-3 flex-wrap">
           <span className="flex items-center gap-1">
             <span className="font-medium">Mood:</span>
-            <Badge variant="mood">{moodLabel}</Badge>
+            <Badge variant="mood" className="px-2 py-0.5">{moodLabel}</Badge>
           </span>
           <span className="flex items-center gap-1">
             <span className="font-medium">Categoria:</span> {categoriaLabel}
@@ -78,23 +79,23 @@ export function RecipeCard({ recipe, onClick }: RecipeCardProps) {
         {firstTags.length > 0 && (
           <div className="flex items-center gap-1.5 flex-wrap mb-3">
             {firstTags.map(tag => (
-              <Badge key={tag} variant="tag">
+              <Badge key={tag} variant="tag" className="px-2 py-0.5 text-xs">
                 {TAG_LABELS[tag as keyof typeof TAG_LABELS] || tag}
               </Badge>
             ))}
             {remainingTags > 0 && (
-              <Badge variant="tag">+{remainingTags}</Badge>
+              <Badge variant="tag" className="px-2 py-0.5 text-xs">+{remainingTags}</Badge>
             )}
           </div>
         )}
 
-        <div className="flex items-center gap-4 text-sm text-[var(--secondario)] pt-3 border-t border-[var(--bordo)]">
-          <span className="flex items-center gap-1">
-            <Clock size={14} aria-hidden="true" />
+        <div className="flex items-center gap-4 sm:gap-5 text-sm text-[var(--secondario)] pt-3 border-t border-[var(--card-bordo)]">
+          <span className="flex items-center gap-1.5">
+            <Clock size={14} aria-hidden="true" className="text-[var(--accento)]" />
             {formatNumberOrPlaceholder(recipe.tempo_minuti, 'min')}
           </span>
-          <span className="flex items-center gap-1">
-            <Users size={14} aria-hidden="true" />
+          <span className="flex items-center gap-1.5">
+            <Users size={14} aria-hidden="true" className="text-[var(--accento)]" />
             {formatPorzioni(recipe.porzioni, recipe.porzioni_unita)}
           </span>
         </div>

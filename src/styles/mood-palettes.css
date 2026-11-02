@@ -57,7 +57,6 @@
 /* ============================================
    GOURMET & ELEGANTE
    Sfondo #1A1A1D, card #252627, testo #F5F5F0, accento #D4AF37
-   Alternativa accento: #C55A11
    Layout moderno, foto protagoniste
    ============================================ */
 :root[data-mood="gourmet"] {
@@ -83,7 +82,7 @@
 
 /* ============================================
    PASTICCERIA & BAKERY
-   Sfondo #FFFDF9, testo/titoli #3D2B1F (alt. nocciola #8B5A2B), accento #C23B4E (alt. caramello #D97724)
+   Sfondo #FFFDF9, testo/titoli #3D2B1F, accento #C23B4E
    ============================================ */
 :root[data-mood="pasticceria"] {
   --sfondo: #FFFDF9;
@@ -107,86 +106,100 @@
 }
 
 /* ============================================
-   COMFORT & TRADIZIONALE
-   Sfondo #FDFBF7, header/schede terracotta #C85A32 (alt. legno #3D2B1F), testo #3D2B1F, accento verde salvia #6B8E23 (alt. rosso pomodoro #C0392B)
+   COMFORT & TRADIZIONALE — RINNOVATA
+   Palette calda e avvolgente: terracotta, ambra, caramello, nocciola
+   NESSUN VERDE. Toni terra ricchi e profondi.
    ============================================ */
 :root[data-mood="comfort"] {
-  --sfondo: #FDFBF7;
-  --testo: #3D2B1F;
-  --secondario: #C85A32; /* terracotta per header/schede */
-  --accento: #6B8E23; /* verde salvia */
+  /* Sfondo crema caldo, leggermente saturo per senso di "casa" */
+  --sfondo: #FDF8F3;
+  /* Testo marrone scuro cioccolato per leggibilità massima */
+  --testo: #2D1B0E;
+  /* Secondario: terracotta bruciato per header/schede/titoli */
+  --secondario: #A64B2A;
+  /* Accento: ambra caramello - caldo, invitante, ottimo contrasto su bianco */
+  --accento: #C9762E;
   --accento-testo: #FFFFFF;
+  /* Card bianco caldo con bordo nocciola chiaro */
+  --card-sfondo: #FFFFFF;
+  --card-bordo: #E8D5C4;
+  --input-sfondo: #FFFFFF;
+  --input-bordo: #D4B89C;
+  --input-focus: #C9762E;
+  /* Badge su fondo caramello chiaro con testo scuro */
+  --badge-sfondo: #F5E8D8;
+  --badge-testo: #2D1B0E;
+  --link: #C9762E;
+  --link-hover: #A86026;
+  /* Ombre calde con sfumatura ambra */
+  --ombra: rgba(45, 27, 14, 0.08);
+  --ombra-forte: rgba(45, 27, 14, 0.18);
+  --font-base: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-titoli: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+/* ============================================
+   GREEN / FRESCA & BIOLOGICA — RINNOVATA
+   Palette verde moderna, fresca, vibrante ma elegante
+   Verde salvia profondo come tratto distintivo, accento verde brillante
+   ============================================ */
+:root[data-mood="fresca"] {
+  /* Sfondo verde chiarissimo, quasi bianco, con sottotono natura */
+  --sfondo: #F0F5F0;
+  /* Testo verde foresta scuro - elegante, leggibile, non "clinico" */
+  --testo: #1B3A2B;
+  /* Secondario: verde salvia medio per header/schede */
+  --secondario: #3D6B4A;
+  /* Accento: verde brillante moderno (non neon) - energia fresca */
+  --accento: #2E8B4A;
+  --accento-testo: #FFFFFF;
+  /* Card bianco puro con bordo verde tenue */
+  --card-sfondo: #FFFFFF;
+  --card-bordo: #D0E0D4;
+  --input-sfondo: #FFFFFF;
+  --input-bordo: #B8D0BC;
+  --input-focus: #2E8B4A;
+  /* Badge verde chiarissimo con testo scuro */
+  --badge-sfondo: #E8F2E9;
+  --badge-testo: #1B3A2B;
+  --link: #2E8B4A;
+  --link-hover: #25703B;
+  /* Ombre con sfumatura verde naturale */
+  --ombra: rgba(27, 58, 43, 0.08);
+  --ombra-forte: rgba(27, 58, 43, 0.15);
+  --font-base: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-titoli: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+/* ============================================
+   PIATTI ETNICI / SPEZIE — RINNOVATA
+   Palette vibrante e caratteristica: zafferano, curcuma, paprika, arancio dorato
+   Evoca spezie, mercati, calore del sole
+   ============================================ */
+:root[data-mood="etnici"] {
+  /* Sfondo sabbia dorato caldo - base neutra ma ricca */
+  --sfondo: #FDF5E8;
+  /* Testo marrone spezie scuro - cacao/caffè per leggibilità */
+  --testo: #3D2A1A;
+  /* Secondario: paprika/terracotta bruciata per header, card, testi principali */
+  --secondario: #C45A2D;
+  /* Accento: zafferano/arancio dorato vibrante - il colore delle spezie pregiate */
+  --accento: #E8A838;
+  --accento-testo: #1A1508;
+  /* Card bianco caldo con bordo spezia tenue */
   --card-sfondo: #FFFFFF;
   --card-bordo: #E8DCC8;
   --input-sfondo: #FFFFFF;
   --input-bordo: #D4C4A8;
-  --input-focus: #6B8E23;
-  --badge-sfondo: #F5EDE3;
-  --badge-testo: #3D2B1F;
-  --link: #6B8E23;
-  --link-hover: #5A7A1E;
-  --ombra: rgba(61, 43, 31, 0.08);
-  --ombra-forte: rgba(61, 43, 31, 0.15);
-  --font-base: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-  --font-titoli: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-}
-
-/* Variante comfort con accento rosso pomodoro per bottoni se serve più contrasto */
-:root[data-mood="comfort"].accento-rosso {
-  --accento: #C0392B;
-  --accento-testo: #FFFFFF;
-  --input-focus: #C0392B;
-  --link: #C0392B;
-  --link-hover: #A53025;
-}
-
-/* ============================================
-   FRESCA & BIOLOGICA
-   Sfondo #F4F6F0 (alt. #FAFAFA), titoli/testi/nav #2E4A3E, accento arancio #E0633B
-   ============================================ */
-:root[data-mood="fresca"] {
-  --sfondo: #F4F6F0;
-  --testo: #2E4A3E;
-  --secondario: #2E4A3E;
-  --accento: #E0633B;
-  --accento-testo: #FFFFFF;
-  --card-sfondo: #FFFFFF;
-  --card-bordo: #DCE3D7;
-  --input-sfondo: #FFFFFF;
-  --input-bordo: #C8D4C0;
-  --input-focus: #E0633B;
-  --badge-sfondo: #E8F0E3;
-  --badge-testo: #2E4A3E;
-  --link: #E0633B;
-  --link-hover: #C85330;
-  --ombra: rgba(46, 74, 62, 0.08);
-  --ombra-forte: rgba(46, 74, 62, 0.15);
-  --font-base: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-  --font-titoli: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-}
-
-/* ============================================
-   SPEZIE & TERRACOTTA (PIATTI ETNICI: India, Medio Oriente, Messico)
-   Sfondo sabbia #F9F5EC, secondario terracotta/paprika #B85028 per card/header/testi, accento giallo curcuma #E5A023 (alt. turchese #2A6F97)
-   Sul giallo usa testo scuro nei bottoni
-   ============================================ */
-:root[data-mood="etnici"] {
-  --sfondo: #F9F5EC;
-  --testo: #3D2B1F; /* testo principale scuro per leggibilità */
-  --secondario: #B85028; /* terracotta per header, card, testi principali */
-  --accento: #E5A023; /* giallo curcuma */
-  --accento-testo: #1A1A1D; /* testo scuro su accento giallo */
-  --card-sfondo: #FFFFFF;
-  --card-bordo: #E8DDD0;
-  --input-sfondo: #FFFFFF;
-  --input-bordo: #D4C4B0;
-  --input-focus: #B85028;
-  --badge-sfondo: #F3E8D8;
-  --badge-testo: #B85028;
-  --link: #B85028;
-  --link-hover: #9D4321;
-  --ombra: rgba(61, 43, 31, 0.08);
-  --ombra-forte: rgba(61, 43, 31, 0.15);
+  --input-focus: #E8A838;
+  /* Badge zafferano chiarissimo con testo scuro */
+  --badge-sfondo: #FEF3E0;
+  --badge-testo: #3D2A1A;
+  --link: #E8A838;
+  --link-hover: #D09430;
+  /* Ombre calde dorate */
+  --ombra: rgba(61, 42, 26, 0.08);
+  --ombra-forte: rgba(61, 42, 26, 0.18);
   --font-base: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   --font-titoli: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
 }
@@ -234,3 +247,79 @@
   }
 }
 
+/* ============================================
+   DESIGN TOKENS AGGIUNTIVI — Elevazione visiva, spaziatura, tipografia
+   ============================================ */
+
+/* Scale di elevazione ombre - usate per creare profondità gerarchica */
+:root {
+  --elevazione-1: 0 1px 2px var(--ombra), 0 1px 3px var(--ombra);
+  --elevazione-2: 0 4px 6px var(--ombra), 0 2px 4px var(--ombra);
+  --elevazione-3: 0 10px 15px var(--ombra), 0 4px 6px var(--ombra);
+  --elevazione-4: 0 20px 25px var(--ombra), 0 10px 10px var(--ombra);
+  --elevazione-overlay: 0 25px 50px var(--ombra-forte), 0 10px 10px var(--ombra-forte);
+}
+
+/* Radius scale */
+:root {
+  --radius-xs: 4px;
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  --radius-xl: 20px;
+  --radius-2xl: 24px;
+  --radius-full: 9999px;
+}
+
+/* Spacing scale (baseline 4px) */
+:root {
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-8: 32px;
+  --space-10: 40px;
+  --space-12: 48px;
+}
+
+/* Tipografia scale - dimensioni coerenti */
+:root {
+  --text-xs: 0.75rem;    /* 12px */
+  --text-sm: 0.875rem;   /* 14px */
+  --text-base: 1rem;     /* 16px */
+  --text-lg: 1.125rem;   /* 18px */
+  --text-xl: 1.25rem;    /* 20px */
+  --text-2xl: 1.5rem;    /* 24px */
+  --text-3xl: 1.875rem;  /* 30px */
+  --text-4xl: 2.25rem;   /* 36px */
+}
+
+/* Font weights */
+:root {
+  --font-normal: 400;
+  --font-medium: 500;
+  --font-semibold: 600;
+  --font-bold: 700;
+}
+
+/* Line heights */
+:root {
+  --leading-tight: 1.25;
+  --leading-snug: 1.375;
+  --leading-normal: 1.5;
+  --leading-relaxed: 1.625;
+}
+
+/* Transizioni standardizzate */
+:root {
+  --transition-fast: 100ms var(--ease-out);
+  --transition-base: 200ms var(--ease-out);
+  --transition-slow: 300ms var(--ease-drawer);
+}
+
+/* Focus visible standardizzato */
+:root {
+  --focus-ring: 0 0 0 2px var(--sfondo), 0 0 0 4px var(--accento);
+}

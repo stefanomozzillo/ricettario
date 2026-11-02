@@ -88,7 +88,7 @@
 @layer components {
   /* Layout generale */
   .app-layout { @apply min-h-screen flex flex-col bg-sfondo text-testo; }
-  .app-header { @apply sticky top-0 z-40 flex items-center justify-between gap-2 px-4 h-14 bg-card border-b border-card-bordo shadow-ombra; }
+  .app-header { @apply sticky top-0 z-40 flex items-center justify-between gap-2 px-4 h-14 bg-card border-b border-card-bordo shadow-[var(--elevazione-1)]; }
   .header-left { @apply flex items-center gap-2; }
   .header-center { @apply flex-1 flex items-center justify-center; }
   .header-right { @apply flex items-center gap-2; }
@@ -107,12 +107,12 @@
   .mood-label { @apply whitespace-nowrap; }
   .mood-chevron { @apply transition-transform; }
   .mood-chevron.rotate { @apply rotate-180; }
-  .mood-dropdown { @apply absolute left-1/2 -translate-x-1/2 top-full mt-1 min-w-44 list-none m-0 p-1 bg-card border border-card-bordo rounded-xl shadow-ombra-forte z-50; }
+  .mood-dropdown { @apply absolute left-1/2 -translate-x-1/2 top-full mt-1 min-w-44 list-none m-0 p-1 bg-card border border-card-bordo rounded-xl shadow-[var(--elevazione-2)] z-50; }
   .mood-option { @apply block w-full text-left px-3 py-2 rounded-lg text-sm text-testo hover:bg-badge-sfondo; }
   .mood-option.active { @apply bg-badge-sfondo font-bold text-accento; }
   .user-menu { @apply relative; }
   .user-trigger { @apply rounded-full p-2 hover:bg-badge-sfondo text-testo; }
-  .user-dropdown { @apply absolute right-0 top-full mt-1 min-w-48 bg-card border border-card-bordo rounded-xl shadow-ombra-forte z-50 py-1; }
+  .user-dropdown { @apply absolute right-0 top-full mt-1 min-w-48 bg-card border border-card-bordo rounded-xl shadow-[var(--elevazione-2)] z-50 py-1; }
   .user-info { @apply px-4 py-2 border-b border-card-bordo; }
   .user-email { @apply text-sm font-medium text-testo break-all; }
   .dropdown-item { @apply flex items-center gap-2 w-full px-4 py-2 text-sm font-medium text-testo hover:bg-badge-sfondo; }
@@ -144,7 +144,7 @@
   .btn-video-link { @apply flex items-center gap-1 text-sm text-link bg-transparent px-2 py-1 hover:text-link-hover; }
 
   /* Card & badge */
-  .card { @apply bg-card border border-card-bordo rounded-xl shadow-ombra; }
+  .card { @apply bg-card border border-card-bordo rounded-xl shadow-[var(--elevazione-1)]; }
   .card-header { @apply flex items-start justify-between gap-2; }
   .badge { @apply inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-semibold bg-badge-sfondo text-badge-testo; }
   .badge-tag { @apply inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold bg-badge-sfondo text-badge-testo; }
@@ -167,7 +167,7 @@
   .search-icon { @apply absolute left-3 top-1/2 -translate-y-1/2 text-testo/40 pointer-events-none; }
   .search-input { @apply pl-10 pr-9; }
   .clear-search { @apply absolute right-2 top-1/2 -translate-y-1/2 text-testo/40 hover:text-testo bg-transparent p-1; }
-  .filters-panel { @apply bg-card border border-card-bordo rounded-xl shadow-ombra p-4 flex flex-col gap-3 mb-4; }
+  .filters-panel { @apply bg-card border border-card-bordo rounded-xl shadow-[var(--elevazione-1)] p-4 flex flex-col gap-3 mb-4; }
   .filter-group { @apply flex flex-col gap-1.5; }
   .filter-row { @apply flex items-center gap-2 flex-wrap; }
   .filter-select { @apply w-auto text-sm px-3 py-2; }
@@ -180,7 +180,7 @@
   /* Elenco ricette */
   .recipes-list { @apply flex flex-col gap-4; }
   .recipes-grid { @apply grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4; }
-  .recipe-card { @apply bg-card border border-card-bordo rounded-xl shadow-ombra p-4 flex flex-col gap-2 cursor-pointer transition-shadow hover:shadow-ombra-forte; }
+  .recipe-card { @apply bg-card border border-card-bordo rounded-xl shadow-[var(--elevazione-1)] p-4 flex flex-col gap-2 cursor-pointer transition-shadow hover:shadow-[var(--elevazione-2)]; }
   .recipe-title { @apply font-titoli text-lg font-bold text-secondario m-0; }
   .recipe-meta { @apply flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-testo/60; }
   .recipe-meta-inline { @apply flex flex-wrap items-center gap-1; }
@@ -193,7 +193,7 @@
   .no-time { @apply italic text-testo/50; }
 
   /* Stati vuoti/errore/skeleton */
-  .empty-state, .error-state { @apply bg-card border border-card-bordo rounded-xl shadow-ombra p-8 flex flex-col items-center gap-2 text-center text-testo/70; }
+  .empty-state, .error-state { @apply bg-card border border-card-bordo rounded-xl shadow-[var(--elevazione-1)] p-8 flex flex-col items-center gap-2 text-center text-testo/70; }
   .empty-icon { @apply text-testo/30; }
   .error-icon { @apply text-red-500; }
   .empty-hint { @apply text-sm text-testo/60; }
@@ -203,7 +203,7 @@
   .skeleton-line { @apply h-4 rounded bg-badge-sfondo animate-pulse; }
   .skeleton-badge { @apply h-5 w-16 rounded-full bg-badge-sfondo animate-pulse; }
   .loading-overlay { @apply fixed inset-0 z-50 flex items-center justify-center; background: color-mix(in srgb, var(--sfondo) 80%, transparent); }
-  .loading-overlay-content { @apply bg-card border border-card-bordo rounded-xl shadow-ombra p-6 flex flex-col items-center gap-3; }
+  .loading-overlay-content { @apply bg-card border border-card-bordo rounded-xl shadow-[var(--elevazione-2)] p-6 flex flex-col items-center gap-3; }
 
   /* Dettaglio ricetta */
   .detail-page { @apply flex flex-col gap-4; }
@@ -245,11 +245,11 @@
   .cooking-overlay-content { @apply flex-1 flex flex-col items-center justify-center gap-6 p-6 text-center; }
   .cooking-mode-view { @apply w-full max-w-lg mx-auto flex flex-col gap-4; }
   .cooking-nav { @apply flex justify-between gap-2; }
-  .cooking-step { @apply bg-card border border-card-bordo rounded-xl shadow-ombra p-6 text-center; }
+  .cooking-step { @apply bg-card border border-card-bordo rounded-xl shadow-[var(--elevazione-1)] p-6 text-center; }
   .cooking-step-text { @apply font-titoli text-xl leading-relaxed text-testo m-0; }
   .cooking-progress { @apply text-sm text-testo/60; }
   .close-cooking { @apply self-start; }
-  .progress-bar { @apply h-2 rounded-full bg-badge-sfondo overflow-hidden; }
+  .progress-bar { @apply h-2 rounded-full bg-card-bordo overflow-hidden; }
   .progress-fill { @apply h-full bg-accento transition-all; }
   .progress-text { @apply text-xs text-testo/60; }
 
@@ -277,7 +277,7 @@
   .step-fields { @apply flex-1 flex flex-col gap-1.5; }
   .step-index { @apply text-xs font-bold text-testo/50; }
   .autocomplete-wrapper { @apply relative; }
-  .autocomplete-dropdown { @apply absolute z-50 left-0 right-0 top-full mt-1 list-none m-0 p-1 max-h-48 overflow-auto bg-card border border-card-bordo rounded-lg shadow-ombra-forte; }
+  .autocomplete-dropdown { @apply absolute z-50 left-0 right-0 top-full mt-1 list-none m-0 p-1 max-h-48 overflow-auto bg-card border border-card-bordo rounded-lg shadow-[var(--elevazione-2)]; }
   .form-footer { @apply flex justify-end gap-2 mt-2; }
   .hint-icon { @apply text-testo/40; }
 
@@ -304,7 +304,7 @@
 
   /* Roulette & Pantry */
   .roulette-page, .pantry-page { @apply w-full max-w-2xl mx-auto px-4 py-4 flex flex-col gap-4; }
-  .roulette-card { @apply bg-card border border-card-bordo rounded-xl shadow-ombra p-6 flex flex-col items-center gap-4 text-center; }
+  .roulette-card { @apply bg-card border border-card-bordo rounded-xl shadow-[var(--elevazione-1)] p-6 flex flex-col items-center gap-4 text-center; }
   .roulette-content { @apply flex flex-col items-center gap-2; }
   .roulette-icon, .pantry-icon { @apply text-accento; }
   .roulette-filters { @apply bg-card border border-card-bordo rounded-xl p-4 flex flex-col gap-3; }
@@ -331,7 +331,7 @@
 
   /* Error boundary */
   .error-boundary { @apply min-h-screen flex items-center justify-center p-4 bg-sfondo; }
-  .error-content { @apply bg-card border border-card-bordo rounded-xl shadow-ombra p-6 max-w-md w-full flex flex-col items-center gap-3 text-center; }
+  .error-content { @apply bg-card border border-card-bordo rounded-xl shadow-[var(--elevazione-1)] p-6 max-w-md w-full flex flex-col items-center gap-3 text-center; }
   .error-message { @apply text-testo/70 m-0; }
   .error-details { @apply w-full text-left text-xs bg-badge-sfondo rounded-lg p-2; }
   .error-actions { @apply flex gap-2 flex-wrap justify-center; }

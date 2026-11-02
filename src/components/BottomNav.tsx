@@ -24,7 +24,7 @@ export function BottomNav() {
   return (
     <>
       <nav
-        className="fixed bottom-0 left-0 right-0 z-50 bg-[var(--sfondo)]/95 backdrop-blur supports-[backdrop-filter]:bg-[var(--sfondo)]/80 border-t border-[var(--bordo)] pb-safe"
+        className="fixed bottom-0 left-0 right-0 z-50 bg-[var(--sfondo)]/95 backdrop-blur supports-[backdrop-filter]:bg-[var(--sfondo)]/80 border-t border-[var(--bordo)] pb-safe shadow-[var(--elevazione-3)]"
         style={{ paddingBottom: 'env(safe-area-inset-bottom, 0px)' }}
         role="navigation"
         aria-label="Navigazione principale"
@@ -39,7 +39,7 @@ export function BottomNav() {
                   'flex flex-col items-center gap-1 px-3 py-2',
                   'text-sm font-medium',
                   'touch-manipulation',
-                  'transition-[transform] duration-100',
+                  'transition-[transform,color] duration-100 ease-out',
                   'active:scale-[0.97]',
                   isActive(item.path, item.exact)
                     ? 'text-[var(--accento)]'
