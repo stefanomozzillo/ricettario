@@ -23,6 +23,7 @@ FASE A in corso — codice completato, **verifiche mancanti**.
 - [x] `ErrorBoundary`, `NetworkStatus`, `Loading`
 - [x] Route Roulette/Pantry attivate in `App.tsx`
 - [x] Build `npm run build` passa
+- [x] Tailwind v4 installato e configurato (plugin Vite, token `@theme inline` dai mood, componenti in `@layer` con `@apply`)
 - [x] `.env.local` presente (non committato)
 - [x] Supabase: schema.sql + seed.sql eseguiti, signup pubblico disabilitato (solo "Enable email signups"), 2 utenti creati + in utenti_abilitati
 

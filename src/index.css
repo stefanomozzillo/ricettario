@@ -1,24 +1,345 @@
-/**
- * Stili minimali - mood-palettes.css contiene il design system completo
- * Questo file serve solo per reset base e assicurare che #root occupi tutta l'altezza
- */
+@import "tailwindcss";
 
-* {
-  box-sizing: border-box;
+/* Token del tema: puntano alle variabili runtime dei mood (data-mood),
+   così ogni utility cambia colore quando cambia il mood. */
+@theme inline {
+  --color-sfondo: var(--sfondo);
+  --color-testo: var(--testo);
+  --color-secondario: var(--secondario);
+  --color-accento: var(--accento);
+  --color-accento-testo: var(--accento-testo);
+  --color-card: var(--card-sfondo);
+  --color-card-bordo: var(--card-bordo);
+  --color-input-sfondo: var(--input-sfondo);
+  --color-input-bordo: var(--input-bordo);
+  --color-input-focus: var(--input-focus);
+  --color-badge-sfondo: var(--badge-sfondo);
+  --color-badge-testo: var(--badge-testo);
+  --color-link: var(--link);
+  --color-link-hover: var(--link-hover);
+  --shadow-ombra: var(--ombra);
+  --shadow-ombra-forte: var(--ombra-forte);
+  --font-base: var(--font-base);
+  --font-titoli: var(--font-titoli);
 }
 
-html {
-  font-size: 16px;
-  -webkit-text-size-adjust: 100%;
+@layer base {
+  html {
+    font-size: 16px;
+    -webkit-text-size-adjust: 100%;
+  }
+
+  body {
+    @apply m-0 min-h-screen bg-sfondo font-base text-testo;
+    line-height: 1.6;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    @apply m-0 mb-2 font-titoli leading-tight text-secondario;
+  }
+  h1 { font-size: clamp(1.75rem, 5vw, 2.5rem); }
+  h2 { font-size: clamp(1.5rem, 4vw, 2rem); }
+  h3 { font-size: clamp(1.25rem, 3vw, 1.5rem); }
+
+  a {
+    @apply text-link no-underline;
+  }
+  a:hover {
+    color: var(--link-hover);
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--accento);
+    outline-offset: 2px;
+  }
+
+  ::selection {
+    background-color: color-mix(in srgb, var(--accento) 30%, transparent);
+    color: var(--testo);
+  }
+
+  button {
+    @apply cursor-pointer rounded-lg px-6 py-3 text-base font-semibold;
+    font-family: inherit;
+  }
+  button:disabled {
+    @apply cursor-not-allowed opacity-50;
+  }
+
+  input, textarea, select {
+    @apply w-full rounded-lg border border-input-bordo bg-input-sfondo px-4 py-3 text-base text-testo;
+  }
+  input[type='checkbox'], input[type='radio'] {
+    @apply w-auto px-0 py-0;
+  }
+  input:focus, textarea:focus, select:focus {
+    @apply border-input-focus outline-none;
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--input-focus) 20%, transparent);
+  }
+  input::placeholder, textarea::placeholder {
+    @apply text-testo/40;
+  }
+
+  #root {
+    @apply flex min-h-screen flex-col;
+  }
 }
 
-body {
-  margin: 0;
-  min-height: 100vh;
-}
+@layer components {
+  /* Layout generale */
+  .app-layout { @apply min-h-screen flex flex-col bg-sfondo text-testo; }
+  .app-header { @apply sticky top-0 z-40 flex items-center justify-between gap-2 px-4 h-14 bg-card border-b border-card-bordo shadow-ombra; }
+  .header-left { @apply flex items-center gap-2; }
+  .header-center { @apply flex-1 flex items-center justify-center; }
+  .header-right { @apply flex items-center gap-2; }
+  .header-content { @apply flex items-center justify-between gap-2; }
+  .header-actions { @apply flex items-center gap-2; }
+  .header-meta { @apply text-sm text-testo/60; }
+  .header-spacer { @apply flex-1; }
+  .app-title { @apply font-titoli text-lg font-bold text-secondario m-0; }
+  .app-main { @apply flex-1 w-full max-w-3xl mx-auto px-4 pt-4 pb-28; }
+  .bottom-nav { @apply fixed bottom-0 inset-x-0 z-40 flex bg-card border-t border-card-bordo; padding-bottom: env(safe-area-inset-bottom); }
+  .nav-item { @apply flex-1 flex flex-col items-center gap-0.5 py-2 text-testo/50; }
+  .nav-item.active { @apply text-accento font-semibold; }
+  .nav-label { @apply text-[11px] leading-tight; }
+  .mood-selector { @apply relative; }
+  .mood-trigger { @apply flex items-center gap-1 px-3 py-2 rounded-full bg-badge-sfondo text-badge-testo text-sm font-semibold; }
+  .mood-label { @apply whitespace-nowrap; }
+  .mood-chevron { @apply transition-transform; }
+  .mood-chevron.rotate { @apply rotate-180; }
+  .mood-dropdown { @apply absolute left-1/2 -translate-x-1/2 top-full mt-1 min-w-44 list-none m-0 p-1 bg-card border border-card-bordo rounded-xl shadow-ombra-forte z-50; }
+  .mood-option { @apply block w-full text-left px-3 py-2 rounded-lg text-sm text-testo hover:bg-badge-sfondo; }
+  .mood-option.active { @apply bg-badge-sfondo font-bold text-accento; }
+  .user-menu { @apply relative; }
+  .user-trigger { @apply rounded-full p-2 hover:bg-badge-sfondo text-testo; }
+  .user-dropdown { @apply absolute right-0 top-full mt-1 min-w-48 bg-card border border-card-bordo rounded-xl shadow-ombra-forte z-50 py-1; }
+  .user-info { @apply px-4 py-2 border-b border-card-bordo; }
+  .user-email { @apply text-sm font-medium text-testo break-all; }
+  .dropdown-item { @apply flex items-center gap-2 w-full px-4 py-2 text-sm font-medium text-testo hover:bg-badge-sfondo; }
+  .dropdown-overlay { @apply fixed inset-0 z-30; }
+  .btn-add { @apply flex items-center gap-1 px-3 rounded-full; }
+  .btn-add-text { @apply text-sm hidden sm:inline; }
+  .loading-screen { @apply min-h-screen flex items-center justify-center bg-sfondo; }
+  .spin { @apply animate-spin; }
+  .rotate { @apply rotate-180; }
 
-#root {
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
+  /* Bottoni */
+  .btn-primary { @apply bg-accento text-accento-testo; }
+  .btn-primary:hover:not(:disabled) { filter: brightness(1.1); }
+  .btn-secondary { @apply bg-card text-testo border border-card-bordo; }
+  .btn-secondary:hover:not(:disabled) { @apply bg-card-bordo; }
+  .btn-ghost { @apply bg-transparent text-testo; }
+  .btn-ghost:hover:not(:disabled) { @apply bg-badge-sfondo; }
+  .btn-danger { @apply bg-red-600 text-white; }
+  .btn-danger:hover:not(:disabled) { @apply bg-red-700; }
+  .btn-text { @apply bg-transparent text-testo/60 font-medium px-3 py-2; }
+  .btn-text.active { @apply text-accento border-b-2 border-accento; }
+  .btn-back { @apply bg-transparent text-testo flex items-center gap-1 text-sm px-2 py-2 rounded-lg hover:bg-badge-sfondo cursor-pointer font-semibold; font-family: inherit; }
+  .btn-icon { @apply p-2 rounded-full hover:bg-badge-sfondo bg-transparent text-testo; }
+  .btn-nav { @apply flex items-center gap-1 text-sm; }
+  .btn-made { @apply bg-card text-testo border border-card-bordo flex items-center gap-1 text-sm; }
+  .btn-porzioni { @apply p-1.5 rounded-md border border-card-bordo bg-card text-testo; }
+  .btn-remove { @apply p-1.5 rounded-md text-red-500 hover:bg-red-50 bg-transparent; }
+  .btn-remove-small { @apply p-1 rounded text-red-500 hover:bg-red-50 bg-transparent text-sm; }
+  .btn-video-link { @apply flex items-center gap-1 text-sm text-link bg-transparent px-2 py-1 hover:text-link-hover; }
+
+  /* Card & badge */
+  .card { @apply bg-card border border-card-bordo rounded-xl shadow-ombra; }
+  .card-header { @apply flex items-start justify-between gap-2; }
+  .badge { @apply inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-semibold bg-badge-sfondo text-badge-testo; }
+  .badge-tag { @apply inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold bg-badge-sfondo text-badge-testo; }
+  .badge-warning { @apply inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold bg-accento text-accento-testo; }
+  .meta-chip { @apply inline-flex items-center px-2 py-0.5 rounded-full text-xs bg-badge-sfondo text-badge-testo; }
+  .mood-badge { @apply inline-flex items-center px-2 py-0.5 rounded-full text-xs font-bold bg-accento text-accento-testo; }
+  .ignored-badge { @apply inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs bg-badge-sfondo text-badge-testo; }
+  .filter-badge { @apply inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-semibold bg-accento text-accento-testo; }
+
+  /* Contenitori pagine */
+  .page-container { @apply w-full max-w-3xl mx-auto px-4 py-4; }
+  .page-header { @apply flex flex-col gap-2 mb-4; }
+  .list-header { @apply flex flex-col gap-3 mb-4; }
+  .section-header { @apply font-titoli text-lg font-bold text-secondario m-0; }
+  .section-desc { @apply text-sm text-testo/60; }
+
+  /* Ricerca & filtri */
+  .search-wrapper { @apply relative flex-1; }
+  .search-input-wrapper { @apply relative; }
+  .search-icon { @apply absolute left-3 top-1/2 -translate-y-1/2 text-testo/40 pointer-events-none; }
+  .search-input { @apply pl-10 pr-9; }
+  .clear-search { @apply absolute right-2 top-1/2 -translate-y-1/2 text-testo/40 hover:text-testo bg-transparent p-1; }
+  .filters-panel { @apply bg-card border border-card-bordo rounded-xl shadow-ombra p-4 flex flex-col gap-3 mb-4; }
+  .filter-group { @apply flex flex-col gap-1.5; }
+  .filter-row { @apply flex items-center gap-2 flex-wrap; }
+  .filter-select { @apply w-auto text-sm px-3 py-2; }
+  .filter-checkboxes, .tag-checkboxes { @apply flex flex-wrap gap-2; }
+  .checkbox-label { @apply flex items-center gap-2 text-sm cursor-pointer select-none; }
+  .tag-checkbox { @apply flex items-center gap-1.5 text-sm px-3 py-1.5 rounded-full border border-card-bordo bg-card cursor-pointer; }
+  .tag-checkbox:has(input:checked) { @apply bg-accento text-accento-testo border-accento; }
+  .clear-filters { @apply text-sm text-link hover:text-link-hover underline bg-transparent px-0 py-0 font-medium; }
+
+  /* Elenco ricette */
+  .recipes-list { @apply flex flex-col gap-4; }
+  .recipes-grid { @apply grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4; }
+  .recipe-card { @apply bg-card border border-card-bordo rounded-xl shadow-ombra p-4 flex flex-col gap-2 cursor-pointer transition-shadow hover:shadow-ombra-forte; }
+  .recipe-title { @apply font-titoli text-lg font-bold text-secondario m-0; }
+  .recipe-meta { @apply flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-testo/60; }
+  .recipe-meta-inline { @apply flex flex-wrap items-center gap-1; }
+  .meta-item { @apply flex items-center gap-1; }
+  .meta-label { @apply font-semibold text-testo/70; }
+  .recipe-tags { @apply flex flex-wrap gap-1; }
+  .recipe-footer { @apply flex items-center justify-between gap-2 text-xs text-testo/60 mt-auto; }
+  .recipe-autore { @apply italic; }
+  .more { @apply text-sm text-link hover:text-link-hover bg-transparent px-0 py-0 font-medium; }
+  .no-time { @apply italic text-testo/50; }
+
+  /* Stati vuoti/errore/skeleton */
+  .empty-state, .error-state { @apply bg-card border border-card-bordo rounded-xl shadow-ombra p-8 flex flex-col items-center gap-2 text-center text-testo/70; }
+  .empty-icon { @apply text-testo/30; }
+  .error-icon { @apply text-red-500; }
+  .empty-hint { @apply text-sm text-testo/60; }
+  .loading-skeleton { @apply animate-pulse; }
+  .skeleton { @apply animate-pulse bg-badge-sfondo rounded; }
+  .skeleton-card { @apply bg-card border border-card-bordo rounded-xl p-4 flex flex-col gap-2 animate-pulse; }
+  .skeleton-line { @apply h-4 rounded bg-badge-sfondo animate-pulse; }
+  .skeleton-badge { @apply h-5 w-16 rounded-full bg-badge-sfondo animate-pulse; }
+  .loading-overlay { @apply fixed inset-0 z-50 flex items-center justify-center; background: color-mix(in srgb, var(--sfondo) 80%, transparent); }
+  .loading-overlay-content { @apply bg-card border border-card-bordo rounded-xl shadow-ombra p-6 flex flex-col items-center gap-3; }
+
+  /* Dettaglio ricetta */
+  .detail-page { @apply flex flex-col gap-4; }
+  .detail-header { @apply flex flex-col gap-2; }
+  .header-info { @apply flex flex-wrap items-center gap-2; }
+  .detail-actions { @apply flex flex-wrap gap-2; }
+  .detail-content { @apply flex flex-col gap-4; }
+  .da-completare-notice, .warning { @apply flex items-center gap-2 p-3 rounded-lg text-sm bg-badge-sfondo text-badge-testo; }
+  .detail-ingredients { @apply bg-card border border-card-bordo rounded-xl p-4; }
+  .group-title { @apply font-titoli font-bold text-secondario mt-0 mb-2; }
+  .ingredients-list { @apply list-none m-0 p-0 flex flex-col; }
+  .ingredient-group { @apply mb-3 last:mb-0; }
+  .ingredient-item { @apply flex items-start gap-2 py-1.5; }
+  .ingredient-checkbox { @apply flex items-center gap-2 cursor-pointer select-none text-testo; }
+  .checkmark { @apply text-accento; }
+  .ingredient-details { @apply flex-1 flex flex-wrap items-baseline gap-x-2; }
+  .ingredient-name { @apply font-medium; }
+  .ingredient-qty { @apply text-sm text-testo/70 font-semibold; }
+  .ingredient-note { @apply w-full text-xs text-testo/50; }
+  .porzioni-control { @apply flex items-center gap-2; }
+  .porzioni-value { @apply min-w-8 text-center font-bold text-lg; }
+  .info-grid { @apply grid grid-cols-2 sm:grid-cols-3 gap-2; }
+  .info-item { @apply bg-card border border-card-bordo rounded-lg p-2 flex flex-col; }
+  .info-label { @apply text-xs text-testo/50; }
+  .info-value { @apply font-semibold text-sm; }
+  .recipe-meta-inline { @apply flex flex-wrap gap-1; }
+  .note-section, .varianti-section { @apply bg-card border border-card-bordo rounded-xl p-4; }
+  .steps-list { @apply list-none m-0 p-0 flex flex-col gap-3; }
+  .step-item { @apply flex gap-3; }
+  .step-number { @apply w-7 h-7 shrink-0 rounded-full bg-accento text-accento-testo flex items-center justify-center text-sm font-bold; }
+  .step-content { @apply flex-1 min-w-0; }
+  .step-text { @apply text-testo m-0; }
+  .step-video { @apply mt-1; }
+  .btn-video-link { @apply flex items-center gap-1 text-sm text-link bg-transparent px-2 py-1 hover:text-link-hover; }
+  .full-width { @apply w-full; }
+  .primary { @apply text-accento font-semibold; }
+  .danger { @apply text-red-500; }
+  .cooking-overlay { @apply fixed inset-0 z-50 flex flex-col bg-sfondo; }
+  .cooking-overlay-content { @apply flex-1 flex flex-col items-center justify-center gap-6 p-6 text-center; }
+  .cooking-mode-view { @apply w-full max-w-lg mx-auto flex flex-col gap-4; }
+  .cooking-nav { @apply flex justify-between gap-2; }
+  .cooking-step { @apply bg-card border border-card-bordo rounded-xl shadow-ombra p-6 text-center; }
+  .cooking-step-text { @apply font-titoli text-xl leading-relaxed text-testo m-0; }
+  .cooking-progress { @apply text-sm text-testo/60; }
+  .close-cooking { @apply self-start; }
+  .progress-bar { @apply h-2 rounded-full bg-badge-sfondo overflow-hidden; }
+  .progress-fill { @apply h-full bg-accento transition-all; }
+  .progress-text { @apply text-xs text-testo/60; }
+
+  /* Form ricetta */
+  .form-page { @apply w-full max-w-2xl mx-auto px-4 py-4; }
+  .form-header { @apply flex items-center gap-2 mb-4; }
+  .form-content { @apply flex flex-col gap-4; }
+  .form-section { @apply bg-card border border-card-bordo rounded-xl p-4 flex flex-col gap-3; }
+  .form-field { @apply flex flex-col gap-1; }
+  .form-row { @apply grid grid-cols-1 sm:grid-cols-2 gap-3; }
+  .form-input, .form-select, .form-textarea { @apply text-sm; }
+  .form-hint { @apply text-xs text-testo/50; }
+  .form-error, .field-error { @apply text-xs text-red-500; }
+  .required { @apply text-accento; }
+  .radio-group { @apply flex flex-wrap gap-4; }
+  .radio-label { @apply flex items-center gap-1.5 text-sm cursor-pointer; }
+  .form-array, .steps-array { @apply flex flex-col gap-2; }
+  .array-item { @apply flex items-start gap-2 p-3 rounded-lg border border-card-bordo bg-card; }
+  .drag-handle { @apply cursor-grab text-testo/40 shrink-0 mt-2; }
+  .ingredient-row, .step-row { @apply flex items-start gap-2; }
+  .ingredient-fields { @apply flex-1 grid grid-cols-2 sm:grid-cols-[1fr_5rem_7rem] gap-2; }
+  .qty-field { @apply w-full; }
+  .unit-field { @apply w-full; }
+  .video-field { @apply col-span-full; }
+  .step-fields { @apply flex-1 flex flex-col gap-1.5; }
+  .step-index { @apply text-xs font-bold text-testo/50; }
+  .autocomplete-wrapper { @apply relative; }
+  .autocomplete-dropdown { @apply absolute z-50 left-0 right-0 top-full mt-1 list-none m-0 p-1 max-h-48 overflow-auto bg-card border border-card-bordo rounded-lg shadow-ombra-forte; }
+  .form-footer { @apply flex justify-end gap-2 mt-2; }
+  .hint-icon { @apply text-testo/40; }
+
+  /* Impostazioni */
+  .settings-page { @apply w-full max-w-2xl mx-auto px-4 py-4 flex flex-col gap-4; }
+  .settings-header { @apply mb-2; }
+  .settings-tabs { @apply flex gap-1 border-b border-card-bordo overflow-x-auto; }
+  .settings-section { @apply bg-card border border-card-bordo rounded-xl p-4 flex flex-col gap-3; }
+  .profile-info, .profile-member { @apply flex items-center gap-3; }
+  .avatar-placeholder { @apply w-10 h-10 rounded-full bg-accento text-accento-testo flex items-center justify-center font-bold shrink-0; }
+  .profile-details { @apply flex flex-col min-w-0; }
+  .profile-email { @apply font-medium text-testo break-all; }
+  .profile-role { @apply self-start; }
+  .auth-required { @apply p-3 rounded-lg text-sm bg-badge-sfondo text-badge-testo; }
+  .settings-actions, .settings-footer { @apply flex flex-wrap gap-2; }
+  .ignored-list { @apply flex flex-wrap gap-1.5; }
+  .ignored-item { @apply inline-flex items-center gap-1 px-3 py-1 rounded-full text-sm bg-badge-sfondo text-badge-testo; }
+  .add-ignored { @apply flex gap-2; }
+  .add-ingredient { @apply flex items-center gap-1 text-sm whitespace-nowrap; }
+  .chip-remove { @apply text-testo/50 hover:text-testo bg-transparent p-0; }
+  .import-area { @apply border-2 border-dashed border-card-bordo rounded-xl p-4 text-center text-sm text-testo/60; }
+  .file-input { @apply text-sm; }
+  .file-name { @apply text-sm text-testo/70; }
+
+  /* Roulette & Pantry */
+  .roulette-page, .pantry-page { @apply w-full max-w-2xl mx-auto px-4 py-4 flex flex-col gap-4; }
+  .roulette-card { @apply bg-card border border-card-bordo rounded-xl shadow-ombra p-6 flex flex-col items-center gap-4 text-center; }
+  .roulette-content { @apply flex flex-col items-center gap-2; }
+  .roulette-icon, .pantry-icon { @apply text-accento; }
+  .roulette-filters { @apply bg-card border border-card-bordo rounded-xl p-4 flex flex-col gap-3; }
+  .roulette-placeholder, .pantry-placeholder, .section-placeholder { @apply bg-card border border-card-bordo rounded-xl p-8 flex flex-col items-center gap-2 text-center text-testo/60; }
+  .placeholder-actions { @apply flex gap-2 justify-center flex-wrap; }
+  .feature-list { @apply list-disc pl-5 m-0 flex flex-col gap-1 text-sm text-testo/60; }
+  .pantry-content { @apply flex flex-col gap-4; }
+  .pantry-section { @apply bg-card border border-card-bordo rounded-xl p-4 flex flex-col gap-2; }
+  .ingredients-chips { @apply flex flex-wrap gap-1.5; }
+  .ingredient-chip { @apply inline-flex items-center gap-1 px-3 py-1 rounded-full text-sm bg-badge-sfondo text-badge-testo; }
+  .ready { @apply inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold bg-emerald-100 text-emerald-800; }
+  .missing { @apply inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold bg-red-100 text-red-800; }
+
+  /* Network status */
+  .online, .offline { @apply fixed top-0 inset-x-0 z-50 px-4 py-2 text-sm text-center text-white font-medium; }
+  .online { @apply bg-emerald-600; }
+  .offline { @apply bg-red-600; }
+  .banner-content { @apply flex items-center justify-center gap-2; }
+  .banner-icon { @apply shrink-0; }
+  .banner-text { @apply flex-1 text-left; }
+  .banner-dismiss { @apply underline bg-transparent text-white px-1 py-0 text-sm; }
+  .sync-indicator { @apply text-xs font-medium text-testo/70 bg-transparent px-2 py-1; }
+  .pending { @apply text-amber-500; }
+
+  /* Error boundary */
+  .error-boundary { @apply min-h-screen flex items-center justify-center p-4 bg-sfondo; }
+  .error-content { @apply bg-card border border-card-bordo rounded-xl shadow-ombra p-6 max-w-md w-full flex flex-col items-center gap-3 text-center; }
+  .error-message { @apply text-testo/70 m-0; }
+  .error-details { @apply w-full text-left text-xs bg-badge-sfondo rounded-lg p-2; }
+  .error-actions { @apply flex gap-2 flex-wrap justify-center; }
+
+  /* Utility varie */
+  .container { @apply w-full max-w-6xl mx-auto px-4 sm:px-8; }
+  .touch-target { @apply inline-flex items-center justify-center min-h-[44px] min-w-[44px]; }
+  .sr-only { @apply absolute w-px h-px p-0 -m-px overflow-hidden whitespace-nowrap border-0; clip-path: inset(50%); }
+  .accento-rosso { @apply text-red-600; }
+  .accento-turchese { @apply text-teal-600; }
 }
