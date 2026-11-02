@@ -1,7 +1,9 @@
 /**
  * Form Ricetta: add/edit con react-hook-form + zod validation
  * Supporta modalità "Da completare" (solo titolo) e completa
- * Usa componenti condivisi: Header, Button, Badge
+ * Usa componenti condivisi: Button, Badge
+ * NOTA: Header e Mood Bar ora sono nel Layout component
+ * NOTA: Rimossi campi video_secondi e fonte_url
  */
 
 import { useState, useEffect, useCallback } from 'react'
@@ -25,7 +27,6 @@ import {
   prepareRecipeForDb,
   normalizeRecipeFromDb,
 } from '../lib/types'
-import { Header } from '../components/Header'
 import { Button } from '../components/Button'
 
 interface RecipeFormComponentProps {
@@ -128,11 +129,11 @@ function RecipeFormComponent({ isEditing }: RecipeFormComponentProps) {
   }
 
   const handleAddStep = () => {
-    appendStep({ titolo: '', testo: '', video_secondi: undefined })
+    appendStep({ titolo: '', testo: '' })
   }
 
   const handleAddVariant = () => {
-    appendVariant({ titolo: '', testo: '', video_secondi: undefined })
+    appendVariant({ titolo: '', testo: '' })
   }
 
   const handleTagToggle = (tag: typeof ALL_TAGS[number]) => {
@@ -164,7 +165,6 @@ function RecipeFormComponent({ isEditing }: RecipeFormComponentProps) {
   if (loading) {
     return (
       <div className="page-container form-page">
-        <Header title={isEditing ? 'Modifica ricetta' : 'Nuova ricetta'} />
         <div className="max-w-[720px] mx-auto px-4">
           <div className="loading-skeleton space-y-4">
             <div className="skeleton-card bg-[var(--card)] rounded-2xl border border-[var(--bordo)] p-4 animate-pulse">
@@ -181,8 +181,6 @@ function RecipeFormComponent({ isEditing }: RecipeFormComponentProps) {
 
   return (
     <div className="page-container form-page">
-      <Header title={isEditing ? 'Modifica ricetta' : 'Nuova ricetta'} />
-
       <form onSubmit={handleSubmit(onSubmit as any)} className="form-content max-w-[720px] mx-auto px-4 pb-24" noValidate>
         {error && (
           <div className="form-error card bg-[var(--card)] rounded-xl border border-[var(--bordo)] p-4 mb-4 flex items-start gap-2 text-[var(--accento)]">
@@ -455,7 +453,7 @@ function RecipeFormComponent({ isEditing }: RecipeFormComponentProps) {
               )}
             </section>
 
-            {/* Passaggi */}
+            {/* Passaggi - RIMOSSO video_secondi */}
             <section className="form-section card bg-[var(--card)] rounded-2xl border border-[var(--bordo)] p-4 mb-4">
               <div className="section-header flex items-center justify-between mb-4">
                 <h2 className="text-lg font-semibold text-[var(--testo)]">Passaggi <span className="text-[var(--accento)]">*</span></h2>
@@ -508,22 +506,6 @@ function RecipeFormComponent({ isEditing }: RecipeFormComponentProps) {
                         )}
                       </div>
 
-                      <div className="form-field video-field">
-                        <label htmlFor={`step-${index}-video`} className="block text-sm font-medium text-[var(--testo)] mb-1">Video: secondo (opzionale)</label>
-                        <input
-                          id={`step-${index}-video`}
-                          type="number"
-                          min="0"
-                          placeholder="Es. 45"
-                          {...register(`passaggi.${index}.video_secondi`, { valueAsNumber: true })}
-                          className={clsx('form-input w-full px-4 py-3 rounded-xl border border-[var(--bordo)] bg-[var(--card)] text-[var(--testo)] placeholder-[var(--secondario)] focus:outline-none focus:ring-2 focus:ring-[var(--accento)] focus:border-transparent transition-all duration-150', errors.passaggi?.[index]?.video_secondi && 'border-[var(--accento)]')}
-                        />
-                        {errors.passaggi?.[index]?.video_secondi && (
-                          <p className="field-error text-sm text-[var(--accento)] mt-1">{errors.passaggi[index].video_secondi.message}</p>
-                        )}
-                        <p className="form-hint text-xs text-[var(--secondario)] mt-1">Secondo nel video della fonte (richiede URL fonte nella ricetta)</p>
-                      </div>
-
                       <Button
                         variant="ghost"
                         size="sm"
@@ -543,7 +525,7 @@ function RecipeFormComponent({ isEditing }: RecipeFormComponentProps) {
               )}
             </section>
 
-            {/* Varianti */}
+            {/* Varianti - RIMOSSO video_secondi */}
             <section className="form-section card bg-[var(--card)] rounded-2xl border border-[var(--bordo)] p-4 mb-4">
               <div className="section-header flex items-center justify-between mb-4">
                 <label className="text-lg font-semibold text-[var(--testo)]">Varianti (opzionale)</label>
@@ -591,22 +573,6 @@ function RecipeFormComponent({ isEditing }: RecipeFormComponentProps) {
                         {errors.varianti?.[index]?.testo && (
                           <p className="field-error text-sm text-[var(--accento)] mt-1">{errors.varianti[index].testo.message}</p>
                         )}
-                      </div>
-
-                      <div className="form-field video-field">
-                        <label htmlFor={`variant-${index}-video`} className="block text-sm font-medium text-[var(--testo)] mb-1">Video: secondo (opzionale)</label>
-                        <input
-                          id={`variant-${index}-video`}
-                          type="number"
-                          min="0"
-                          placeholder="Es. 120"
-                          {...register(`varianti.${index}.video_secondi`, { valueAsNumber: true })}
-                          className={clsx('form-input w-full px-4 py-3 rounded-xl border border-[var(--bordo)] bg-[var(--card)] text-[var(--testo)] placeholder-[var(--secondario)] focus:outline-none focus:ring-2 focus:ring-[var(--accento)] focus:border-transparent transition-all duration-150', errors.varianti?.[index]?.video_secondi && 'border-[var(--accento)]')}
-                        />
-                        {errors.varianti?.[index]?.video_secondi && (
-                          <p className="field-error text-sm text-[var(--accento)] mt-1">{errors.varianti[index].video_secondi.message}</p>
-                        )}
-                        <p className="form-hint text-xs text-[var(--secondario)] mt-1">Secondo nel video della fonte</p>
                       </div>
 
                       <Button

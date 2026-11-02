@@ -167,25 +167,23 @@ export const ingredienteSchema = z.object({
 
 export type Ingrediente = z.infer<typeof ingredienteSchema>
 
-// Passaggio
+// Passaggio - RIMOSSO video_secondi
 export const passaggioSchema = z.object({
   titolo: z.string().optional().nullable(),
   testo: z.string().min(1, 'Testo passaggio obbligatorio'),
-  video_secondi: z.number().int().min(0).optional().nullable(),
 })
 
 export type Passaggio = z.infer<typeof passaggioSchema>
 
-// Variante
+// Variante - RIMOSSO video_secondi
 export const varianteSchema = z.object({
   titolo: z.string().min(1, 'Titolo variante obbligatorio'),
   testo: z.string().min(1, 'Testo variante obbligatorio'),
-  video_secondi: z.number().int().min(0).optional().nullable(),
 })
 
 export type Variante = z.infer<typeof varianteSchema>
 
-// Ricetta base (campi comuni)
+// Ricetta base (campi comuni) - RIMOSSO fonte_url
 const baseRecipeSchema = z.object({
   titolo: z.string().min(1, 'Titolo obbligatorio'),
   autore: z.string().optional().nullable(),
@@ -201,7 +199,6 @@ const baseRecipeSchema = z.object({
   varianti: z.array(varianteSchema).default([]),
   note: z.string().optional().nullable(),
   descrizione: z.string().optional().nullable(),
-  fonte_url: z.string().url('URL non valido').optional().nullable(),
 })
 
 // Ricetta per INSERT (senza id, created_at, updated_at, contatori)
@@ -256,7 +253,7 @@ export const recipeSchema = baseRecipeSchema.extend({
 
 export type Recipe = z.infer<typeof recipeSchema>
 
-// Tipo per il form (con campi opzionali per default values)
+// Tipo per il form (con campi opzionali per default values) - RIMOSSO fonte_url
 export const recipeFormSchema = baseRecipeSchema.extend({
   // Override per rendere tutti i campi opzionali nel form (default values)
   ingredienti: z.array(ingredienteSchema).default([]),
@@ -281,7 +278,7 @@ export const recipeFormSchema = baseRecipeSchema.extend({
   }
 })
 
-// Tipo output esplicito per il form (array sempre required)
+// Tipo output esplicito per il form (array sempre required) - RIMOSSO fonte_url
 export type RecipeFormData = {
   titolo: string
   autore: string | null
@@ -297,7 +294,6 @@ export type RecipeFormData = {
   varianti: Variante[]
   note: string | null
   descrizione: string | null
-  fonte_url: string | null
 }
 
 // ============================================
@@ -319,31 +315,29 @@ export function normalizeIngredientFromDb(ing: unknown): Ingrediente {
 }
 
 /**
- * Normalizza un passaggio dal database al formato form
+ * Normalizza un passaggio dal database al formato form - RIMOSSO video_secondi
  */
 export function normalizePassaggioFromDb(p: unknown): Passaggio {
   const step = p as Record<string, unknown>
   return {
     titolo: (step.titolo as string | null) ?? null,
     testo: String(step.testo ?? ''),
-    video_secondi: (step.video_secondi as number | null) ?? null,
   }
 }
 
 /**
- * Normalizza una variante dal database al formato form
+ * Normalizza una variante dal database al formato form - RIMOSSO video_secondi
  */
 export function normalizeVarianteFromDb(v: unknown): Variante {
   const variant = v as Record<string, unknown>
   return {
     titolo: String(variant.titolo ?? ''),
     testo: String(variant.testo ?? ''),
-    video_secondi: (variant.video_secondi as number | null) ?? null,
   }
 }
 
 /**
- * Normalizza una ricetta dal database al formato form
+ * Normalizza una ricetta dal database al formato form - RIMOSSO fonte_url
  */
 export function normalizeRecipeFromDb(data: unknown): RecipeFormData {
   const r = data as Record<string, unknown>
@@ -362,12 +356,11 @@ export function normalizeRecipeFromDb(data: unknown): RecipeFormData {
     varianti: ((r.varianti as unknown[]) ?? []).map(normalizeVarianteFromDb),
     note: (r.note as string | null) ?? null,
     descrizione: (r.descrizione as string | null) ?? null,
-    fonte_url: (r.fonte_url as string | null) ?? null,
   }
 }
 
 /**
- * Prepara una ricetta per il salvataggio nel database
+ * Prepara una ricetta per il salvataggio nel database - RIMOSSO video_secondi
  */
 export function prepareRecipeForDb(data: RecipeFormData): RecipeInsert {
   // Helper: converte 0, NaN, stringa vuota in null per campi numerici opzionali
@@ -394,12 +387,10 @@ export function prepareRecipeForDb(data: RecipeFormData): RecipeInsert {
     passaggi: data.passaggi.map(p => ({
       titolo: p.titolo?.trim() || null,
       testo: p.testo.trim(),
-      video_secondi: normalizeNumber(p.video_secondi),
     })),
     varianti: data.varianti.map(v => ({
       titolo: v.titolo.trim(),
       testo: v.testo.trim(),
-      video_secondi: normalizeNumber(v.video_secondi),
     })),
     tags: data.tags,
   }

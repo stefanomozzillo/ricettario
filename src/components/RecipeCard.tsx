@@ -42,18 +42,28 @@ export function RecipeCard({ recipe, onClick }: RecipeCardProps) {
   return (
     <article
       className={clsx(
-        'card relative bg-[var(--card)] rounded-2xl border border-[var(--card-bordo)]',
+        'recipe-card relative bg-[var(--card)] rounded-2xl border border-[var(--card-bordo)]',
         'shadow-[var(--elevazione-1)]',
-        'transition-[transform,box-shadow] duration-200 ease-out',
-        'hover:-translate-y-1 hover:shadow-[var(--elevazione-2)]',
-        'active:scale-[0.99] active:shadow-[var(--elevazione-1)]',
-        'touch-manipulation'
+        'transition-[transform,box-shadow,border-color] duration-200 ease-out',
+        'hover:-translate-y-1 hover:shadow-[var(--elevazione-3)] hover:border-[var(--accento)]/30',
+        'active:scale-[0.98] active:shadow-[var(--elevazione-1)]',
+        'touch-manipulation',
+        'overflow-hidden'
       )}
       onClick={onClick}
       onKeyDown={e => e.key === 'Enter' && onClick()}
       role="listitem"
       tabIndex={0}
+      style={{
+        // Subtle mood-based accent border on hover
+        '--mood-accent': recipe.mood ? 'var(--accento)' : 'transparent'
+      } as React.CSSProperties}
     >
+      {/* Mood accent bar at top - subtle indicator */}
+      {recipe.mood && (
+        <div className="absolute top-0 left-0 right-0 h-1 bg-[var(--accento)] opacity-0 hover:opacity-100 transition-opacity duration-200" aria-hidden="true" />
+      )}
+
       <div className="p-4 sm:p-5">
         <div className="flex items-start justify-between gap-2 mb-3">
           <h3 className="text-base sm:text-lg font-semibold text-[var(--testo)] line-clamp-1 flex-1 min-w-0 leading-snug">
@@ -68,11 +78,11 @@ export function RecipeCard({ recipe, onClick }: RecipeCardProps) {
 
         <div className="flex items-center gap-2 sm:gap-3 text-sm text-[var(--secondario)] mb-3 flex-wrap">
           <span className="flex items-center gap-1">
-            <span className="font-medium">Mood:</span>
+            <span className="font-medium text-[var(--testo)]">Mood:</span>
             <Badge variant="mood" className="px-2 py-0.5">{moodLabel}</Badge>
           </span>
           <span className="flex items-center gap-1">
-            <span className="font-medium">Categoria:</span> {categoriaLabel}
+            <span className="font-medium text-[var(--testo)]">Categoria:</span> {categoriaLabel}
           </span>
         </div>
 
@@ -84,7 +94,7 @@ export function RecipeCard({ recipe, onClick }: RecipeCardProps) {
               </Badge>
             ))}
             {remainingTags > 0 && (
-              <Badge variant="tag" className="px-2 py-0.5 text-xs">+{remainingTags}</Badge>
+              <Badge variant="tag" className="px-2 py-0.5 text-xs text-[var(--secondario)] bg-[var(--bordo)]">+{remainingTags}</Badge>
             )}
           </div>
         )}
@@ -92,11 +102,11 @@ export function RecipeCard({ recipe, onClick }: RecipeCardProps) {
         <div className="flex items-center gap-4 sm:gap-5 text-sm text-[var(--secondario)] pt-3 border-t border-[var(--card-bordo)]">
           <span className="flex items-center gap-1.5">
             <Clock size={14} aria-hidden="true" className="text-[var(--accento)]" />
-            {formatNumberOrPlaceholder(recipe.tempo_minuti, 'min')}
+            <span className="font-medium text-[var(--testo)]">{formatNumberOrPlaceholder(recipe.tempo_minuti, 'min')}</span>
           </span>
           <span className="flex items-center gap-1.5">
             <Users size={14} aria-hidden="true" className="text-[var(--accento)]" />
-            {formatPorzioni(recipe.porzioni, recipe.porzioni_unita)}
+            <span className="font-medium text-[var(--testo)]">{formatPorzioni(recipe.porzioni, recipe.porzioni_unita)}</span>
           </span>
         </div>
       </div>

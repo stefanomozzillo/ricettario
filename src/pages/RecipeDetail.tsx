@@ -1,27 +1,26 @@
 /**
- * Pagina Dettaglio Ricetta con modalità cucina, scaling porzioni, ingredienti spuntabili
- * Usa componenti condivisi: Header, Button, Badge
+ * Pagina Dettaglio Ricetta con modalità cucina, scaling porzioni, ingredienti leggibili
+ * Usa componenti condivisi: Button, Badge
+ * NOTA: Header e Mood Bar ora sono nel Layout component
  */
 
 import { useState, useEffect, useMemo, useCallback, useRef } from 'react'
 import { useParams, useNavigate, Link } from 'react-router-dom'
 import {
-  Clock, Users, Tag, Heart, AlertCircle,
+  Clock, Users, Tag, AlertCircle,
   ChefHat, X, Check, ChevronUp, ChevronDown,
-  Plus, Minus, Edit, MessageSquare
+  Plus, Minus, Edit, ChevronLeft
 } from 'lucide-react'
 import { clsx } from 'clsx'
 import { useAuth } from '../contexts/AuthContext'
 import { useMood } from '../contexts/MoodContext'
 import { getRecipeById, incrementRecipeMade } from '../lib/supabase'
 import {
-  CATEGORIE_LABELS, MOOD_LABELS, STATO_LABELS,
-  GRUPPI_INGREDIENTI, type Mood
+  MOOD_LABELS,
+  GRUPPI_INGREDIENTI
 } from '../lib/config'
 import { type Ingrediente, type Passaggio, type Variante, normalizeRecipeFromDb } from '../lib/types'
-import { Header } from '../components/Header'
 import { Button } from '../components/Button'
-import { Badge } from '../components/Badge'
 
 interface RecipeDetailData {
   id: string
@@ -41,7 +40,6 @@ interface RecipeDetailData {
   varianti: Variante[]
   note: string | null
   descrizione: string | null
-  fonte_url: string | null
   volte_fatta: number | null
   ultima_volta: string | null
 }
@@ -63,7 +61,6 @@ export function RecipeDetail() {
   const [porzioni, setPorzioni] = useState<number>(1)
   const [cookingMode, setCookingMode] = useState(false)
   const [currentStep, setCurrentStep] = useState(0)
-  const [checkedIngredients, setCheckedIngredients] = useState<Set<string>>(new Set())
   const [toast, setToast] = useState<string | null>(null)
 
   const isAuthorized = user !== null
@@ -87,10 +84,8 @@ export function RecipeDetail() {
           tags: formData.tags,
           note: formData.note,
           descrizione: formData.descrizione,
-          fonte_url: formData.fonte_url,
         } as RecipeDetailData)
         setPorzioni(data.porzioni || 1)
-        setCheckedIngredients(new Set())
         setCurrentStep(0)
       } else {
         setError('Ricetta non trovata')
@@ -171,15 +166,6 @@ export function RecipeDetail() {
     return ordered
   }, [scaledIngredients])
 
-  const handleIngredientToggle = (nome: string) => {
-    setCheckedIngredients(prev => {
-      const next = new Set(prev)
-      if (next.has(nome)) next.delete(nome)
-      else next.add(nome)
-      return next
-    })
-  }
-
   const handlePorzioniChange = (delta: number) => {
     setPorzioni(prev => Math.max(1, Math.min(50, prev + delta)))
   }
@@ -208,7 +194,6 @@ export function RecipeDetail() {
   if (loading) {
     return (
       <div className="page-container detail-page">
-        <Header title="Caricamento..." />
         <main className="detail-content">
           <div className="loading-skeleton space-y-4">
             <div className="skeleton-card bg-[var(--card)] rounded-2xl border border-[var(--bordo)] p-4 animate-pulse">
@@ -226,7 +211,6 @@ export function RecipeDetail() {
   if (error || !recipe) {
     return (
       <div className="page-container detail-page">
-        <Header title="Errore" />
         <main className="detail-content">
           <div className="error-state card bg-[var(--card)] rounded-2xl border border-[var(--bordo)] p-8 text-center">
             <AlertCircle size={48} className="mx-auto mb-4 text-[var(--accento)]" />
@@ -238,8 +222,6 @@ export function RecipeDetail() {
     )
   }
 
-  const moodLabel = recipe.mood && recipe.mood in MOOD_LABELS ? MOOD_LABELS[recipe.mood as Mood] : '—'
-  const categoriaLabel = recipe.categoria ? CATEGORIE_LABELS[recipe.categoria as keyof typeof CATEGORIE_LABELS] : '—'
   const passaggi = recipe.passaggi || []
 
   // Helper per valori numerici: mostra "da aggiungere" se null/0
@@ -265,28 +247,17 @@ export function RecipeDetail() {
         </div>
       )}
 
-      {/* Header con azioni - passa handleMoodChange per intercettare cambi utente */}
-      <Header title={recipe.titolo} onMoodChange={() => { userInitiatedMoodChange.current = true; }}>
-        <div className="flex items-center gap-2">
-          {recipe.categoria && (
-            <Badge variant="tag">
-              <Tag size={12} className="mr-1" /> {categoriaLabel}
-            </Badge>
-          )}
-          {recipe.mood && (
-            <Badge variant="mood">
-              <Heart size={12} className="mr-1" /> {moodLabel}
-            </Badge>
-          )}
-          {recipe.stato === 'da_completare' && (
-            <Badge variant="stato">
-              <AlertCircle size={12} className="mr-1" /> {STATO_LABELS.da_completare}
-            </Badge>
-          )}
-        </div>
-      </Header>
-
       <main className="detail-content max-w-[720px] mx-auto px-4 pb-24 pt-4">
+        {/* Back button - top left */}
+        <Link
+          to="/"
+          className="back-button inline-flex items-center gap-2 px-3 py-2 rounded-xl bg-[var(--card)] border border-[var(--card-bordo)] text-[var(--testo)] text-sm font-medium hover:bg-[var(--card-bordo)] active:bg-[var(--card-bordo)] active:scale-[0.97] transition-[transform,background-color,border-color] duration-150 ease-out touch-manipulation focus-visible:outline-2 focus-visible:outline-[var(--accento)] focus-visible:outline-offset-2 mb-4"
+          aria-label="Torna all'elenco"
+        >
+          <ChevronLeft size={20} />
+          <span>Torna all'elenco</span>
+        </Link>
+
         {/* Info principali - 3 riquadri di uguale larghezza */}
         <section className="card bg-[var(--card)] rounded-2xl border border-[var(--card-bordo)] p-4 mb-4 shadow-[var(--elevazione-1)]">
           <div className="grid grid-cols-3 gap-3 mb-4">
@@ -297,19 +268,63 @@ export function RecipeDetail() {
               <p className="font-semibold text-[var(--testo)] text-center text-lg">{formatNumberOrPlaceholder(recipe.tempo_minuti, 'min')}</p>
             </div>
 
-            {/* Riquadro Porzioni */}
-            <div className="info-box flex flex-col items-center justify-center p-4 bg-[var(--sfondo)] rounded-xl min-h-[80px] border border-[var(--card-bordo)]">
+            {/* Riquadro Porzioni - Enhanced con controllo interattivo prominente */}
+            <div className="info-box flex flex-col items-center justify-center p-4 bg-[var(--sfondo)] rounded-xl min-h-[80px] border border-[var(--card-bordo)] relative overflow-visible">
               <Users size={24} className="text-[var(--accento)] mb-2" aria-hidden="true" />
-              <p className="text-xs text-[var(--secondario)] text-center font-medium uppercase tracking-wider">Porzioni</p>
-              <div className="flex items-center justify-center gap-2">
-                <Button variant="ghost" size="sm" onClick={() => handlePorzioniChange(-1)} aria-label="Meno porzioni" className="p-2 rounded-xl hover:bg-[var(--card-bordo)]">
-                  <Minus size={18} />
-                </Button>
-                <span className="font-semibold text-[var(--testo)] text-center min-w-[5rem] text-lg">{formatPorzioni(recipe.porzioni, recipe.porzioni_unita)}</span>
-                <Button variant="ghost" size="sm" onClick={() => handlePorzioniChange(1)} aria-label="Più porzioni" className="p-2 rounded-xl hover:bg-[var(--card-bordo)]">
-                  <Plus size={18} />
-                </Button>
+              <p className="text-xs text-[var(--secondario)] text-center font-medium uppercase tracking-wider mb-2">Porzioni</p>
+
+              {/* Porzioni controller - prominent and interactive */}
+              <div className="porzioni-controller flex items-center justify-center gap-2 w-full max-w-xs">
+                <button
+                  type="button"
+                  onClick={() => handlePorzioniChange(-1)}
+                  aria-label="Meno porzioni"
+                  disabled={porzioni <= 1}
+                  className={clsx(
+                    'porzioni-btn flex items-center justify-center w-10 h-10 rounded-xl',
+                    'transition-[transform,background-color,box-shadow] duration-150 ease-out',
+                    'active:scale-[0.95]',
+                    'touch-manipulation',
+                    porzioni <= 1
+                      ? 'bg-[var(--bordo)] text-[var(--secondario)] cursor-not-allowed'
+                      : 'bg-[var(--card)] text-[var(--testo)] border border-[var(--card-bordo)] hover:bg-[var(--accento)] hover:border-[var(--accento)] hover:text-[var(--accento-test)] hover:shadow-[var(--elevazione-1)] focus-visible:outline-2 focus-visible:outline-[var(--accento)] focus-visible:outline-offset-2'
+                  )}
+                >
+                  <Minus size={20} />
+                </button>
+
+                <div className="porzioni-display flex items-center justify-center min-w-[5rem] px-2">
+                  <span className="font-bold text-[var(--testo)] text-xl text-center transition-transform duration-150 ease-out"
+                        style={{ transform: `scale(${porzioni > (recipe.porzioni || 1) ? 1.05 : 1})` }}>
+                    {formatPorzioni(porzioni, recipe.porzioni_unita)}
+                  </span>
+                </div>
+
+                <button
+                  type="button"
+                  onClick={() => handlePorzioniChange(1)}
+                  aria-label="Più porzioni"
+                  disabled={porzioni >= 50}
+                  className={clsx(
+                    'porzioni-btn flex items-center justify-center w-10 h-10 rounded-xl',
+                    'transition-[transform,background-color,box-shadow] duration-150 ease-out',
+                    'active:scale-[0.95]',
+                    'touch-manipulation',
+                    porzioni >= 50
+                      ? 'bg-[var(--bordo)] text-[var(--secondario)] cursor-not-allowed'
+                      : 'bg-[var(--card)] text-[var(--testo)] border border-[var(--card-bordo)] hover:bg-[var(--accento)] hover:border-[var(--accento)] hover:text-[var(--accento-test)] hover:shadow-[var(--elevazione-1)] focus-visible:outline-2 focus-visible:outline-[var(--accento)] focus-visible:outline-offset-2'
+                  )}
+                >
+                  <Plus size={20} />
+                </button>
               </div>
+
+              {/* Indicatore scala rispetto all'originale */}
+              {porzioni !== (recipe.porzioni || 1) && (
+                <span className="porzioni-scale-badge absolute -top-2 right-2 text-xs px-2 py-0.5 rounded-full bg-[var(--accento)] text-[var(--accento-test)] font-medium animate-in fade-in zoom-in-95 duration-150">
+                  x{(porzioni / (recipe.porzioni || 1)).toFixed(1)}
+                </span>
+              )}
             </div>
 
             {/* Riquadro Autore */}
@@ -342,11 +357,6 @@ export function RecipeDetail() {
                   <li key={i} className="variante-item text-sm text-[var(--secondario)]">
                     {v.titolo && <strong className="text-[var(--testo)]">{v.titolo}: </strong>}
                     <span>{v.testo}</span>
-                    {v.video_secondi && recipe.fonte_url && (
-                      <a href={recipe.fonte_url} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 text-[var(--accento)] text-xs mt-1 hover:underline">
-                        <MessageSquare size={14} /> Guarda nel video al {v.video_secondi}s
-                      </a>
-                    )}
                   </li>
                 ))}
               </ul>
@@ -357,15 +367,6 @@ export function RecipeDetail() {
             <div className="note-section mb-4">
               <h3 className="text-sm font-semibold text-[var(--testo)] mb-2">Note</h3>
               <p className="text-[var(--secondario)] text-sm">{recipe.note}</p>
-            </div>
-          )}
-
-          {recipe.fonte_url && (
-            <div className="note-section">
-              <h3 className="text-sm font-semibold text-[var(--testo)] mb-2">Fonte</h3>
-              <a href={recipe.fonte_url} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 text-[var(--accento)] text-sm hover:underline">
-                <MessageSquare size={16} /> {recipe.fonte_url}
-              </a>
             </div>
           )}
         </section>
@@ -381,21 +382,9 @@ export function RecipeDetail() {
           </section>
         )}
 
-        {/* Ingredienti */}
+        {/* Ingredienti - lista leggibile raggruppata per gruppo, SENZA checkbox */}
         <section className="card bg-[var(--card)] rounded-2xl border border-[var(--card-bordo)] p-4 mb-4 shadow-[var(--elevazione-1)]">
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="text-lg font-semibold text-[var(--testo)]">Ingredienti</h2>
-            {Object.keys(groupedIngredients).length > 0 && (
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => setCheckedIngredients(new Set())}
-                className={clsx(checkedIngredients.size > 0 && 'text-[var(--accento)]')}
-              >
-                {checkedIngredients.size > 0 ? `Deseleziona tutto (${checkedIngredients.size})` : 'Deseleziona tutto'}
-              </Button>
-            )}
-          </div>
+          <h2 className="text-lg font-semibold text-[var(--testo)] mb-4">Ingredienti</h2>
 
           {Object.entries(groupedIngredients).map(([gruppo, ingredients]) => (
             <div key={gruppo} className="ingredient-group mb-4">
@@ -404,15 +393,7 @@ export function RecipeDetail() {
               </h3>
               <ul className="ingredients-list space-y-2">
                 {ingredients.map(ing => (
-                  <li key={`${ing.nome}-${ing.unita}-${ing.gruppo}`} className="ingredient-item flex items-start gap-3 p-3 bg-[var(--sfondo)] rounded-xl border border-[var(--card-bordo)] transition-[background-color,border-color] duration-150 ease-out hover:border-[var(--accento)]">
-                    <label className="ingredient-checkbox flex items-center justify-center">
-                      <input
-                        type="checkbox"
-                        checked={checkedIngredients.has(ing.nome)}
-                        onChange={() => handleIngredientToggle(ing.nome)}
-                        className="w-5 h-5 rounded border-[var(--card-bordo)] text-[var(--accento)] focus:ring-2 focus:ring-[var(--accento)] focus:ring-offset-2 focus:ring-offset-[var(--sfondo)] cursor-pointer touch-manipulation"
-                      />
-                    </label>
+                  <li key={`${ing.nome}-${ing.unita}-${ing.gruppo}`} className="ingredient-item flex items-center gap-3 p-3 bg-[var(--sfondo)] rounded-xl border border-[var(--card-bordo)] transition-[background-color,border-color] duration-150 ease-out hover:border-[var(--accento)]">
                     <div className="ingredient-details flex-1 min-w-0">
                       <p className="ingredient-name font-medium text-[var(--testo)] truncate">{ing.nome}</p>
                       <p className="ingredient-qty text-sm text-[var(--secondario)]">{ing.quantita_scalata} {ing.unita}</p>
@@ -468,11 +449,6 @@ export function RecipeDetail() {
                     <h4 className="step-titolo text-xl font-semibold text-[var(--testo)] mb-3">{passaggi[currentStep].titolo}</h4>
                   )}
                   <p className="step-text text-lg text-[var(--testo)] leading-relaxed mb-6">{passaggi[currentStep].testo}</p>
-                  {passaggi[currentStep].video_secondi && recipe.fonte_url && (
-                    <a href={recipe.fonte_url} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 text-[var(--accento)] hover:underline">
-                      <MessageSquare size={20} /> Guarda nel video al {passaggi[currentStep].video_secondi}s
-                    </a>
-                  )}
                 </div>
                 <div className="cooking-nav flex items-center justify-between">
                   <Button
@@ -503,11 +479,6 @@ export function RecipeDetail() {
                     <div className="step-content flex-1">
                       {step.titolo && <h4 className="step-titolo text-lg font-semibold text-[var(--testo)] mb-2">{step.titolo}</h4>}
                       <p className="text-[var(--testo)] leading-relaxed mb-2">{step.testo}</p>
-                      {step.video_secondi && recipe.fonte_url && (
-                        <a href={recipe.fonte_url} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 text-[var(--accento)] text-sm hover:underline">
-                          <MessageSquare size={16} /> Guarda nel video al {step.video_secondi}s
-                        </a>
-                      )}
                     </div>
                   </li>
                 ))}
@@ -565,11 +536,6 @@ export function RecipeDetail() {
                   <h4 className="step-titolo text-xl font-semibold text-[var(--testo)] mb-3">{passaggi[currentStep]!.titolo}</h4>
                 )}
                 <p className="cooking-step-text text-lg text-[var(--testo)] leading-relaxed mb-6">{passaggi[currentStep]?.testo}</p>
-                {passaggi[currentStep]?.video_secondi && recipe.fonte_url && (
-                  <a href={recipe.fonte_url} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 text-[var(--accento)] hover:underline">
-                    <MessageSquare size={20} /> Guarda nel video al {passaggi[currentStep]!.video_secondi}s
-                  </a>
-                )}
               </div>
               <div className="cooking-nav flex items-center justify-between">
                 <Button

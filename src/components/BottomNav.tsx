@@ -1,4 +1,4 @@
-import { Home, Shuffle, Package, Settings, Plus } from 'lucide-react'
+import { Home, Shuffle, Package, Plus } from 'lucide-react'
 import { clsx } from 'clsx'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { useAuth } from '../contexts/AuthContext'
@@ -8,7 +8,6 @@ const NAV_ITEMS = [
   { path: '/', label: 'Elenco', icon: Home, exact: true },
   { path: '/roulette', label: 'Roulette', icon: Shuffle, exact: false },
   { path: '/pantry', label: 'Cosa ho in casa', icon: Package, exact: false },
-  { path: '/settings', label: 'Impostazioni', icon: Settings, exact: false },
 ] as const
 
 export function BottomNav() {
@@ -24,35 +23,51 @@ export function BottomNav() {
   return (
     <>
       <nav
-        className="fixed bottom-0 left-0 right-0 z-50 bg-[var(--sfondo)]/95 backdrop-blur supports-[backdrop-filter]:bg-[var(--sfondo)]/80 border-t border-[var(--bordo)] pb-safe shadow-[var(--elevazione-3)]"
-        style={{ paddingBottom: 'env(safe-area-inset-bottom, 0px)' }}
+        className="bottom-nav"
         role="navigation"
         aria-label="Navigazione principale"
       >
         <div className="max-w-[720px] mx-auto">
-          <div className="flex items-center justify-around h-16">
-            {NAV_ITEMS.map(item => (
-              <button
-                key={item.path}
-                type="button"
-                className={clsx(
-                  'flex flex-col items-center gap-1 px-3 py-2',
-                  'text-sm font-medium',
-                  'touch-manipulation',
-                  'transition-[transform,color] duration-100 ease-out',
-                  'active:scale-[0.97]',
-                  isActive(item.path, item.exact)
-                    ? 'text-[var(--accento)]'
-                    : 'text-[var(--secondario)]'
-                )}
-                onClick={() => navigate(item.path)}
-                aria-current={isActive(item.path, item.exact) ? 'page' : undefined}
-                aria-label={item.label}
-              >
-                <item.icon size={24} aria-hidden="true" className={clsx(isActive(item.path, item.exact) && 'text-[var(--accento)]')} />
-                <span className="text-xs leading-none">{item.label}</span>
-              </button>
-            ))}
+          <div className="flex items-center justify-around h-16 relative">
+            {/* Active indicator bar - animated */}
+            <div
+              className="bottom-nav-indicator absolute bottom-0 left-0 h-0.5 rounded-full bg-[var(--accento)] transition-all duration-300 ease-out"
+              style={{
+                width: `${100 / NAV_ITEMS.length}%`,
+                transform: `translateX(${NAV_ITEMS.findIndex(item => isActive(item.path, item.exact)) * (100 / NAV_ITEMS.length)}%)`
+              }}
+              aria-hidden="true"
+            />
+
+            {NAV_ITEMS.map((item) => {
+              const Icon = item.icon
+              const active = isActive(item.path, item.exact)
+              return (
+                <button
+                  key={item.path}
+                  type="button"
+                  className={clsx(
+                    'bottom-nav-item flex flex-col items-center gap-1 px-3 py-2 relative z-10',
+                    'text-sm font-medium',
+                    'touch-manipulation',
+                    'transition-[transform,color] duration-200 ease-out',
+                    'active:scale-[0.95]',
+                    active
+                      ? 'text-[var(--accento)]'
+                      : 'text-[var(--secondario)]'
+                  )}
+                  onClick={() => navigate(item.path)}
+                  aria-current={active ? 'page' : undefined}
+                  aria-label={item.label}
+                >
+                  <Icon size={24} aria-hidden="true" className={clsx(active && 'text-[var(--accento)]')} />
+                  <span className="nav-label text-xs leading-none">{item.label}</span>
+                  {active && (
+                    <span className="absolute bottom-1 left-1/2 -translate-x-1/2 w-1.5 h-1.5 rounded-full bg-[var(--accento)] animate-in zoom-in-95" aria-hidden="true" />
+                  )}
+                </button>
+              )
+            })}
           </div>
         </div>
       </nav>
@@ -61,15 +76,15 @@ export function BottomNav() {
         <Button
           variant="fab"
           size="lg"
-          onClick={() => navigate('/new')}
+          onClick={() => navigate('/add')}
           aria-label="Aggiungi ricetta"
-          className="bottom-20 sm:bottom-24"
+          className="bottom-nav-fab"
         >
           <Plus size={28} aria-hidden="true" />
         </Button>
       )}
 
-      <div className="pb-20 sm:pb-24" aria-hidden="true" />
+      <div className="bottom-nav-spacer" aria-hidden="true" />
     </>
   )
 }

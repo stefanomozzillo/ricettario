@@ -1,6 +1,7 @@
 /**
  * Pagina Elenco Ricette con ricerca, filtri e cards
- * Usa componenti condivisi: Header, RecipeCard, Button, Badge
+ * Usa componenti condivisi: RecipeCard, Button, Badge
+ * NOTA: Header e Mood Bar ora sono nel Layout component
  */
 
 import { useState, useEffect, useMemo, useCallback } from 'react'
@@ -10,7 +11,6 @@ import { clsx } from 'clsx'
 import { getRecipes } from '../lib/supabase'
 import { CATEGORIE, CATEGORIE_LABELS, ALL_TAGS, TAG_LABELS, MOOD_LABELS, TEMPO_VELOCE_MINUTI } from '../lib/config'
 import { useMood } from '../contexts/MoodContext'
-import { Header } from '../components/Header'
 import { RecipeCard } from '../components/RecipeCard'
 import { Button } from '../components/Button'
 import { BottomNav } from '../components/BottomNav'
@@ -109,7 +109,6 @@ export function RecipeList() {
   if (loading) {
     return (
       <div className="page-container min-h-screen pb-24">
-        <Header title="Ricette" />
         <div className="max-w-[720px] mx-auto px-4">
           <div className="loading-skeleton space-y-4">
             {[...Array(5)].map((_, i) => (
@@ -130,7 +129,6 @@ export function RecipeList() {
   if (error) {
     return (
       <div className="page-container min-h-screen pb-24 flex flex-col items-center justify-center px-4">
-        <Header title="Ricette" />
         <div className="error-state card bg-[var(--card)] rounded-2xl border border-[var(--bordo)] p-8 text-center w-full max-w-md">
           <AlertCircle size={48} className="mx-auto mb-4 text-[var(--accento)]" />
           <h2 className="text-xl font-semibold text-[var(--testo)] mb-2">Errore</h2>
@@ -144,15 +142,34 @@ export function RecipeList() {
 
   return (
     <div className="page-container min-h-screen pb-24">
-      <Header
-        title="Ricette"
-        showFilters={showFilters}
-        onFiltersToggle={() => setShowFilters(!showFilters)}
-        hasActiveFilters={hasActiveFilters}
-        filterCount={filterCount}
-      >
+      {/* Header title + filters toggle - senza Header component */}
+      <div className="list-header max-w-[720px] mx-auto px-4 pt-4">
+        <div className="flex items-center justify-between gap-2">
+          <h1 className="text-xl font-semibold text-[var(--testo)]">Ricette</h1>
+          <div className="flex items-center gap-2">
+            {hasActiveFilters && (
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setShowFilters(!showFilters)}
+                aria-expanded={showFilters}
+                aria-label={`Filtri${hasActiveFilters ? ` (${filterCount + (mood !== 'tutti' ? 1 : 0)} attivi)` : ''}`}
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-full"
+              >
+                <Search size={18} className={clsx(showFilters && 'text-[var(--accento)]')} />
+                <span className="text-sm font-medium hidden sm:inline">{showFilters ? 'Chiudi filtri' : 'Filtri'}</span>
+                {filterCount + (mood !== 'tutti' ? 1 : 0) > 0 && (
+                  <span className="flex items-center justify-center w-5 h-5 rounded-full text-xs bg-[var(--accento)] text-[var(--accento-test)]">
+                    {filterCount + (mood !== 'tutti' ? 1 : 0)}
+                  </span>
+                )}
+              </Button>
+            )}
+          </div>
+        </div>
+
         {showFilters && (
-          <div className="filters-panel bg-[var(--card)] rounded-2xl border border-[var(--bordo)] p-4 animate-in slide-in-from-top-2 duration-200">
+          <div className="filters-panel bg-[var(--card)] rounded-2xl border border-[var(--bordo)] p-4 animate-in slide-in-from-top-2 duration-200 mt-4">
             {/* Ricerca */}
             <div className="filter-group mb-4">
               <label htmlFor="search" className="sr-only">Cerca ricette</label>
@@ -251,7 +268,7 @@ export function RecipeList() {
             )}
           </div>
         )}
-      </Header>
+      </div>
 
       {/* Lista ricette */}
       <main className="max-w-[720px] mx-auto px-4 pt-6 pb-24">
