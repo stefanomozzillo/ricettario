@@ -370,8 +370,19 @@ export function normalizeRecipeFromDb(data: unknown): RecipeFormData {
  * Prepara una ricetta per il salvataggio nel database
  */
 export function prepareRecipeForDb(data: RecipeFormData): RecipeInsert {
+  // Helper: converte 0, NaN, stringa vuota in null per campi numerici opzionali
+  const normalizeNumber = (val: number | string | null | undefined): number | null => {
+    if (val == null) return null
+    if (typeof val === 'number' && (isNaN(val) || val === 0)) return null
+    if (typeof val === 'string' && val.trim() === '') return null
+    const num = typeof val === 'string' ? parseFloat(val) : val
+    return isNaN(num) ? null : num
+  }
+
   return {
     ...data,
+    tempo_minuti: normalizeNumber(data.tempo_minuti),
+    porzioni: normalizeNumber(data.porzioni),
     ingredienti: data.ingredienti.map(ing => ({
       ...ing,
       nome: ing.nome.toLowerCase().trim(),
@@ -383,12 +394,12 @@ export function prepareRecipeForDb(data: RecipeFormData): RecipeInsert {
     passaggi: data.passaggi.map(p => ({
       titolo: p.titolo?.trim() || null,
       testo: p.testo.trim(),
-      video_secondi: p.video_secondi ?? null,
+      video_secondi: normalizeNumber(p.video_secondi),
     })),
     varianti: data.varianti.map(v => ({
       titolo: v.titolo.trim(),
       testo: v.testo.trim(),
-      video_secondi: v.video_secondi ?? null,
+      video_secondi: normalizeNumber(v.video_secondi),
     })),
     tags: data.tags,
   }

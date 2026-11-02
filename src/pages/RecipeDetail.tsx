@@ -3,7 +3,7 @@
  * Usa componenti condivisi: Header, Button, Badge
  */
 
-import { useState, useEffect, useMemo, useCallback } from 'react'
+import { useState, useEffect, useMemo, useCallback, useRef } from 'react'
 import { useParams, useNavigate, Link } from 'react-router-dom'
 import {
   Clock, Users, Tag, Heart, AlertCircle,
@@ -12,6 +12,7 @@ import {
 } from 'lucide-react'
 import { clsx } from 'clsx'
 import { useAuth } from '../contexts/AuthContext'
+import { useMood } from '../contexts/MoodContext'
 import { getRecipeById, incrementRecipeMade } from '../lib/supabase'
 import {
   CATEGORIE_LABELS, MOOD_LABELS, STATO_LABELS,
@@ -54,6 +55,7 @@ export function RecipeDetail() {
   const { id } = useParams<{ id: string }>()
   const navigate = useNavigate()
   const { user } = useAuth()
+  const { mood } = useMood()
 
   const [recipe, setRecipe] = useState<RecipeDetailData | null>(null)
   const [loading, setLoading] = useState(true)
@@ -62,8 +64,11 @@ export function RecipeDetail() {
   const [cookingMode, setCookingMode] = useState(false)
   const [currentStep, setCurrentStep] = useState(0)
   const [checkedIngredients, setCheckedIngredients] = useState<Set<string>>(new Set())
+  const [toast, setToast] = useState<string | null>(null)
 
   const isAuthorized = user !== null
+  // Traccia se il cambio mood è stato iniziato dall'utente (non da link diretto)
+  const userInitiatedMoodChange = useRef(false)
 
   // Carica ricetta
   const loadRecipe = useCallback(async () => {
@@ -101,6 +106,37 @@ export function RecipeDetail() {
   useEffect(() => {
     loadRecipe()
   }, [loadRecipe])
+
+  // Gestione cambio mood: se l'utente cambia mood e la ricetta non appartiene al nuovo mood,
+  // reindirizza all'elenco filtrato (solo se cambio iniziato dall'utente)
+  useEffect(() => {
+    if (!recipe || !userInitiatedMoodChange.current) return
+
+    const recipeMood = recipe.mood as Mood | null
+    const currentMood = mood
+
+    // Se mood è "tutti" o la ricetta appartiene al mood corrente, resta qui
+    if (currentMood === 'tutti' || recipeMood === currentMood) {
+      userInitiatedMoodChange.current = false
+      return
+    }
+
+    // Altrimenti la ricetta non appartiene al nuovo mood (mood diverso o ricetta senza mood)
+    // Reindirizza all'elenco filtrato
+    userInitiatedMoodChange.current = false
+    const moodLabel = MOOD_LABELS[currentMood]
+    setToast(`Questa ricetta non è nel mood ${moodLabel}`)
+    // Sostituisce la voce di cronologia
+    navigate('/', { replace: true, state: { mood: currentMood } })
+  }, [mood, recipe, navigate])
+
+  // Toast auto-dismiss
+  useEffect(() => {
+    if (toast) {
+      const timer = setTimeout(() => setToast(null), 3000)
+      return () => clearTimeout(timer)
+    }
+  }, [toast])
 
   // Calcola ingredienti scalati
   const scaledIngredients = useMemo((): ScaledIngredient[] => {
@@ -215,9 +251,30 @@ export function RecipeDetail() {
   const categoriaLabel = recipe.categoria ? CATEGORIE_LABELS[recipe.categoria as keyof typeof CATEGORIE_LABELS] : '—'
   const passaggi = recipe.passaggi || []
 
+  // Helper per valori numerici: mostra "da aggiungere" se null/0
+  const formatNumberOrPlaceholder = (value: number | null | undefined, unit: string = '') => {
+    if (value == null || value === 0) return 'da aggiungere'
+    return `${value} ${unit}`.trim()
+  }
+
+  const formatAutore = (value: string | null) => value || 'Autore non indicato'
+  const formatPorzioni = (value: number | null, unit: string | null) => {
+    if (value == null || value === 0) return 'Porzioni non indicate'
+    return `${value} ${unit || 'porzioni'}`
+  }
+
   return (
     <div className="page-container detail-page">
-      {/* Header con azioni */}
+      {/* Toast per redirect mood */}
+      {toast && (
+        <div className="fixed top-16 left-4 right-4 max-w-[720px] mx-auto z-50 animate-in slide-in-from-top-2 duration-200">
+          <div className="bg-[var(--accento)] text-[var(--accento-test)] px-4 py-3 rounded-xl shadow-lg">
+            {toast}
+          </div>
+        </div>
+      )}
+
+      {/* Header con azioni - passa handleMoodChange per intercettare cambi utente */}
       <Header title={recipe.titolo}>
         <div className="flex items-center gap-2">
           {recipe.categoria && (
@@ -238,49 +295,44 @@ export function RecipeDetail() {
         </div>
       </Header>
 
-      <main className="detail-content max-w-[720px] mx-auto px-4 pb-24">
-        {/* Info principali */}
+      <main className="detail-content max-w-[720px] mx-auto px-4 pb-24 pt-4">
+        {/* Info principali - 3 riquadri di uguale larghezza */}
         <section className="card bg-[var(--card)] rounded-2xl border border-[var(--bordo)] p-4 mb-4">
-          <div className="grid grid-cols-2 gap-4 mb-4">
-            {recipe.tempo_minuti && (
-              <div className="info-item flex items-center gap-2 p-3 bg-[var(--sfondo)] rounded-xl">
-                <Clock size={20} className="text-[var(--accento)]" />
-                <div>
-                  <p className="text-xs text-[var(--secondario)]">Tempo</p>
-                  <p className="font-medium text-[var(--testo)]">{recipe.tempo_minuti} min</p>
-                </div>
+          <div className="grid grid-cols-3 gap-3 mb-4">
+            {/* Riquadro Tempo */}
+            <div className="info-box flex flex-col items-center justify-center p-4 bg-[var(--sfondo)] rounded-xl min-h-[80px]">
+              <Clock size={24} className="text-[var(--accento)] mb-2" aria-hidden="true" />
+              <p className="text-xs text-[var(--secondario)] text-center">Tempo</p>
+              <p className="font-medium text-[var(--testo)] text-center">{formatNumberOrPlaceholder(recipe.tempo_minuti, 'min')}</p>
+            </div>
+
+            {/* Riquadro Porzioni */}
+            <div className="info-box flex flex-col items-center justify-center p-4 bg-[var(--sfondo)] rounded-xl min-h-[80px]">
+              <Users size={24} className="text-[var(--accento)] mb-2" aria-hidden="true" />
+              <p className="text-xs text-[var(--secondario)] text-center">Porzioni</p>
+              <div className="flex items-center justify-center gap-2">
+                <Button variant="ghost" size="sm" onClick={() => handlePorzioniChange(-1)} aria-label="Meno porzioni" className="p-1">
+                  <Minus size={16} />
+                </Button>
+                <span className="font-medium text-[var(--testo)] text-center min-w-[5rem]">{formatPorzioni(recipe.porzioni, recipe.porzioni_unita)}</span>
+                <Button variant="ghost" size="sm" onClick={() => handlePorzioniChange(1)} aria-label="Più porzioni" className="p-1">
+                  <Plus size={16} />
+                </Button>
               </div>
-            )}
-            {recipe.porzioni && (
-              <div className="info-item flex items-center gap-2 p-3 bg-[var(--sfondo)] rounded-xl">
-                <Users size={20} className="text-[var(--accento)]" />
-                <div className="flex items-center gap-2">
-                  <p className="text-xs text-[var(--secondario)]">Porzioni</p>
-                  <div className="flex items-center gap-2 bg-[var(--card)] border border-[var(--bordo)] rounded-lg px-2 py-1">
-                    <Button variant="ghost" size="sm" onClick={() => handlePorzioniChange(-1)} aria-label="Meno porzioni">
-                      <Minus size={16} />
-                    </Button>
-                    <span className="font-medium text-[var(--testo)] min-w-[3rem] text-center">{porzioni} {recipe.porzioni_unita || 'porzioni'}</span>
-                    <Button variant="ghost" size="sm" onClick={() => handlePorzioniChange(1)} aria-label="Più porzioni">
-                      <Plus size={16} />
-                    </Button>
-                  </div>
-                </div>
-              </div>
-            )}
+            </div>
+
+            {/* Riquadro Autore */}
+            <div className="info-box flex flex-col items-center justify-center p-4 bg-[var(--sfondo)] rounded-xl min-h-[80px]">
+              <Tag size={24} className="text-[var(--accento)] mb-2" aria-hidden="true" />
+              <p className="text-xs text-[var(--secondario)] text-center">Autore</p>
+              <p className="font-medium text-[var(--testo)] text-center break-words">{formatAutore(recipe.autore)}</p>
+            </div>
           </div>
 
-          {recipe.autore && (
-            <div className="info-item flex items-center gap-2 p-3 bg-[var(--sfondo)] rounded-xl mb-4">
-              <span className="text-xs text-[var(--secondario)]">Autore</span>
-              <span className="font-medium text-[var(--testo)] ml-auto">{recipe.autore}</span>
-            </div>
-          )}
-
-          {recipe.volte_fatta && recipe.volte_fatta > 0 && (
-            <div className="info-item flex items-center gap-2 p-3 bg-[var(--sfondo)] rounded-xl mb-4">
+          {recipe.volte_fatta != null && recipe.volte_fatta > 0 && (
+            <div className="info-item flex items-center justify-center gap-2 p-3 bg-[var(--sfondo)] rounded-xl mb-4 text-center">
               <span className="text-xs text-[var(--secondario)]">Fatta {recipe.volte_fatta} volte</span>
-              <span className="font-medium text-[var(--testo)] ml-auto">Ultima: {formatDate(recipe.ultima_volta)}</span>
+              <span className="font-medium text-[var(--testo)]">Ultima: {formatDate(recipe.ultima_volta)}</span>
             </div>
           )}
 

@@ -254,7 +254,7 @@ export function RecipeList() {
       </Header>
 
       {/* Lista ricette */}
-      <main className="max-w-[720px] mx-auto px-4 pb-24">
+      <main className="max-w-[720px] mx-auto px-4 pt-6 pb-24">
         {finalRecipes.length === 0 ? (
           <div className="empty-state card bg-[var(--card)] rounded-2xl border border-[var(--bordo)] p-8 text-center animate-in fade-in duration-300">
             <AlertCircle size={48} className="mx-auto mb-4 text-[var(--accento)]" />

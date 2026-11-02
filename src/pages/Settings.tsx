@@ -202,7 +202,7 @@ export function SettingsPage() {
         </div>
       )}
 
-      <main className="max-w-[720px] mx-auto px-4 pb-24">
+      <main className="max-w-[720px] mx-auto px-4 pt-6 pb-24">
         {/* Tab navigation */}
         <nav className="settings-tabs flex gap-2 mb-6 overflow-x-auto pb-2" role="tablist" aria-label="Sezioni impostazioni">
           <Button

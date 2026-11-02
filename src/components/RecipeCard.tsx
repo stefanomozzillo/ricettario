@@ -20,6 +20,18 @@ interface RecipeCardProps {
   onClick: () => void
 }
 
+// Helper per valori numerici: evita di mostrare "0", usa placeholder
+const formatNumberOrPlaceholder = (value: number | null | undefined, unit: string = '') => {
+  if (value == null || value === 0) return 'da aggiungere'
+  return `${value} ${unit}`.trim()
+}
+
+const formatAutore = (value: string | null) => value || 'Autore non indicato'
+const formatPorzioni = (value: number | null, unit: string | null) => {
+  if (value == null || value === 0) return 'Porzioni non indicate'
+  return `${value} ${unit || 'porzioni'}`
+}
+
 export function RecipeCard({ recipe, onClick }: RecipeCardProps) {
   const moodLabel = recipe.mood ? MOOD_LABELS[recipe.mood as Mood] : '—'
   const categoriaLabel = recipe.categoria ? CATEGORIE_LABELS[recipe.categoria as keyof typeof CATEGORIE_LABELS] : '—'
@@ -50,9 +62,7 @@ export function RecipeCard({ recipe, onClick }: RecipeCardProps) {
           )}
         </div>
 
-        {recipe.autore && (
-          <p className="text-sm text-[var(--secondario)] mb-3">di {recipe.autore}</p>
-        )}
+        <p className="text-sm text-[var(--secondario)] mb-3">di {formatAutore(recipe.autore)}</p>
 
         <div className="flex items-center gap-3 text-sm text-[var(--secondario)] mb-3 flex-wrap">
           <span className="flex items-center gap-1">
@@ -78,21 +88,14 @@ export function RecipeCard({ recipe, onClick }: RecipeCardProps) {
         )}
 
         <div className="flex items-center gap-4 text-sm text-[var(--secondario)] pt-3 border-t border-[var(--bordo)]">
-          {recipe.tempo_minuti && (
-            <span className="flex items-center gap-1">
-              <Clock size={14} aria-hidden="true" />
-              {recipe.tempo_minuti} min
-            </span>
-          )}
-          {recipe.porzioni && (
-            <span className="flex items-center gap-1">
-              <Users size={14} aria-hidden="true" />
-              {recipe.porzioni} {recipe.porzioni_unita || 'porzioni'}
-            </span>
-          )}
-          {!recipe.tempo_minuti && !recipe.porzioni && (
-            <span className="text-[var(--secondario)] opacity-60">Tempo non indicato</span>
-          )}
+          <span className="flex items-center gap-1">
+            <Clock size={14} aria-hidden="true" />
+            {formatNumberOrPlaceholder(recipe.tempo_minuti, 'min')}
+          </span>
+          <span className="flex items-center gap-1">
+            <Users size={14} aria-hidden="true" />
+            {formatPorzioni(recipe.porzioni, recipe.porzioni_unita)}
+          </span>
         </div>
       </div>
     </article>
