@@ -4,11 +4,12 @@
 
 import { useState, useEffect, useMemo, useCallback } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Search, Filter, X, Clock, AlertCircle } from 'lucide-react'
+import { Search, Filter, X, Clock, AlertCircle, RotateCcw } from 'lucide-react'
 import { clsx } from 'clsx'
 import { getRecipes } from '../lib/supabase'
 import { CATEGORIE, CATEGORIE_LABELS, ALL_TAGS, TAG_LABELS, MOOD_LABELS, TEMPO_VELOCE_MINUTI, STATO_LABELS } from '../lib/config'
 import type { Mood } from '../lib/config'
+import { useMood } from '../contexts/MoodContext'
 
 interface Recipe {
   id: string
@@ -34,6 +35,7 @@ interface FiltersState {
 
 export function RecipeList() {
   const navigate = useNavigate()
+  const { mood, setMood } = useMood()
   const [recipes, setRecipes] = useState<Recipe[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -61,7 +63,7 @@ export function RecipeList() {
     setError(null)
     try {
       const data = await getRecipes({
-        mood: '', // Il filtro mood viene applicato via CSS/data-mood, qui carichiamo tutto
+        mood: mood !== 'tutti' ? mood : undefined,
         search: debouncedSearch || undefined,
         category: filters.categoria || undefined,
         tags: filters.tags.length > 0 ? filters.tags : undefined,
@@ -74,7 +76,7 @@ export function RecipeList() {
     } finally {
       setLoading(false)
     }
-  }, [debouncedSearch, filters.categoria, filters.tags, filters.daCompletare])
+  }, [mood, debouncedSearch, filters.categoria, filters.tags, filters.daCompletare])
 
   // Applica filtro mood lato client (perché mood è nel context)
   const filteredRecipes = useMemo(() => {
@@ -100,9 +102,10 @@ export function RecipeList() {
 
   const clearFilters = () => {
     setFilters({ search: '', categoria: '', tags: [], veloce: false, daCompletare: false })
+    setMood('tutti')
   }
 
-  const hasActiveFilters = filters.categoria || filters.tags.length > 0 || filters.veloce || filters.daCompletare
+  const hasActiveFilters = filters.categoria || filters.tags.length > 0 || filters.veloce || filters.daCompletare || mood !== 'tutti'
 
   if (loading) {
     return (
@@ -147,7 +150,7 @@ export function RecipeList() {
           >
             <Filter size={20} />
             <span>Filtri</span>
-            {hasActiveFilters && <span className="filter-badge">{filters.tags.length + (filters.categoria ? 1 : 0) + (filters.veloce ? 1 : 0) + (filters.daCompletare ? 1 : 0)}</span>}
+            {hasActiveFilters && <span className="filter-badge">{filters.tags.length + (filters.categoria ? 1 : 0) + (filters.veloce ? 1 : 0) + (filters.daCompletare ? 1 : 0) + (mood !== 'tutti' ? 1 : 0)}</span>}
           </button>
         </div>
 
@@ -251,12 +254,24 @@ export function RecipeList() {
         {finalRecipes.length === 0 ? (
           <div className="empty-state card">
             <AlertCircle size={48} className="empty-icon" />
-            <h2>Nessuna ricetta trovata</h2>
-            <p>{hasActiveFilters ? 'Prova a modificare i filtri' : 'Inizia aggiungendo la tua prima ricetta'}</p>
-            {hasActiveFilters && (
-              <button type="button" className="btn-secondary" onClick={clearFilters}>
-                <X size={16} /> Cancella filtri
-              </button>
+            {mood !== 'tutti' ? (
+              <>
+                <h2>Nessuna ricetta in questo mood</h2>
+                <p>Nessuna ricetta trovata per <strong>{MOOD_LABELS[mood]}</strong>.</p>
+                <button type="button" className="btn-primary" onClick={() => setMood('tutti')}>
+                  <RotateCcw size={16} /> Mostra tutti i mood
+                </button>
+              </>
+            ) : (
+              <>
+                <h2>Nessuna ricetta trovata</h2>
+                <p>{hasActiveFilters ? 'Prova a modificare i filtri' : 'Inizia aggiungendo la tua prima ricetta'}</p>
+                {hasActiveFilters && (
+                  <button type="button" className="btn-secondary" onClick={clearFilters}>
+                    <X size={16} /> Cancella filtri
+                  </button>
+                )}
+              </>
             )}
           </div>
         ) : (

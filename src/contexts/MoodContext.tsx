@@ -4,7 +4,7 @@
  */
 
 import { createContext, useContext, useEffect, useState, type ReactNode, useCallback } from 'react'
-import { MOOD_OPTIONS, type Mood } from '../lib/config'
+import { MOOD_OPTIONS, MOOD_LABELS, type Mood } from '../lib/config'
 
 interface MoodContextType {
   mood: Mood
@@ -48,18 +48,8 @@ export function MoodProvider({ children }: { children: ReactNode }) {
     }
   }, [])
 
-  // Labels per il selettore (importate da config per evitare duplicazione)
-  const moodLabels: Record<Mood, string> = {
-    tutti: 'Tutti',
-    gourmet: 'Gourmet',
-    pasticceria: 'Pasticceria',
-    comfort: 'Comfort',
-    fresca: 'Fresca',
-    etnici: 'Piatti etnici',
-  }
-
   return (
-    <MoodContext.Provider value={{ mood, setMood, moodOptions: MOOD_OPTIONS, moodLabels }}>
+    <MoodContext.Provider value={{ mood, setMood, moodOptions: MOOD_OPTIONS, moodLabels: MOOD_LABELS }}>
       {children}
     </MoodContext.Provider>
   )

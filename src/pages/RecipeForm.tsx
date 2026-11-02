@@ -10,6 +10,7 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { ChevronLeft, Plus, GripVertical, Trash2, AlertCircle, CheckCircle, Loader2 } from 'lucide-react'
 import { clsx } from 'clsx'
 import { useAuth } from '../contexts/AuthContext'
+import { useMood } from '../contexts/MoodContext'
 import { getRecipeById, createRecipe, updateRecipe, getAllIngredients } from '../lib/supabase'
 import {
   CATEGORIE, CATEGORIE_LABELS, ALL_TAGS, TAG_LABELS, MOODS, MOOD_LABELS,
@@ -30,6 +31,7 @@ interface RecipeFormComponentProps {
 
 function RecipeFormComponent({ isEditing }: RecipeFormComponentProps) {
   const { user } = useAuth()
+  const { mood } = useMood()
   const navigate = useNavigate()
   const { id } = useParams<{ id: string }>()
   const [loading, setLoading] = useState(isEditing)
@@ -53,7 +55,7 @@ function RecipeFormComponent({ isEditing }: RecipeFormComponentProps) {
       autore: '',
       stato: 'completa',
       categoria: undefined,
-      mood: undefined,
+      mood: isEditing ? undefined : (mood !== 'tutti' ? mood : undefined),
       tags: [],
       tempo_minuti: null,
       porzioni: null,
