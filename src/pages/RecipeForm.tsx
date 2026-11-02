@@ -7,7 +7,6 @@ import { useState, useEffect, useCallback } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { useForm, useFieldArray, Controller } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { z } from 'zod'
 import { ChevronLeft, Plus, GripVertical, Trash2, AlertCircle, CheckCircle, Loader2 } from 'lucide-react'
 import { clsx } from 'clsx'
 import { useAuth } from '../contexts/AuthContext'
@@ -18,60 +17,12 @@ import {
   type Mood
 } from '../lib/config'
 import type { RecipeInsert, RecipeUpdate } from '../lib/supabase'
-
-// Helper per validazione enum-like con array readonly
-const enumValidator = <T extends readonly string[]>(values: T, fieldName: string) =>
-  z.string().refine(
-    (val) => values.includes(val as T[number]),
-    { message: `${fieldName} non valido` }
-  )
-
-// Schema Zod per validazione
-const ingredienteSchema = z.object({
-  nome: z.string().min(1, 'Nome ingrediente obbligatorio'),
-  quantita: z.union([z.number().min(0), z.string()]).optional(),
-  unita: z.string().optional(),
-  gruppo: z.string().optional(),
-  note: z.string().optional(),
-})
-
-const passaggioSchema = z.object({
-  testo: z.string().min(1, 'Testo passaggio obbligatorio'),
-  video_url: z.string().url('URL non valido').optional().or(z.literal('')),
-})
-
-const recipeFormSchema = z.object({
-  titolo: z.string().min(1, 'Titolo obbligatorio'),
-  autore: z.string().optional(),
-  stato: enumValidator(STATO_RICETTA, 'Stato'),
-  categoria: enumValidator(CATEGORIE, 'Categoria').optional(),
-  mood: enumValidator(MOODS, 'Mood').optional(),
-  tags: z.array(enumValidator(ALL_TAGS, 'Tag')).min(0), // required array (can be empty)
-  tempo_minuti: z.number().min(1).max(1440).optional().nullable(),
-  porzioni: z.number().min(1).max(100).optional().nullable(),
-  porzioni_unita: z.string().min(1), // required string
-  ingredienti: z.array(ingredienteSchema).min(0), // required array
-  passaggi: z.array(passaggioSchema).min(0), // required array
-  varianti: z.array(z.string()).min(0), // required array
-  note: z.string().optional(),
-}).superRefine((data, ctx) => {
-  if (data.stato === 'completa') {
-    if (!data.categoria) {
-      ctx.addIssue({ code: z.ZodIssueCode.custom, message: 'Categoria obbligatoria per ricette complete', path: ['categoria'] })
-    }
-    if (!data.mood) {
-      ctx.addIssue({ code: z.ZodIssueCode.custom, message: 'Mood obbligatorio per ricette complete', path: ['mood'] })
-    }
-    if (!data.ingredienti || data.ingredienti.length === 0) {
-      ctx.addIssue({ code: z.ZodIssueCode.custom, message: 'Almeno un ingrediente obbligatorio', path: ['ingredienti'] })
-    }
-    if (!data.passaggi || data.passaggi.length === 0) {
-      ctx.addIssue({ code: z.ZodIssueCode.custom, message: 'Almeno un passaggio obbligatorio', path: ['passaggi'] })
-    }
-  }
-})
-
-type RecipeFormData = z.infer<typeof recipeFormSchema>
+import {
+  recipeFormSchema,
+  type RecipeFormData,
+  prepareRecipeForDb,
+  normalizeRecipeFromDb,
+} from '../lib/types'
 
 interface RecipeFormComponentProps {
   isEditing: boolean
@@ -96,7 +47,7 @@ function RecipeFormComponent({ isEditing }: RecipeFormComponentProps) {
     formState: { errors, isValid },
     reset,
   } = useForm<RecipeFormData>({
-    resolver: zodResolver(recipeFormSchema),
+    resolver: zodResolver(recipeFormSchema) as any,
     defaultValues: {
       titolo: '',
       autore: '',
@@ -117,6 +68,7 @@ function RecipeFormComponent({ isEditing }: RecipeFormComponentProps) {
 
   const { fields: ingredientFields, append: appendIngredient, remove: removeIngredient } = useFieldArray({ control, name: 'ingredienti' })
   const { fields: stepFields, append: appendStep, remove: removeStep } = useFieldArray({ control, name: 'passaggi' })
+  const { fields: variantFields, append: appendVariant, remove: removeVariant } = useFieldArray({ control, name: 'varianti' })
   const watchedStato = watch('stato')
 
   // Carica ingredienti per autocomplete
@@ -132,38 +84,15 @@ function RecipeFormComponent({ isEditing }: RecipeFormComponentProps) {
         try {
           const data = await getRecipeById(id)
           if (data) {
-            // Cast dei campi Json dal database ai tipi del form
-            // Converte null in undefined per i campi opzionali
-            const ingredienti = ((data.ingredienti as unknown as Array<{ nome: string; quantita?: number | string | null; unita?: string | null; gruppo?: string | null; note?: string | null }>) || [])
-              .map(ing => ({
-                nome: ing.nome,
-                quantita: ing.quantita ?? undefined,
-                unita: ing.unita ?? undefined,
-                gruppo: ing.gruppo ?? undefined,
-                note: ing.note ?? undefined,
-              }))
-            const passaggi = ((data.passaggi as unknown as Array<{ testo: string; video_url?: string | null }>) || [])
-              .map(p => ({
-                testo: p.testo,
-                video_url: p.video_url ?? undefined,
-              }))
-            const varianti = (data.varianti as unknown as string[]) || []
-            const tags = (data.tags as unknown as string[]) || []
-
+            const formData = normalizeRecipeFromDb(data)
             reset({
-              titolo: data.titolo || '',
-              autore: data.autore || '',
-              stato: data.stato || 'completa',
-              categoria: data.categoria ?? undefined,
-              mood: data.mood ?? undefined,
-              tags,
-              tempo_minuti: data.tempo_minuti ?? null,
-              porzioni: data.porzioni ?? null,
-              porzioni_unita: data.porzioni_unita || DEFAULT_PORZIONI_UNITA,
-              ingredienti,
-              passaggi,
-              varianti,
-              note: data.note || '',
+              ...formData,
+              // Override per campi che devono essere undefined invece di null per i default values
+              categoria: formData.categoria ?? undefined,
+              mood: formData.mood ?? undefined,
+              tempo_minuti: formData.tempo_minuti ?? null,
+              porzioni: formData.porzioni ?? null,
+              note: formData.note ?? '',
             })
           }
         } catch (err) {
@@ -195,7 +124,11 @@ function RecipeFormComponent({ isEditing }: RecipeFormComponentProps) {
   }
 
   const handleAddStep = () => {
-    appendStep({ testo: '', video_url: '' })
+    appendStep({ titolo: '', testo: '', video_secondi: undefined })
+  }
+
+  const handleAddVariant = () => {
+    appendVariant({ titolo: '', testo: '', video_secondi: undefined })
   }
 
   const handleTagToggle = (tag: typeof ALL_TAGS[number]) => {
@@ -208,23 +141,7 @@ function RecipeFormComponent({ isEditing }: RecipeFormComponentProps) {
     setSaving(true)
     setError(null)
     try {
-      const payload = {
-        ...data,
-        ingredienti: data.ingredienti.map(ing => ({
-          ...ing,
-          nome: ing.nome.toLowerCase().trim(),
-          quantita: typeof ing.quantita === 'string' && ing.quantita.trim() === '' ? null : ing.quantita,
-          unita: ing.unita?.trim() || null,
-          gruppo: ing.gruppo?.trim() || null,
-          note: ing.note?.trim() || null,
-        })),
-        passaggi: data.passaggi.map(p => ({
-          testo: p.testo.trim(),
-          video_url: p.video_url?.trim() || null,
-        })),
-        varianti: data.varianti.map(v => v.trim()).filter(Boolean),
-        tags: data.tags,
-      }
+      const payload = prepareRecipeForDb(data)
 
       if (isEditing && id) {
         await updateRecipe(id, payload as RecipeUpdate)
@@ -551,6 +468,17 @@ function RecipeFormComponent({ isEditing }: RecipeFormComponentProps) {
                       <span className="step-index">{index + 1}.</span>
 
                       <div className="form-field flex-1">
+                        <label htmlFor={`step-${index}-titolo`}>Titolo (opzionale)</label>
+                        <input
+                          id={`step-${index}-titolo`}
+                          type="text"
+                          placeholder="Es. Preparazione impasto"
+                          {...register(`passaggi.${index}.titolo`)}
+                          className="form-input"
+                        />
+                      </div>
+
+                      <div className="form-field flex-1">
                         <label htmlFor={`step-${index}-testo`}>Testo *</label>
                         <textarea
                           id={`step-${index}-testo`}
@@ -565,17 +493,19 @@ function RecipeFormComponent({ isEditing }: RecipeFormComponentProps) {
                       </div>
 
                       <div className="form-field video-field">
-                        <label htmlFor={`step-${index}-video`}>Video URL</label>
+                        <label htmlFor={`step-${index}-video`}>Video: secondo (opzionale)</label>
                         <input
                           id={`step-${index}-video`}
-                          type="url"
-                          placeholder="https://youtube.com/..."
-                          {...register(`passaggi.${index}.video_url`)}
-                          className={clsx('form-input', errors.passaggi?.[index]?.video_url && 'error')}
+                          type="number"
+                          min="0"
+                          placeholder="Es. 45"
+                          {...register(`passaggi.${index}.video_secondi`, { valueAsNumber: true })}
+                          className={clsx('form-input', errors.passaggi?.[index]?.video_secondi && 'error')}
                         />
-                        {errors.passaggi?.[index]?.video_url && (
-                          <span className="field-error">{errors.passaggi[index].video_url.message}</span>
+                        {errors.passaggi?.[index]?.video_secondi && (
+                          <span className="field-error">{errors.passaggi[index].video_secondi.message}</span>
                         )}
+                        <p className="form-hint">Secondo nel video della fonte (richiede URL fonte nella ricetta)</p>
                       </div>
 
                       <button
@@ -598,22 +528,86 @@ function RecipeFormComponent({ isEditing }: RecipeFormComponentProps) {
 
             {/* Varianti */}
             <section className="form-section card">
-              <label>Varianti (opzionale)</label>
-              <Controller
-                name="varianti"
-                control={control}
-                rules={{ required: false }}
-                render={({ field }) => (
-                  <textarea
-                    placeholder="Una variante per riga (es. Versione vegetariana: tofu al posto della pancetta)"
-                    value={field.value?.join('\n') || ''}
-                    onChange={e => field.onChange(e.target.value.split('\n').map(v => v.trim()).filter(Boolean))}
-                    rows={4}
-                    className="form-textarea"
-                  />
-                )}
-              />
-              <p className="form-hint">Una variante per riga.</p>
+              <div className="section-header">
+                <label>Varianti (opzionale)</label>
+                <button type="button" className="btn-add" onClick={handleAddVariant}>
+                  <Plus size={18} /> Aggiungi
+                </button>
+              </div>
+
+              <ol className="form-array variants-array">
+                {variantFields.map((field, index) => (
+                  <li key={field.id} className="array-item variant-row">
+                    <button
+                      type="button"
+                      className="drag-handle"
+                      onMouseDown={e => { e.preventDefault(); }}
+                      aria-label="Trascina per riordinare"
+                    >
+                      <GripVertical size={18} />
+                    </button>
+
+                    <div className="variant-fields">
+                      <div className="form-field flex-1">
+                        <label htmlFor={`variant-${index}-titolo`}>Titolo *</label>
+                        <input
+                          id={`variant-${index}-titolo`}
+                          type="text"
+                          placeholder="Es. Versione vegetariana"
+                          {...register(`varianti.${index}.titolo`)}
+                          className={clsx('form-input', errors.varianti?.[index]?.titolo && 'error')}
+                        />
+                        {errors.varianti?.[index]?.titolo && (
+                          <span className="field-error">{errors.varianti[index].titolo.message}</span>
+                        )}
+                      </div>
+
+                      <div className="form-field flex-1">
+                        <label htmlFor={`variant-${index}-testo`}>Testo *</label>
+                        <textarea
+                          id={`variant-${index}-testo`}
+                          rows={2}
+                          placeholder="Descrizione della variante..."
+                          {...register(`varianti.${index}.testo`)}
+                          className={clsx('form-textarea', errors.varianti?.[index]?.testo && 'error')}
+                        />
+                        {errors.varianti?.[index]?.testo && (
+                          <span className="field-error">{errors.varianti[index].testo.message}</span>
+                        )}
+                      </div>
+
+                      <div className="form-field video-field">
+                        <label htmlFor={`variant-${index}-video`}>Video: secondo (opzionale)</label>
+                        <input
+                          id={`variant-${index}-video`}
+                          type="number"
+                          min="0"
+                          placeholder="Es. 120"
+                          {...register(`varianti.${index}.video_secondi`, { valueAsNumber: true })}
+                          className={clsx('form-input', errors.varianti?.[index]?.video_secondi && 'error')}
+                        />
+                        {errors.varianti?.[index]?.video_secondi && (
+                          <span className="field-error">{errors.varianti[index].video_secondi.message}</span>
+                        )}
+                        <p className="form-hint">Secondo nel video della fonte</p>
+                      </div>
+
+                      <button
+                        type="button"
+                        className="btn-remove"
+                        onClick={() => removeVariant(index)}
+                        aria-label="Rimuovi variante"
+                      >
+                        <Trash2 size={18} />
+                      </button>
+                    </div>
+                  </li>
+                ))}
+              </ol>
+
+              {variantFields.length === 0 && (
+                <p className="empty-hint">Nessuna variante. Clicca "Aggiungi" per iniziare.</p>
+              )}
             </section>
 
             {/* Note */}

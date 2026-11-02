@@ -14,8 +14,9 @@ import { useAuth } from '../contexts/AuthContext'
 import { getRecipeById, incrementRecipeMade, deleteRecipe } from '../lib/supabase'
 import {
   CATEGORIE_LABELS, MOOD_LABELS, STATO_LABELS,
-  GRUPPI_INGREDIENTI, type Ingrediente, type Passaggio, type Mood
+  GRUPPI_INGREDIENTI, type Mood
 } from '../lib/config'
+import { type Ingrediente, type Passaggio, type Variante, normalizeRecipeFromDb } from '../lib/types'
 
 interface RecipeDetailData {
   id: string
@@ -32,7 +33,7 @@ interface RecipeDetailData {
   porzioni_unita: string | null
   ingredienti: Ingrediente[]
   passaggi: Passaggio[]
-  varianti: string[]
+  varianti: Variante[]
   note: string | null
   descrizione: string | null
   fonte_url: string | null
@@ -69,21 +70,16 @@ export function RecipeDetail() {
     try {
       const data = await getRecipeById(id)
       if (data) {
-        // Cast dei campi Json dal database
-        const ingredienti = (data.ingredienti as unknown as Ingrediente[]) || []
-        const passaggi = (data.passaggi as unknown as Passaggio[]) || []
-        const varianti = (data.varianti as unknown as string[]) || []
-        const tags = (data.tags as unknown as string[]) || []
-
+        const formData = normalizeRecipeFromDb(data)
         setRecipe({
           ...data,
-          ingredienti,
-          passaggi,
-          varianti,
-          tags,
-          note: data.note || null,
-          descrizione: data.descrizione || null,
-          fonte_url: data.fonte_url || null,
+          ingredienti: formData.ingredienti,
+          passaggi: formData.passaggi,
+          varianti: formData.varianti,
+          tags: formData.tags,
+          note: formData.note,
+          descrizione: formData.descrizione,
+          fonte_url: formData.fonte_url,
         } as RecipeDetailData)
         setPorzioni(data.porzioni || 1)
         setCheckedIngredients(new Set())
@@ -323,7 +319,17 @@ export function RecipeDetail() {
             <div className="varianti-section">
               <h3>Varianti</h3>
               <ul>
-                {recipe.varianti.map((v, i) => <li key={i}>{v}</li>)}
+                {recipe.varianti.map((v, i) => (
+                  <li key={i} className="variante-item">
+                    {v.titolo && <strong>{v.titolo}: </strong>}
+                    <span>{v.testo}</span>
+                    {v.video_secondi && recipe.fonte_url && (
+                      <a href={recipe.fonte_url} target="_blank" rel="noopener noreferrer" className="btn-video-link">
+                        <MessageSquare size={16} /> Guarda nel video al {v.video_secondi}s
+                      </a>
+                    )}
+                  </li>
+                ))}
               </ul>
             </div>
           )}
@@ -424,10 +430,11 @@ export function RecipeDetail() {
                   <span className="progress-text">Passaggio {currentStep + 1} di {passaggi.length}</span>
                 </div>
                 <div className="cooking-step">
+                  {passaggi[currentStep].titolo && <h4 className="step-titolo">{passaggi[currentStep].titolo}</h4>}
                   <p className="step-text">{passaggi[currentStep].testo}</p>
-                  {passaggi[currentStep].video_url && (
-                    <a href={passaggi[currentStep].video_url} target="_blank" rel="noopener noreferrer" className="btn-video-link">
-                      <MessageSquare size={18} /> Video
+                  {passaggi[currentStep].video_secondi && recipe.fonte_url && (
+                    <a href={recipe.fonte_url} target="_blank" rel="noopener noreferrer" className="btn-video-link">
+                      <MessageSquare size={18} /> Guarda nel video al {passaggi[currentStep].video_secondi}s
                     </a>
                   )}
                 </div>
@@ -454,10 +461,11 @@ export function RecipeDetail() {
                   <li key={i} className="step-item">
                     <span className="step-number">{i + 1}</span>
                     <div className="step-content">
+                      {step.titolo && <h4 className="step-titolo">{step.titolo}</h4>}
                       <p>{step.testo}</p>
-                      {step.video_url && (
-                        <a href={step.video_url} target="_blank" rel="noopener noreferrer" className="step-video">
-                          <MessageSquare size={16} /> Guarda video
+                      {step.video_secondi && recipe.fonte_url && (
+                        <a href={recipe.fonte_url} target="_blank" rel="noopener noreferrer" className="step-video">
+                          <MessageSquare size={16} /> Guarda nel video al {step.video_secondi}s
                         </a>
                       )}
                     </div>
@@ -494,7 +502,15 @@ export function RecipeDetail() {
               </div>
               <span>Passaggio {currentStep + 1} di {passaggi.length}</span>
             </div>
-            <p className="cooking-step-text">{passaggi[currentStep]?.testo}</p>
+            <div className="cooking-step">
+              {passaggi[currentStep]?.titolo && <h4 className="step-titolo">{passaggi[currentStep]!.titolo}</h4>}
+              <p className="cooking-step-text">{passaggi[currentStep]?.testo}</p>
+              {passaggi[currentStep]?.video_secondi && recipe.fonte_url && (
+                <a href={recipe.fonte_url} target="_blank" rel="noopener noreferrer" className="btn-video-link">
+                  <MessageSquare size={18} /> Guarda nel video al {passaggi[currentStep]!.video_secondi}s
+                </a>
+              )}
+            </div>
             <div className="cooking-nav">
               <button className="btn-nav" onClick={() => setCurrentStep(prev => Math.max(0, prev - 1))} disabled={currentStep === 0}>
                 <ChevronUp size={24} />

@@ -183,8 +183,18 @@ export interface Ingrediente {
 // TIPO PASSAGGIO (per form e dettaglio)
 // ============================================
 export interface Passaggio {
+  titolo?: string
   testo: string
-  video_url: string | null
+  video_secondi?: number | null
+}
+
+// ============================================
+// TIPO VARIANTE (per form e dettaglio)
+// ============================================
+export interface Variante {
+  titolo: string
+  testo: string
+  video_secondi?: number | null
 }
 
 // ============================================
