@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect, useCallback } from 'react'
+import { useRef, useCallback } from 'react'
 import { Filter } from 'lucide-react'
 import { clsx } from 'clsx'
 import { MOOD_OPTIONS, MOOD_LABELS } from '../lib/config'
@@ -11,6 +11,7 @@ interface HeaderProps {
   hasActiveFilters?: boolean
   filterCount?: number
   children?: React.ReactNode
+  onMoodChange?: (mood: string) => void
 }
 
 export function Header({
@@ -20,26 +21,17 @@ export function Header({
   hasActiveFilters,
   filterCount = 0,
   children,
+  onMoodChange,
 }: HeaderProps) {
   const { mood, setMood } = useMood()
-  const [moodOpen, setMoodOpen] = useState(false)
-  const moodRef = useRef<HTMLDivElement>(null)
   const moodBarRef = useRef<HTMLDivElement>(null)
 
-  // Click outside per chiudere dropdown filtri (legacy)
-  useEffect(() => {
-    function handleClickOutside(e: MouseEvent) {
-      if (moodRef.current && !moodRef.current.contains(e.target as Node)) {
-        setMoodOpen(false)
-      }
-    }
-    if (moodOpen) {
-      document.addEventListener('mousedown', handleClickOutside)
-    }
-    return () => document.removeEventListener('mousedown', handleClickOutside)
-  }, [moodOpen])
-
   const totalFilterCount = filterCount + (mood !== 'tutti' ? 1 : 0)
+
+  const handleMoodClick = useCallback((m: string) => {
+    onMoodChange?.(m)
+    setMood(m as any)
+  }, [onMoodChange, setMood])
 
   // Gestione tastiera per la barra mood
   const handleMoodKeyDown = useCallback((e: React.KeyboardEvent, targetMood: string) => {
@@ -136,7 +128,7 @@ export function Header({
               aria-controls={`mood-panel-${m}`}
               id={`mood-tab-${m}`}
               data-mood={m}
-              onClick={() => setMood(m)}
+              onClick={() => handleMoodClick(m)}
               onKeyDown={(e) => handleMoodKeyDown(e, m)}
               className={clsx(
                 'mood-pill flex-shrink-0 px-4 py-2 rounded-full text-sm font-medium',
@@ -159,10 +151,8 @@ export function Header({
           ))}
         </nav>
 
-        {/* Children (filters panel, etc.) - legacy dropdown */}
-        <div className="relative" ref={moodRef}>
-          {children}
-        </div>
+        {/* Children (filters panel, etc.) */}
+        {children}
       </div>
     </header>
   )

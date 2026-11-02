@@ -107,25 +107,16 @@ export function RecipeDetail() {
     loadRecipe()
   }, [loadRecipe])
 
-  // Gestione cambio mood: se l'utente cambia mood e la ricetta non appartiene al nuovo mood,
-  // reindirizza all'elenco filtrato (solo se cambio iniziato dall'utente)
+  // Gestione cambio mood: se l'utente cambia mood dalla pagina di dettaglio,
+  // reindirizza sempre all'elenco filtrato per il nuovo mood
   useEffect(() => {
     if (!recipe || !userInitiatedMoodChange.current) return
 
-    const recipeMood = recipe.mood as Mood | null
     const currentMood = mood
-
-    // Se mood è "tutti" o la ricetta appartiene al mood corrente, resta qui
-    if (currentMood === 'tutti' || recipeMood === currentMood) {
-      userInitiatedMoodChange.current = false
-      return
-    }
-
-    // Altrimenti la ricetta non appartiene al nuovo mood (mood diverso o ricetta senza mood)
-    // Reindirizza all'elenco filtrato
     userInitiatedMoodChange.current = false
+
     const moodLabel = MOOD_LABELS[currentMood]
-    setToast(`Questa ricetta non è nel mood ${moodLabel}`)
+    setToast(`Visualizzi l'elenco per ${moodLabel}`)
     // Sostituisce la voce di cronologia
     navigate('/', { replace: true, state: { mood: currentMood } })
   }, [mood, recipe, navigate])
@@ -275,7 +266,7 @@ export function RecipeDetail() {
       )}
 
       {/* Header con azioni - passa handleMoodChange per intercettare cambi utente */}
-      <Header title={recipe.titolo}>
+      <Header title={recipe.titolo} onMoodChange={() => { userInitiatedMoodChange.current = true; }}>
         <div className="flex items-center gap-2">
           {recipe.categoria && (
             <Badge variant="tag">
