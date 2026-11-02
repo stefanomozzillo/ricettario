@@ -247,7 +247,7 @@ export function RecipeDetail() {
         </div>
       )}
 
-      <main className="detail-content max-w-[720px] mx-auto px-4 pb-24 pt-4">
+      <main className="detail-content max-w-[720px] mx-auto px-4 pt-4 pb-[calc(4rem+env(safe-area-inset-bottom))]">
         {/* Back button - top left */}
         <Link
           to="/"
@@ -371,12 +371,19 @@ export function RecipeDetail() {
           )}
         </section>
 
-        {/* Pulsante "Completa" per ricette da completare */}
+        {/* Pulsante "Completa" per ricette da completare - SEMPRE visibile, alto contrasto WCAG AA */}
         {recipe.stato === 'da_completare' && isAuthorized && (
-          <section className="card bg-[var(--card)] rounded-2xl border border-[var(--card-bordo)] p-4 mb-4 shadow-[var(--elevazione-1)]">
+          <section className="card bg-[var(--card)] rounded-2xl border-2 border-[var(--accento)] p-4 mb-4 shadow-[var(--elevazione-2)]"
+                   style={{ background: 'var(--card)', boxShadow: 'var(--elevazione-2), 0 0 0 1px var(--accento)' }}>
             <Link to={`/edit/${recipe.id}`}>
-              <Button variant="primary" className="w-full" size="lg">
-                <Edit size={20} className="mr-2" /> Completa questa ricetta
+              <Button variant="primary" className="w-full" size="lg"
+                      style={{
+                        background: 'var(--accento)',
+                        color: 'var(--accento-testo)',
+                        fontWeight: 700,
+                        boxShadow: 'var(--elevazione-1), 0 0 0 2px color-mix(in srgb, var(--accento) 30%, transparent)'
+                      }}>
+                <Edit size={20} className="mr-2" style={{ flexShrink: 0 }} /> Completa questa ricetta
               </Button>
             </Link>
           </section>
@@ -512,7 +519,7 @@ export function RecipeDetail() {
               transform: 'translateY(0)',
               transition: 'transform 300ms var(--ease-drawer)',
             }}>
-            <div className="p-4 pb-6">
+            <div className="p-4 pb-[calc(4rem+env(safe-area-inset-bottom))]">
               <div className="flex items-center justify-between mb-6">
                 <h2 className="text-lg font-semibold text-[var(--testo)]">Modalità cucina</h2>
                 <Button variant="ghost" size="sm" onClick={() => setCookingMode(false)}>

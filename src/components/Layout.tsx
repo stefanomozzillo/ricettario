@@ -2,13 +2,14 @@
  * Layout principale: header con selettore mood, bottom nav, pulsante "Aggiungi" per loggati,
  * icona ingranaggio per aprire Impostazioni in un drawer slide-over da destra
  * Responsive: bottom nav su mobile, sidebar su desktop (da implementare)
+ * NOTA: Questo componente assume che l'utente sia SEMPRE autenticato (gestito da App.tsx)
  */
 
 import { useState, useRef, useCallback, useEffect } from 'react'
 import { Outlet, useLocation, useNavigate } from 'react-router-dom'
 import { useAuth } from '../contexts/AuthContext'
 import { useMood } from '../contexts/MoodContext'
-import { BookOpen, Shuffle, Home, Settings as SettingsIcon, Plus, LogOut, User, Loader2, X } from 'lucide-react'
+import { BookOpen, Shuffle, Home, Settings as SettingsIcon, Plus, LogOut, User, X } from 'lucide-react'
 import { clsx } from 'clsx'
 import { MOOD_OPTIONS, MOOD_LABELS } from '../lib/config'
 import { SettingsPage } from '../pages/Settings'
@@ -37,7 +38,7 @@ function shouldShowMoodBar(pathname: string): boolean {
 }
 
 export function Layout() {
-  const { user, loading: authLoading, signOut } = useAuth()
+  const { user, signOut } = useAuth()
   const location = useLocation()
   const navigate = useNavigate()
   const { mood, setMood } = useMood()
@@ -108,18 +109,6 @@ export function Layout() {
     }
   }, [showSettingsDrawer])
 
-  if (authLoading) {
-    return (
-      <div className="loading-screen" style={{
-        display: 'flex', alignItems: 'center', justifyContent: 'center',
-        minHeight: '100vh', background: 'var(--sfondo)'
-      }}>
-        <Loader2 className="spin" size={32} style={{ color: 'var(--accento)' }} />
-      </div>
-    )
-  }
-
-  const isLoggedIn = !!user
   const showMoodBar = shouldShowMoodBar(location.pathname)
 
   const handleSignOut = async () => {
@@ -145,63 +134,59 @@ export function Layout() {
         </div>
 
         <div className="header-right">
-          {isLoggedIn && (
-            <>
-              {/* Pulsante Aggiungi ricetta - solo su pagine che non sono settings/form */}
-              {location.pathname !== '/settings' && !location.pathname.startsWith('/add') && !location.pathname.startsWith('/edit/') && (
-                <button
-                  type="button"
-                  className="btn-primary btn-add touch-target"
-                  onClick={() => navigate('/add')}
-                  aria-label="Aggiungi ricetta"
-                >
-                  <Plus size={20} />
-                  <span className="btn-add-text">Aggiungi</span>
-                </button>
-              )}
-
-              {/* Icona Impostazioni (ingranaggio) */}
-              <button
-                type="button"
-                className="settings-trigger touch-target"
-                onClick={handleOpenSettings}
-                aria-label="Apri impostazioni"
-                aria-expanded={showSettingsDrawer}
-              >
-                <SettingsIcon size={24} />
-              </button>
-
-              {/* Menu utente */}
-              <div className="user-menu" role="menu">
-                <button
-                  type="button"
-                  className="user-trigger touch-target"
-                  onClick={() => setShowUserMenu(!showUserMenu)}
-                  aria-haspopup="true"
-                  aria-expanded={showUserMenu}
-                >
-                  <User size={20} />
-                </button>
-
-                {showUserMenu && (
-                  <div className="user-dropdown" role="menu">
-                    <div className="user-info">
-                      <span className="user-email">{user.email}</span>
-                    </div>
-                    <button
-                      type="button"
-                      className="dropdown-item"
-                      onClick={handleSignOut}
-                      role="menuitem"
-                    >
-                      <LogOut size={16} />
-                      Esci
-                    </button>
-                  </div>
-                )}
-              </div>
-            </>
+          {/* Pulsante Aggiungi ricetta - solo su pagine che non sono settings/form */}
+          {location.pathname !== '/settings' && !location.pathname.startsWith('/add') && !location.pathname.startsWith('/edit/') && (
+            <button
+              type="button"
+              className="btn-primary btn-add touch-target"
+              onClick={() => navigate('/add')}
+              aria-label="Aggiungi ricetta"
+            >
+              <Plus size={20} />
+              <span className="btn-add-text">Aggiungi</span>
+            </button>
           )}
+
+          {/* Icona Impostazioni (ingranaggio) */}
+          <button
+            type="button"
+            className="settings-trigger touch-target"
+            onClick={handleOpenSettings}
+            aria-label="Apri impostazioni"
+            aria-expanded={showSettingsDrawer}
+          >
+            <SettingsIcon size={24} />
+          </button>
+
+          {/* Menu utente */}
+          <div className="user-menu" role="menu">
+            <button
+              type="button"
+              className="user-trigger touch-target"
+              onClick={() => setShowUserMenu(!showUserMenu)}
+              aria-haspopup="true"
+              aria-expanded={showUserMenu}
+            >
+              <User size={20} />
+            </button>
+
+            {showUserMenu && (
+              <div className="user-dropdown" role="menu">
+                <div className="user-info">
+                  <span className="user-email">{user?.email}</span>
+                </div>
+                <button
+                  type="button"
+                  className="dropdown-item"
+                  onClick={handleSignOut}
+                  role="menuitem"
+                >
+                  <LogOut size={16} />
+                  Esci
+                </button>
+              </div>
+            )}
+          </div>
         </div>
       </header>
 

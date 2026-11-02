@@ -23,22 +23,39 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
+    let mounted = true
+
     // Recupera sessione iniziale
-    getSession().then((session) => {
-      setSession(session)
-      setUser(session?.user ?? null)
-      setLoading(false)
-    })
+    getSession()
+      .then((session) => {
+        if (mounted) {
+          setSession(session)
+          setUser(session?.user ?? null)
+          setLoading(false)
+        }
+      })
+      .catch((err) => {
+        console.error('Errore recupero sessione iniziale:', err)
+        if (mounted) {
+          setSession(null)
+          setUser(null)
+          setLoading(false)
+        }
+      })
 
     // Ascolta cambiamenti auth
     const { data: { subscription } } = onAuthStateChange((_event: string, session: unknown) => {
+      if (!mounted) return
       const typedSession = session as Session | null
       setSession(typedSession)
       setUser(typedSession?.user ?? null)
       setLoading(false)
     })
 
-    return () => subscription.unsubscribe()
+    return () => {
+      mounted = false
+      subscription.unsubscribe()
+    }
   }, [])
 
   const signIn = async (email: string, password: string) => {
