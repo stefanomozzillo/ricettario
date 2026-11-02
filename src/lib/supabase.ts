@@ -100,7 +100,7 @@ export async function getRecipes(filters?: {
   category?: string;
   tags?: string[];
   search?: string;
-  onlyComplete?: boolean;
+  stato?: 'completa' | 'da_completare';
   limit?: number;
   offset?: number;
 }) {
@@ -125,8 +125,8 @@ export async function getRecipes(filters?: {
     query = query.ilike('titolo', `%${filters.search}%`);
   }
 
-  if (filters?.onlyComplete) {
-    query = query.eq('stato', 'completa');
+  if (filters?.stato) {
+    query = query.eq('stato', filters.stato);
   }
 
   if (filters?.limit) {

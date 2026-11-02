@@ -65,7 +65,7 @@ export function RecipeList() {
         search: debouncedSearch || undefined,
         category: filters.categoria || undefined,
         tags: filters.tags.length > 0 ? filters.tags : undefined,
-        onlyComplete: !filters.daCompletare,
+        stato: filters.daCompletare ? 'da_completare' : undefined,
       })
       setRecipes(data || [])
     } catch (err) {

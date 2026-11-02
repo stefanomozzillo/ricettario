@@ -34,6 +34,8 @@ interface RecipeDetailData {
   passaggi: Passaggio[]
   varianti: string[]
   note: string | null
+  descrizione: string | null
+  fonte_url: string | null
   volte_fatta: number | null
   ultima_volta: string | null
 }
@@ -80,6 +82,8 @@ export function RecipeDetail() {
           varianti,
           tags,
           note: data.note || null,
+          descrizione: data.descrizione || null,
+          fonte_url: data.fonte_url || null,
         } as RecipeDetailData)
         setPorzioni(data.porzioni || 1)
         setCheckedIngredients(new Set())
@@ -308,6 +312,13 @@ export function RecipeDetail() {
             )}
           </div>
 
+          {recipe.descrizione && (
+            <div className="note-section">
+              <h3>Descrizione</h3>
+              <p>{recipe.descrizione}</p>
+            </div>
+          )}
+
           {recipe.varianti && recipe.varianti.length > 0 && (
             <div className="varianti-section">
               <h3>Varianti</h3>
@@ -323,7 +334,25 @@ export function RecipeDetail() {
               <p>{recipe.note}</p>
             </div>
           )}
+
+          {recipe.fonte_url && (
+            <div className="note-section">
+              <h3>Fonte</h3>
+              <a href={recipe.fonte_url} target="_blank" rel="noopener noreferrer" className="btn-video-link">
+                <MessageSquare size={18} /> {recipe.fonte_url}
+              </a>
+            </div>
+          )}
         </section>
+
+        {/* Pulsante "Completa" per ricette da completare */}
+        {recipe.stato === 'da_completare' && isAuthorized && (
+          <section className="card detail-actions">
+            <Link to={`/edit/${recipe.id}`} className="btn-primary" style={{ width: '100%', textAlign: 'center', display: 'block' }}>
+              <Edit size={20} /> Completa questa ricetta
+            </Link>
+          </section>
+        )}
 
         {/* Ingredienti */}
         <section className="card detail-ingredients">

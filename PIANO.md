@@ -26,6 +26,9 @@ FASE A in corso — codice completato, **verifiche mancanti**.
 - [x] Tailwind v4 installato e configurato (plugin Vite, token `@theme inline` dai mood, componenti in `@layer` con `@apply`)
 - [x] `.env.local` presente (non committato)
 - [x] Supabase: schema.sql + seed.sql eseguiti, signup pubblico disabilitato (solo "Enable email signups"), 2 utenti creati + in utenti_abilitati
+- [x] BUG 1 fix: elenco mostra tutte le ricette (default), filtro "Da completare" mostra solo quelle (modificato `getRecipes` con parametro `stato` e logica in `RecipeList`)
+- [x] BUG 2 fix: dettaglio sicuro per campi NULL/vuoti, aggiunti descrizione/fonte_url, pulsante "Completa" per da_completare, errore visibile in dev via ErrorBoundary
+- [x] Migrazione `supabase/migrations/03-fix-seed.sql`: array vuoti espliciti per da_completare, vincolo CHECK per ricette complete
 
 ## Da fare (verifiche FASE A)
 
