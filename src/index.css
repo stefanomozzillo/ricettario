@@ -278,7 +278,6 @@
   .step-index { @apply text-xs font-bold text-testo/50; }
   .autocomplete-wrapper { @apply relative; }
   .autocomplete-dropdown { @apply absolute z-50 left-0 right-0 top-full mt-1 list-none m-0 p-1 max-h-48 overflow-auto bg-card border border-card-bordo rounded-lg shadow-[var(--elevazione-2)]; }
-  .form-footer { @apply flex justify-end gap-2 mt-2; }
   .hint-icon { @apply text-testo/40; }
 
   /* Impostazioni */
@@ -446,7 +445,8 @@
   }
 
   .app-main {
-    @apply flex-1 w-full max-w-[720px] mx-auto px-4 pt-4 pb-28;
+    @apply flex-1 w-full max-w-[720px] mx-auto px-4 pt-4;
+    padding-bottom: calc(5rem + env(safe-area-inset-bottom, 0px));
   }
 
   .bottom-nav {
@@ -742,8 +742,7 @@
   }
 
   .form-footer {
-    @apply fixed bottom-0 left-0 right-0 bg-[var(--sfondo)]/95 backdrop-blur supports-[backdrop-filter]:bg-[var(--sfondo)]/80 border-t border-[var(--bordo)] p-4 max-w-[720px] mx-auto;
-    padding-bottom: calc(env(safe-area-inset-bottom, 0px) + 1rem);
+    @apply bg-[var(--sfondo)]/95 backdrop-blur supports-[backdrop-filter]:bg-[var(--sfondo)]/80 border-t border-[var(--bordo)] p-4 max-w-[720px] mx-auto;
   }
 
   .section-header {

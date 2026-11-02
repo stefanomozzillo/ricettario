@@ -247,7 +247,7 @@ export function RecipeDetail() {
         </div>
       )}
 
-      <main className="detail-content max-w-[720px] mx-auto px-4 pt-4 pb-[calc(4rem+env(safe-area-inset-bottom))]">
+      <main className="detail-content max-w-[720px] mx-auto px-4 pt-4 pb-[calc(5rem+env(safe-area-inset-bottom))]">
         {/* Back button - top left */}
         <Link
           to="/"
@@ -519,7 +519,7 @@ export function RecipeDetail() {
               transform: 'translateY(0)',
               transition: 'transform 300ms var(--ease-drawer)',
             }}>
-            <div className="p-4 pb-[calc(4rem+env(safe-area-inset-bottom))]">
+            <div className="p-4 pb-[calc(5rem+env(safe-area-inset-bottom))]">
               <div className="flex items-center justify-between mb-6">
                 <h2 className="text-lg font-semibold text-[var(--testo)]">Modalità cucina</h2>
                 <Button variant="ghost" size="sm" onClick={() => setCookingMode(false)}>

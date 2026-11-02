@@ -181,7 +181,7 @@ function RecipeFormComponent({ isEditing }: RecipeFormComponentProps) {
 
   return (
     <div className="page-container form-page">
-      <form onSubmit={handleSubmit(onSubmit as any)} className="form-content max-w-[720px] mx-auto px-4 pb-24" noValidate>
+      <form onSubmit={handleSubmit(onSubmit as any)} className="form-content max-w-[720px] mx-auto px-4" noValidate>
         {error && (
           <div className="form-error card bg-[var(--card)] rounded-xl border border-[var(--bordo)] p-4 mb-4 flex items-start gap-2 text-[var(--accento)]">
             <AlertCircle size={18} className="mt-0.5 flex-shrink-0" />
@@ -607,23 +607,26 @@ function RecipeFormComponent({ isEditing }: RecipeFormComponentProps) {
           </>
         )}
 
-        {/* Pulsanti salvataggio */}
-        <footer className="form-footer fixed bottom-0 left-0 right-0 bg-[var(--sfondo)]/95 backdrop-blur supports-[backdrop-filter]:bg-[var(--sfondo)]/80 border-t border-[var(--bordo)] p-4 pb-safe max-w-[720px] mx-auto" style={{ paddingBottom: 'calc(env(safe-area-inset-bottom, 0px) + 1rem)' }}>
+        {/* Pulsanti salvataggio - flusso normale (non fixed) per evitare sovrapposizione con BottomNav */}
+        <footer className="form-footer bg-[var(--sfondo)]/95 backdrop-blur supports-[backdrop-filter]:bg-[var(--sfondo)]/80 border-t border-[var(--bordo)] p-4 pt-6 max-w-[720px] mx-auto">
           <div className="flex items-center justify-between gap-4">
-            <Button variant="secondary" onClick={() => navigate(-1)} className="flex-1">
+            <Button variant="secondary" onClick={() => navigate(-1)} className="flex-1 touch-manipulation min-h-[44px]">
               Annulla
             </Button>
             <Button
               variant="primary"
               type="submit"
               disabled={!isValid || saving || !user}
-              className="flex-1 gap-2"
+              className="flex-1 gap-2 touch-manipulation min-h-[44px]"
             >
               {saving ? <Loader2 size={18} className="animate-spin" /> : <CheckCircle size={18} />}
               {isEditing ? 'Salva modifiche' : 'Crea ricetta'}
             </Button>
           </div>
         </footer>
+
+        {/* Spacer: spazio per far scorrere il footer sopra la BottomNav fissa (64px) + margine ampio */}
+        <div className="h-40" aria-hidden="true" />
 
         {/* AI Import placeholder - FASE C */}
         {/* <AIImport onImport={data => reset(data)} /> */}
