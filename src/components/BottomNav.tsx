@@ -37,17 +37,19 @@ export function BottomNav() {
                 type="button"
                 className={clsx(
                   'flex flex-col items-center gap-1 px-3 py-2',
-                  'text-sm font-medium transition-all duration-150',
+                  'text-sm font-medium',
                   'touch-manipulation',
+                  'transition-[transform] duration-100',
+                  'active:scale-[0.97]',
                   isActive(item.path, item.exact)
                     ? 'text-[var(--accento)]'
-                    : 'text-[var(--secondario)] hover:text-[var(--testo)]'
+                    : 'text-[var(--secondario)]'
                 )}
                 onClick={() => navigate(item.path)}
                 aria-current={isActive(item.path, item.exact) ? 'page' : undefined}
                 aria-label={item.label}
               >
-                <item.icon size={24} aria-hidden="true" className={clsx(isActive(item.path, item.exact) && 'active:scale-110')} />
+                <item.icon size={24} aria-hidden="true" className={clsx(isActive(item.path, item.exact) && 'text-[var(--accento)]')} />
                 <span className="text-xs leading-none">{item.label}</span>
               </button>
             ))}

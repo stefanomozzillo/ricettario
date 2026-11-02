@@ -43,8 +43,9 @@ export function RecipeCard({ recipe, onClick }: RecipeCardProps) {
     <article
       className={clsx(
         'card relative bg-[var(--card)] rounded-2xl shadow-sm border border-[var(--bordo)]',
-        'transition-all duration-200',
-        'hover:shadow-md hover:-translate-y-1 active:scale-[0.99]',
+        'transition-[transform,box-shadow] duration-200',
+        'hover:-translate-y-1 hover:shadow-md',
+        'active:scale-[0.99]',
         'touch-manipulation'
       )}
       onClick={onClick}

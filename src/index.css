@@ -342,4 +342,67 @@
   .sr-only { @apply absolute w-px h-px p-0 -m-px overflow-hidden whitespace-nowrap border-0; clip-path: inset(50%); }
   .accento-rosso { @apply text-red-600; }
   .accento-turchese { @apply text-teal-600; }
+
+  /* ===== Animazioni Cooking Mode ===== */
+  .cooking-overlay {
+    opacity: 1;
+    transition: opacity 200ms var(--ease-out);
+
+    @starting-style {
+      opacity: 0;
+    }
+  }
+
+  .cooking-overlay-content {
+    transform: translateY(0);
+    transition: transform 300ms var(--ease-drawer);
+
+    @starting-style {
+      transform: translateY(100%);
+    }
+  }
+
+  /* ===== Reduced Motion ===== */
+  @media (prefers-reduced-motion: reduce) {
+    .cooking-overlay,
+    .cooking-overlay-content,
+    .mood-pill,
+    .nav-item,
+    .recipe-card,
+    .btn-primary,
+    .btn-secondary,
+    .btn-ghost,
+    .btn-danger,
+    .btn-fab,
+    .progress-fill {
+      transition-duration: 0.01ms !important;
+      animation-duration: 0.01ms !important;
+    }
+  }
+
+  /* ===== Hover solo su dispositivi con pointer fine ===== */
+  @media (hover: hover) and (pointer: fine) {
+    .btn-primary:hover:not(:disabled) { filter: brightness(1.1); }
+    .btn-secondary:hover:not(:disabled) { background-color: var(--card-bordo); }
+    .btn-ghost:hover:not(:disabled) { background-color: var(--badge-sfondo); }
+    .btn-danger:hover:not(:disabled) { filter: brightness(1.1); }
+    .nav-item:hover { color: var(--testo); }
+    .recipe-card:hover { box-shadow: var(--ombra-forte); transform: translateY(-4px); }
+    .mood-pill:hover:not([aria-selected="true"]) { background-color: var(--bordo); }
+  }
+
+  /* ===== Active press feedback (fallback per browser senza @starting-style) ===== */
+  .mood-pill:active,
+  .nav-item:active,
+  .recipe-card:active,
+  .btn-primary:active:not(:disabled),
+  .btn-secondary:active:not(:disabled),
+  .btn-ghost:active:not(:disabled),
+  .btn-danger:active:not(:disabled),
+  .btn-fab:active:not(:disabled) {
+    transform: scale(0.97);
+  }
+  .btn-fab:active:not(:disabled) {
+    transform: scale(0.95);
+  }
 }

@@ -132,10 +132,11 @@ export function Header({
               onKeyDown={(e) => handleMoodKeyDown(e, m)}
               className={clsx(
                 'mood-pill flex-shrink-0 px-4 py-2 rounded-full text-sm font-medium',
-                'transition-all duration-200 ease-out',
+                'transition-[transform,background-color,box-shadow] duration-200 ease-out',
                 'focus-visible:outline-2 focus-visible:outline-[var(--accento)] focus-visible:outline-offset-2',
                 'touch-manipulation',
                 'min-h-[44px] min-w-[44px]', // Target tocco 44px
+                'active:scale-[0.97]',
                 mood === m
                   ? 'bg-[var(--accento)] text-[var(--accento-test)] shadow-md'
                   : 'bg-[var(--card)] text-[var(--testo)] border border-[var(--bordo)] hover:bg-[var(--bordo)] active:bg-[var(--bordo)]'

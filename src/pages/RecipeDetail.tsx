@@ -528,8 +528,16 @@ export function RecipeDetail() {
 
       {/* Modalità cucina overlay per mobile */}
       {cookingMode && (
-        <div className="cooking-overlay fixed inset-0 z-50 bg-black/50 backdrop-blur-sm" onClick={() => setCookingMode(false)} aria-hidden="true">
-          <div className="cooking-overlay-content absolute bottom-0 left-0 right-0 max-h-[90vh] overflow-y-auto bg-[var(--card)] rounded-t-3xl border-t-2 border-[var(--accento)]" onClick={e => e.stopPropagation()}>
+        <div className="cooking-overlay fixed inset-0 z-50 bg-black/50 backdrop-blur-sm" onClick={() => setCookingMode(false)} aria-hidden="true"
+          style={{
+            opacity: 1,
+            transition: 'opacity 200ms cubic-bezier(0.23, 1, 0.32, 1)',
+          }}>
+          <div className="cooking-overlay-content absolute bottom-0 left-0 right-0 max-h-[90vh] overflow-y-auto bg-[var(--card)] rounded-t-3xl border-t-2 border-[var(--accento)]" onClick={e => e.stopPropagation()}
+            style={{
+              transform: 'translateY(0)',
+              transition: 'transform 300ms cubic-bezier(0.32, 0.72, 0, 1)',
+            }}>
             <div className="p-4 pb-6">
               <div className="flex items-center justify-between mb-6">
                 <h2 className="text-lg font-semibold text-[var(--testo)]">Modalità cucina</h2>
@@ -540,8 +548,11 @@ export function RecipeDetail() {
               <div className="cooking-progress mb-6">
                 <div className="progress-bar h-2 bg-[var(--bordo)] rounded-full overflow-hidden mb-2">
                   <div
-                    className="progress-fill h-full bg-[var(--accento)] transition-all duration-300 ease-out"
-                    style={{ width: `${((currentStep + 1) / passaggi.length) * 100}%` }}
+                    className="progress-fill h-full bg-[var(--accento)]"
+                    style={{
+                      width: `${((currentStep + 1) / passaggi.length) * 100}%`,
+                      transition: 'width 200ms cubic-bezier(0.23, 1, 0.32, 1)'
+                    }}
                   />
                 </div>
                 <p className="progress-text text-sm text-[var(--secondario)] text-center">Passaggio {currentStep + 1} di {passaggi.length}</p>

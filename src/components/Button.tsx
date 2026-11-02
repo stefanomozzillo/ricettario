@@ -10,14 +10,28 @@ interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
 
 export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
   ({ variant = 'primary', size = 'md', isLoading, disabled, className, children, ...props }, ref) => {
-    const base = 'inline-flex items-center justify-center font-medium rounded-xl transition-all duration-150 focus-visible:outline-2 focus-visible:outline-offset-2 disabled:opacity-50 disabled:cursor-not-allowed'
+    const base = 'inline-flex items-center justify-center font-medium rounded-xl' +
+      ' transition-[transform,filter,background-color,border-color,box-shadow] duration-100' +
+      ' focus-visible:outline-2 focus-visible:outline-offset-2' +
+      ' disabled:opacity-50 disabled:cursor-not-allowed'
 
     const variants = {
-      primary: 'bg-[var(--accento)] text-[var(--accento-test)] hover:brightness-105 active:brightness-95 focus-visible:outline-[var(--accento)]',
-      secondary: 'bg-[var(--card)] text-[var(--testo)] border border-[var(--bordo)] hover:bg-[var(--bordo)] active:bg-[var(--bordo)] focus-visible:outline-[var(--accento)]',
-      ghost: 'text-[var(--testo)] hover:bg-[var(--bordo)] active:bg-[var(--bordo)] focus-visible:outline-[var(--accento)]',
-      danger: 'bg-red-600 text-white hover:brightness-105 active:brightness-95 focus-visible:outline-red-600',
-      fab: 'fixed bottom-6 right-4 z-50 w-14 h-14 rounded-full shadow-lg bg-[var(--accento)] text-[var(--accento-test)] hover:brightness-105 active:brightness-95 active:scale-[0.95] focus-visible:outline-[var(--accento)]',
+      primary: 'bg-[var(--accento)] text-[var(--accento-test)]' +
+        ' hover:brightness-105 active:brightness-95 active:scale-[0.97]' +
+        ' focus-visible:outline-[var(--accento)]',
+      secondary: 'bg-[var(--card)] text-[var(--testo)] border border-[var(--bordo)]' +
+        ' hover:bg-[var(--bordo)] active:bg-[var(--bordo)] active:scale-[0.97]' +
+        ' focus-visible:outline-[var(--accento)]',
+      ghost: 'text-[var(--testo)]' +
+        ' hover:bg-[var(--bordo)] active:bg-[var(--bordo)] active:scale-[0.97]' +
+        ' focus-visible:outline-[var(--accento)]',
+      danger: 'bg-red-600 text-white' +
+        ' hover:brightness-105 active:brightness-95 active:scale-[0.97]' +
+        ' focus-visible:outline-red-600',
+      fab: 'fixed bottom-6 right-4 z-50 w-14 h-14 rounded-full shadow-lg' +
+        ' bg-[var(--accento)] text-[var(--accento-test)]' +
+        ' hover:brightness-105 active:brightness-95 active:scale-[0.95]' +
+        ' focus-visible:outline-[var(--accento)]',
     }
 
     const sizes = {
