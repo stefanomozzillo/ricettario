@@ -290,7 +290,7 @@ export function RecipeDetail() {
                       : 'bg-[var(--card)] text-[var(--testo)] border border-[var(--card-bordo)] hover:bg-[var(--accento)] hover:border-[var(--accento)] hover:text-[var(--accento-test)] hover:shadow-[var(--elevazione-1)] focus-visible:outline-2 focus-visible:outline-[var(--accento)] focus-visible:outline-offset-2'
                   )}
                 >
-                  <Minus size={20} />
+                  <Minus size={20} style={{ flexShrink: 0, color: 'inherit' }} />
                 </button>
 
                 <div className="porzioni-display flex items-center justify-center min-w-[5rem] px-2">
@@ -315,7 +315,7 @@ export function RecipeDetail() {
                       : 'bg-[var(--card)] text-[var(--testo)] border border-[var(--card-bordo)] hover:bg-[var(--accento)] hover:border-[var(--accento)] hover:text-[var(--accento-test)] hover:shadow-[var(--elevazione-1)] focus-visible:outline-2 focus-visible:outline-[var(--accento)] focus-visible:outline-offset-2'
                   )}
                 >
-                  <Plus size={20} />
+                  <Plus size={20} style={{ flexShrink: 0, color: 'inherit' }} />
                 </button>
               </div>
 
