@@ -6,11 +6,7 @@
 import { useState } from 'react'
 import { Outlet, useLocation, useNavigate } from 'react-router-dom'
 import { useAuth } from '../contexts/AuthContext'
-import { useMood } from '../contexts/MoodContext'
-import {
-  BookOpen, Shuffle, Home, Settings as SettingsIcon, Plus, ChevronDown,
-  LogOut, User, Loader2
-} from 'lucide-react'
+import { BookOpen, Shuffle, Home, Settings as SettingsIcon, Plus, LogOut, User, Loader2 } from 'lucide-react'
 import { clsx } from 'clsx'
 
 interface NavItem {
@@ -29,10 +25,8 @@ const NAV_ITEMS: NavItem[] = [
 
 export function Layout() {
   const { user, loading: authLoading, signOut } = useAuth()
-  const { mood, setMood, moodOptions, moodLabels } = useMood()
   const location = useLocation()
   const navigate = useNavigate()
-  const [showMoodMenu, setShowMoodMenu] = useState(false)
   const [showUserMenu, setShowUserMenu] = useState(false)
 
   if (authLoading) {
@@ -53,49 +47,12 @@ export function Layout() {
     setShowUserMenu(false)
   }
 
-  const handleNavClick = (path: string) => {
-    navigate(path)
-    setShowMoodMenu(false)
-    setShowUserMenu(false)
-  }
-
   return (
     <div className="app-layout">
       {/* Header */}
       <header className="app-header" role="banner">
         <div className="header-left">
           <h1 className="app-title">Ricettario</h1>
-        </div>
-
-        <div className="header-center">
-          {/* Selettore Mood */}
-          <div className="mood-selector" role="combobox" aria-label="Seleziona mood" aria-expanded={showMoodMenu}>
-            <button
-              type="button"
-              className="mood-trigger touch-target"
-              onClick={() => setShowMoodMenu(!showMoodMenu)}
-              aria-haspopup="listbox"
-            >
-              <span className="mood-label">{moodLabels[mood]}</span>
-              <ChevronDown className={clsx('mood-chevron', showMoodMenu && 'rotate')} size={16} />
-            </button>
-
-            {showMoodMenu && (
-              <ul className="mood-dropdown" role="listbox" aria-label="Mood disponibili">
-                {moodOptions.map(m => (
-                  <li key={m} role="option" aria-selected={mood === m}>
-                    <button
-                      type="button"
-                      className={clsx('mood-option', mood === m && 'active')}
-                      onClick={() => { setMood(m); setShowMoodMenu(false); }}
-                    >
-                      {moodLabels[m]}
-                    </button>
-                  </li>
-                ))}
-              </ul>
-            )}
-          </div>
         </div>
 
         <div className="header-right">
@@ -161,7 +118,7 @@ export function Layout() {
               key={item.path}
               type="button"
               className={clsx('nav-item', isActive && 'active')}
-              onClick={() => handleNavClick(item.path)}
+              onClick={() => navigate(item.path)}
               aria-current={isActive ? 'page' : undefined}
               aria-label={item.label}
             >
@@ -173,10 +130,10 @@ export function Layout() {
       </nav>
 
       {/* Overlay per chiudere dropdown clickando fuori */}
-      {(showMoodMenu || showUserMenu) && (
+      {showUserMenu && (
         <div
           className="dropdown-overlay"
-          onClick={() => { setShowMoodMenu(false); setShowUserMenu(false); }}
+          onClick={() => setShowUserMenu(false)}
           aria-hidden="true"
         />
       )}
