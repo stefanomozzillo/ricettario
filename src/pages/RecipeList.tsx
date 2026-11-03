@@ -14,6 +14,7 @@ import { useMood } from '../contexts/MoodContext'
 import { RecipeCard } from '../components/RecipeCard'
 import { Button } from '../components/Button'
 import { BottomNav } from '../components/BottomNav'
+import { BackToTop } from '../components/BackToTop'
 
 interface Recipe {
   id: string
@@ -308,6 +309,7 @@ export function RecipeList() {
         )}
       </main>
 
+      <BackToTop />
       <BottomNav />
     </div>
   )

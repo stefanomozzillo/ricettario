@@ -10,6 +10,7 @@ import { getHistory, removeHistoryEntry, clearHistory, formatHistoryDate, type H
 import { CATEGORIE_LABELS, MOOD_LABELS } from '../lib/config'
 import { Badge } from '../components/Badge'
 import { Button } from '../components/Button'
+import { BackToTop } from '../components/BackToTop'
 
 function categoriaLabel(categoria: string | null): string {
   if (!categoria) return ''
@@ -24,8 +25,9 @@ function moodLabel(mood: string | null): string | null {
 export function HistoryPage() {
   const navigate = useNavigate()
   // Stato locale per forzare il re-render dopo eliminazioni
-  const [, setVersion] = useState(0)
-  const entries = useMemo(() => getHistory(), [])
+  const [version, setVersion] = useState(0)
+  // Ricalcola l'elenco a ogni cambio di versione (dopo eliminazione/svuotamento)
+  const entries = useMemo(() => getHistory(), [version])
 
   const refresh = () => setVersion(v => v + 1)
 
@@ -116,6 +118,8 @@ export function HistoryPage() {
           </ul>
         )}
       </main>
+
+      <BackToTop />
     </div>
   )
 }
