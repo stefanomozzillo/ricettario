@@ -1,4 +1,4 @@
-import { Home, Shuffle, Package, Plus } from 'lucide-react'
+import { Home, Shuffle, Package, Plus, History } from 'lucide-react'
 import { clsx } from 'clsx'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { useAuth } from '../contexts/AuthContext'
@@ -8,6 +8,7 @@ const NAV_ITEMS = [
   { path: '/', label: 'Elenco', icon: Home, exact: true },
   { path: '/roulette', label: 'Roulette', icon: Shuffle, exact: false },
   { path: '/pantry', label: 'Cosa ho in casa', icon: Package, exact: false },
+  { path: '/history', label: 'Cronologia', icon: History, exact: false },
 ] as const
 
 export function BottomNav() {

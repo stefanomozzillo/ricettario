@@ -15,6 +15,7 @@ import { clsx } from 'clsx'
 import { useAuth } from '../contexts/AuthContext'
 import { useMood } from '../contexts/MoodContext'
 import { getRecipeById, incrementRecipeMade } from '../lib/supabase'
+import { addHistoryEntry } from '../lib/history'
 import {
   MOOD_LABELS,
   GRUPPI_INGREDIENTI
@@ -179,6 +180,14 @@ export function RecipeDetail() {
         volte_fatta: (prev.volte_fatta || 0) + 1,
         ultima_volta: new Date().toISOString()
       } : null)
+      // Registra la preparazione nella cronologia locale
+      addHistoryEntry({
+        ricetta_id: recipe.id,
+        titolo: recipe.titolo,
+        mood: recipe.mood,
+        categoria: recipe.categoria,
+      })
+      setToast(`«${recipe.titolo}» aggiunta alla Cronologia`)
     } catch (err) {
       console.error('Errore aggiornamento contatore:', err)
     }
@@ -389,6 +398,17 @@ export function RecipeDetail() {
           </section>
         )}
 
+        {/* Pulsante "Modifica ricetta" - per tutti gli utenti autorizzati */}
+        {isAuthorized && (
+          <section className="card bg-[var(--card)] rounded-2xl border border-[var(--card-bordo)] p-4 mb-4 shadow-[var(--elevazione-1)]">
+            <Link to={`/edit/${recipe.id}`}>
+              <Button variant="secondary" size="lg" className="w-full">
+                <Edit size={20} className="mr-2" style={{ flexShrink: 0 }} /> Modifica
+              </Button>
+            </Link>
+          </section>
+        )}
+
         {/* Ingredienti - lista leggibile raggruppata per gruppo, SENZA checkbox */}
         <section className="card bg-[var(--card)] rounded-2xl border border-[var(--card-bordo)] p-4 mb-4 shadow-[var(--elevazione-1)]">
           <h2 className="text-lg font-semibold text-[var(--testo)] mb-4">Ingredienti</h2>
@@ -520,9 +540,18 @@ export function RecipeDetail() {
               transition: 'transform 300ms var(--ease-drawer)',
             }}>
             <div className="p-4 pb-[calc(5rem+env(safe-area-inset-bottom))]">
-              <div className="flex items-center justify-between mb-6">
-                <h2 className="text-lg font-semibold text-[var(--testo)]">Modalità cucina</h2>
-                <Button variant="ghost" size="sm" onClick={() => setCookingMode(false)}>
+              <div className="flex items-center gap-3 mb-6">
+                <button
+                  type="button"
+                  onClick={() => setCookingMode(false)}
+                  className="back-button inline-flex items-center gap-2 px-3 py-2 rounded-xl bg-[var(--card)] border border-[var(--card-bordo)] text-[var(--testo)] text-sm font-medium hover:bg-[var(--card-bordo)] active:bg-[var(--card-bordo)] active:scale-[0.97] transition-[transform,background-color,border-color] duration-150 ease-out touch-manipulation focus-visible:outline-2 focus-visible:outline-[var(--accento)] focus-visible:outline-offset-2"
+                  aria-label="Esci dalla modalità cucina"
+                >
+                  <ChevronLeft size={20} />
+                  <span>Indietro</span>
+                </button>
+                <h2 className="flex-1 text-lg font-semibold text-[var(--testo)]">Modalità cucina</h2>
+                <Button variant="ghost" size="sm" onClick={() => setCookingMode(false)} aria-label="Chiudi modalità cucina">
                   <X size={24} />
                 </Button>
               </div>

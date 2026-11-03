@@ -8,6 +8,7 @@ import { RecipeForm } from './pages/RecipeForm'
 import { Settings } from './pages/Settings'
 import { Roulette } from './pages/Roulette'
 import { Pantry } from './pages/Pantry'
+import { HistoryPage } from './pages/HistoryPage'
 import { LandingPage } from './pages/LandingPage'
 import { ErrorBoundary } from './components/ErrorBoundary'
 import { NetworkStatus } from './components/NetworkStatus'
@@ -74,6 +75,7 @@ function App() {
                   <Route path="settings" element={<Settings />} />
                   <Route path="roulette" element={<Roulette />} />
                   <Route path="pantry" element={<Pantry />} />
+                  <Route path="history" element={<HistoryPage />} />
                   {/* FASE C - placeholder */}
                   {/* <Route path="ai" element={<AIAssistant />} /> */}
                 </Route>

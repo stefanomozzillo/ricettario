@@ -9,7 +9,7 @@ import { useState, useRef, useCallback, useEffect } from 'react'
 import { Outlet, useLocation, useNavigate } from 'react-router-dom'
 import { useAuth } from '../contexts/AuthContext'
 import { useMood } from '../contexts/MoodContext'
-import { BookOpen, Shuffle, Home, Settings as SettingsIcon, Plus, LogOut, User, X } from 'lucide-react'
+import { BookOpen, Shuffle, Home, History, Settings as SettingsIcon, Plus, LogOut, User, X } from 'lucide-react'
 import { clsx } from 'clsx'
 import { MOOD_OPTIONS, MOOD_LABELS } from '../lib/config'
 import { SettingsPage } from '../pages/Settings'
@@ -26,6 +26,7 @@ const NAV_ITEMS: NavItem[] = [
   { path: '/', label: 'Elenco', icon: BookOpen, exact: true },
   { path: '/roulette', label: 'Roulette', icon: Shuffle },
   { path: '/pantry', label: 'Cosa ho in casa', icon: Home },
+  { path: '/history', label: 'Cronologia', icon: History },
 ]
 
 // Pagine che mostrano la barra dei mood
