@@ -4,9 +4,9 @@
  * NOTA: Header e Mood Bar ora sono nel Layout component
  */
 
-import { useState, useEffect, useMemo, useCallback } from 'react'
+import { useState, useEffect, useMemo, useCallback, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Search, X, AlertCircle, RotateCcw, SlidersHorizontal, ChevronDown } from 'lucide-react'
+import { Search, X, AlertCircle, RotateCcw, SlidersHorizontal, ChevronDown, Loader2 } from 'lucide-react'
 import { clsx } from 'clsx'
 import { getRecipes, getAllAuthors, type SortOption } from '../lib/supabase'
 import { CATEGORIE, CATEGORIE_LABELS, ALL_TAGS, TAG_LABELS, MOOD_LABELS, TEMPO_VELOCE_MINUTI, DIFFICOLTA, DIFFICOLTA_LABELS } from '../lib/config'
@@ -79,6 +79,11 @@ export function RecipeList() {
   const [showFilters, setShowFilters] = useState(false)
   const [debouncedSearch, setDebouncedSearch] = useState('')
   const [filterPanelHeight, setFilterPanelHeight] = useState(0)
+  const [refreshing, setRefreshing] = useState(false)
+  // Ref: true solo al primo caricamento. Durante le ricerche successive la
+  // pagina resta montata (niente skeleton a pagina intera) così l'input di
+  // ricerca non viene smontato e non perde il focus mentre si digita.
+  const isInitialLoadRef = useRef(true)
 
   // Debounce ricerca
   useEffect(() => {
@@ -107,7 +112,11 @@ export function RecipeList() {
 
   // Carica ricette con filtri
   const loadRecipes = useCallback(async () => {
-    setLoading(true)
+    if (isInitialLoadRef.current) {
+      setLoading(true)
+    } else {
+      setRefreshing(true)
+    }
     setError(null)
     try {
       const data = await getRecipes({
@@ -126,6 +135,8 @@ export function RecipeList() {
       console.error(err)
     } finally {
       setLoading(false)
+      setRefreshing(false)
+      isInitialLoadRef.current = false
     }
   }, [mood, debouncedSearch, filters.categoria, filters.tags, filters.completamento, filters.autore, filters.difficolta, filters.sort])
 
@@ -241,7 +252,12 @@ export function RecipeList() {
       {/* Header title + filters toggle - senza Header component */}
       <div className="list-header max-w-[720px] mx-auto px-4 pt-4">
         <div className="flex items-center justify-between gap-2">
-          <h1 className="text-xl font-semibold text-[var(--testo)]">Ricette</h1>
+          <div className="flex items-center gap-2">
+            <h1 className="text-xl font-semibold text-[var(--testo)]">Ricette</h1>
+            {refreshing && (
+              <Loader2 size={18} className="animate-spin text-[var(--accento)]" aria-label="Aggiornamento in corso" role="status" />
+            )}
+          </div>
           <div className="flex items-center gap-2">
             <Button
               variant="ghost"
@@ -262,37 +278,39 @@ export function RecipeList() {
           </div>
         </div>
 
+        {/* Barra di ricerca: sempre visibile, fuori dal pannello filtri.
+            Nodo DOM stabile: non viene smontato durante la digitazione,
+            quindi il focus e il cursore non si perdono. */}
+        <div className="mt-3">
+          <label htmlFor="search" className="sr-only">Cerca ricette</label>
+          <div className="relative">
+            <Search size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-[var(--secondario)]" aria-hidden="true" />
+            <input
+              type="search"
+              id="search"
+              placeholder="Cerca per titolo..."
+              value={filters.search}
+              onChange={e => handleFilterChange('search', e.target.value)}
+              className="w-full pl-10 pr-10 py-3 rounded-xl border border-[var(--bordo)] bg-[var(--card)] text-[var(--testo)] placeholder-[var(--secondario)] shadow-[var(--elevazione-1)] focus:outline-none focus:ring-2 focus:ring-[var(--accento)] focus:border-transparent transition-all duration-150 min-h-[44px] text-base"
+            />
+            {filters.search && (
+              <button
+                type="button"
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-[var(--secondario)] hover:text-[var(--testo)] transition-colors p-2 min-w-[44px] min-h-[44px] flex items-center justify-center"
+                onClick={() => handleFilterChange('search', '')}
+                aria-label="Cancella ricerca"
+              >
+                <X size={16} />
+              </button>
+            )}
+          </div>
+        </div>
+
         {showFilters && (
           <div
             className="filters-panel bg-[var(--card)] rounded-2xl border border-[var(--bordo)] p-4 animate-in slide-in-from-top-2 duration-200 mt-4 overflow-hidden"
             style={{ maxHeight: showFilters ? filterPanelHeight || 'none' : 0 }}
           >
-            {/* Ricerca */}
-            <div className="filter-group mb-4">
-              <label htmlFor="search" className="block text-sm font-medium text-[var(--testo)] mb-2">Cerca</label>
-              <div className="relative">
-                <Search size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-[var(--secondario)]" aria-hidden="true" />
-                <input
-                  type="search"
-                  id="search"
-                  placeholder="Cerca per titolo..."
-                  value={filters.search}
-                  onChange={e => handleFilterChange('search', e.target.value)}
-                  className="w-full pl-10 pr-10 py-3 rounded-xl border border-[var(--bordo)] bg-[var(--sfondo)] text-[var(--testo)] placeholder-[var(--secondario)] focus:outline-none focus:ring-2 focus:ring-[var(--accento)] focus:border-transparent transition-all duration-150 min-h-[44px] text-base"
-                />
-                {filters.search && (
-                  <button
-                    type="button"
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-[var(--secondario)] hover:text-[var(--testo)] transition-colors p-2 min-w-[44px] min-h-[44px]"
-                    onClick={() => handleFilterChange('search', '')}
-                    aria-label="Cancella ricerca"
-                  >
-                    <X size={16} />
-                  </button>
-                )}
-              </div>
-            </div>
-
             {/* Ordinamento */}
             <div className="filter-group mb-4">
               <label htmlFor="sort" className="block text-sm font-medium text-[var(--testo)] mb-2">Ordina per</label>
@@ -449,8 +467,12 @@ export function RecipeList() {
         )}
       </div>
 
-      {/* Lista ricette */}
-      <main className="max-w-[720px] mx-auto px-4 pt-6 pb-24">
+      {/* Lista ricette: resta montata anche durante la ricerca (refreshing),
+          così il campo di ricerca sopra non perde il focus */}
+      <main className={clsx(
+        'max-w-[720px] mx-auto px-4 pt-6 pb-24 transition-opacity duration-150',
+        refreshing && 'opacity-60 pointer-events-none'
+      )}>
         {finalRecipes.length === 0 ? (
           <div className="empty-state card bg-[var(--card)] rounded-2xl border border-[var(--bordo)] p-8 text-center animate-in fade-in duration-300">
             <AlertCircle size={48} className="mx-auto mb-4 text-[var(--accento)]" />
