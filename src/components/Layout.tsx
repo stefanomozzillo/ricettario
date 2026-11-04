@@ -131,6 +131,7 @@ export function Layout() {
       {/* Header fisso con titolo e azioni utente */}
       <header className="app-header" role="banner">
         <div className="header-left">
+          <img src="/favicon-32x32.png" alt="" aria-hidden="true" className="app-logo" />
           <h1 className="app-title">Ricettario</h1>
         </div>
 
@@ -205,7 +206,7 @@ export function Layout() {
           }}
         >
           <div className="max-w-[720px] mx-auto">
-            <div className="flex items-center gap-2 overflow-x-auto scrollbar-hide snap-x snap-mandatory">
+            <div className="flex items-center gap-2 overflow-x-auto scrollbar-hide snap-x snap-mandatory [justify-content:safe_center]">
               {MOOD_OPTIONS.map((m, index) => (
                 <button
                   key={m}
@@ -231,7 +232,7 @@ export function Layout() {
                     'min-h-[44px] min-w-[44px]',
                     'active:scale-[0.97]',
                     mood === m
-                      ? 'bg-[var(--accento)] text-[var(--accento-test)] shadow-[var(--elevazione-2)]'
+                      ? 'bg-[var(--accento)] text-[var(--accento-testo)] shadow-[var(--elevazione-2)]'
                       : 'bg-[var(--card)] text-[var(--testo)] border border-[var(--card-bordo)] hover:bg-[var(--card-bordo)] active:bg-[var(--card-bordo)]'
                   )}
                   style={{

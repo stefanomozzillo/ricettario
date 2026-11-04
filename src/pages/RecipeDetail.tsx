@@ -265,7 +265,7 @@ export function RecipeDetail() {
       {/* Toast per redirect mood */}
       {toast && (
         <div className="fixed top-16 left-4 right-4 max-w-[720px] mx-auto z-50 animate-in slide-in-from-top-2 duration-200">
-          <div className="bg-[var(--accento)] text-[var(--accento-test)] px-4 py-3 rounded-xl shadow-lg">
+          <div className="bg-[var(--accento)] text-[var(--accento-testo)] px-4 py-3 rounded-xl shadow-lg">
             {toast}
           </div>
         </div>
@@ -338,7 +338,7 @@ export function RecipeDetail() {
                     'touch-manipulation',
                     porzioni <= 1
                       ? 'bg-[var(--bordo)] text-[var(--secondario)] cursor-not-allowed'
-                      : 'bg-[var(--card)] text-[var(--testo)] border border-[var(--card-bordo)] hover:bg-[var(--accento)] hover:border-[var(--accento)] hover:text-[var(--accento-test)] hover:shadow-[var(--elevazione-1)] focus-visible:outline-2 focus-visible:outline-[var(--accento)] focus-visible:outline-offset-2'
+                      : 'bg-[var(--card)] text-[var(--testo)] border border-[var(--card-bordo)] hover:bg-[var(--accento)] hover:border-[var(--accento)] hover:text-[var(--accento-testo)] hover:shadow-[var(--elevazione-1)] focus-visible:outline-2 focus-visible:outline-[var(--accento)] focus-visible:outline-offset-2'
                   )}
                 >
                   <Minus size={20} style={{ flexShrink: 0, color: 'inherit' }} />
@@ -363,7 +363,7 @@ export function RecipeDetail() {
                     'touch-manipulation',
                     porzioni >= 50
                       ? 'bg-[var(--bordo)] text-[var(--secondario)] cursor-not-allowed'
-                      : 'bg-[var(--card)] text-[var(--testo)] border border-[var(--card-bordo)] hover:bg-[var(--accento)] hover:border-[var(--accento)] hover:text-[var(--accento-test)] hover:shadow-[var(--elevazione-1)] focus-visible:outline-2 focus-visible:outline-[var(--accento)] focus-visible:outline-offset-2'
+                      : 'bg-[var(--card)] text-[var(--testo)] border border-[var(--card-bordo)] hover:bg-[var(--accento)] hover:border-[var(--accento)] hover:text-[var(--accento-testo)] hover:shadow-[var(--elevazione-1)] focus-visible:outline-2 focus-visible:outline-[var(--accento)] focus-visible:outline-offset-2'
                   )}
                 >
                   <Plus size={20} style={{ flexShrink: 0, color: 'inherit' }} />
@@ -372,7 +372,7 @@ export function RecipeDetail() {
 
               {/* Indicatore scala rispetto all'originale */}
               {porzioni !== (recipe.porzioni || 1) && (
-                <span className="porzioni-scale-badge absolute -top-2 right-2 text-xs px-2 py-0.5 rounded-full bg-[var(--accento)] text-[var(--accento-test)] font-medium animate-in fade-in zoom-in-95 duration-150">
+                <span className="porzioni-scale-badge absolute -top-2 right-2 text-xs px-2 py-0.5 rounded-full bg-[var(--accento)] text-[var(--accento-testo)] font-medium animate-in fade-in zoom-in-95 duration-150">
                   x{(porzioni / (recipe.porzioni || 1)).toFixed(1)}
                 </span>
               )}
@@ -542,7 +542,7 @@ export function RecipeDetail() {
               <ol className="steps-list space-y-6">
                 {passaggi.map((step, i) => (
                   <li key={i} className="step-item flex gap-4">
-                    <span className="step-number w-10 h-10 rounded-full bg-[var(--accento)] text-[var(--accento-test)] flex items-center justify-center font-bold text-lg flex-shrink-0 mt-1 shadow-[var(--elevazione-1)]">
+                    <span className="step-number w-10 h-10 rounded-full bg-[var(--accento)] text-[var(--accento-testo)] flex items-center justify-center font-bold text-lg flex-shrink-0 mt-1 shadow-[var(--elevazione-1)]">
                       {i + 1}
                     </span>
                     <div className="step-content flex-1">

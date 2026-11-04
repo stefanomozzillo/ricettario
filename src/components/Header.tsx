@@ -92,7 +92,7 @@ export function Header({
                 <Filter size={18} className={clsx(showFilters && 'text-[var(--accento)]')} />
                 <span className="text-sm font-medium hidden sm:inline">{showFilters ? 'Chiudi filtri' : 'Filtri'}</span>
                 {totalFilterCount > 0 && (
-                  <span className="flex items-center justify-center w-5 h-5 rounded-full text-xs bg-[var(--accento)] text-[var(--accento-test)]">
+                  <span className="flex items-center justify-center w-5 h-5 rounded-full text-xs bg-[var(--accento)] text-[var(--accento-testo)]">
                     {totalFilterCount}
                   </span>
                 )}
@@ -138,7 +138,7 @@ export function Header({
                 'min-h-[44px] min-w-[44px]', // Target tocco 44px
                 'active:scale-[0.97]',
                 mood === m
-                  ? 'bg-[var(--accento)] text-[var(--accento-test)] shadow-[var(--elevazione-2)]'
+                  ? 'bg-[var(--accento)] text-[var(--accento-testo)] shadow-[var(--elevazione-2)]'
                   : 'bg-[var(--card)] text-[var(--testo)] border border-[var(--card-bordo)] hover:bg-[var(--card-bordo)] active:bg-[var(--card-bordo)]'
               )}
               style={{

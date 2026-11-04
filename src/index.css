@@ -104,6 +104,7 @@
   .header-meta { @apply text-sm text-testo/60; }
   .header-spacer { @apply flex-1; }
   .app-title { @apply font-titoli text-lg font-bold text-secondario m-0; transition: color 0.4s ease; }
+  .app-logo { @apply w-8 h-8 rounded-lg object-cover shadow-[var(--elevazione-1)] flex-shrink-0; transition: box-shadow 0.4s ease; }
   .app-main { @apply flex-1 w-full max-w-3xl mx-auto px-4 pt-4 pb-28; }
   .bottom-nav { @apply fixed bottom-0 inset-x-0 z-40 flex bg-card border-t border-card-bordo; padding-bottom: env(safe-area-inset-bottom); transition: background-color 0.4s ease, color 0.4s ease, border-color 0.4s ease; }
   .nav-item { @apply flex-1 flex flex-col items-center gap-0.5 py-2 text-testo/50; transition: color 0.4s ease; }
@@ -594,7 +595,7 @@
   }
 
   .mood-pill[aria-selected="true"] {
-    @apply bg-[var(--accento)] text-[var(--accento-test)] shadow-[var(--elevazione-2)];
+    @apply bg-[var(--accento)] text-[var(--accento-testo)] shadow-[var(--elevazione-2)];
   }
 
   .mood-pill:not([aria-selected="true"]) {
@@ -723,7 +724,7 @@
   }
 
   .badge-mood {
-    @apply inline-flex items-center px-2 py-0.5 rounded-full text-xs font-bold bg-[var(--accento)] text-[var(--accento-test)];
+    @apply inline-flex items-center px-2 py-0.5 rounded-full text-xs font-bold bg-[var(--accento)] text-[var(--accento-testo)];
   }
 
   /* ===== Form ===== */
@@ -820,7 +821,7 @@
   }
 
   .step-number {
-    @apply w-10 h-10 rounded-full bg-[var(--accento)] text-[var(--accento-test)] flex items-center justify-center font-bold text-lg flex-shrink-0 mt-1 shadow-[var(--elevazione-1)];
+    @apply w-10 h-10 rounded-full bg-[var(--accento)] text-[var(--accento-testo)] flex items-center justify-center font-bold text-lg flex-shrink-0 mt-1 shadow-[var(--elevazione-1)];
   }
 
   .step-content {

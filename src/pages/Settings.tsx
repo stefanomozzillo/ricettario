@@ -165,7 +165,7 @@ export function SettingsPage({ onClose }: SettingsPageProps) {
             Account
           </h2>
           <div className="profile-info flex items-center gap-4 p-4 bg-[var(--sfondo)] rounded-xl mb-4">
-            <div className="avatar-placeholder w-16 h-16 rounded-2xl bg-[var(--accento)] text-[var(--accento-test)] flex items-center justify-center text-2xl font-bold flex-shrink-0">
+            <div className="avatar-placeholder w-16 h-16 rounded-2xl bg-[var(--accento)] text-[var(--accento-testo)] flex items-center justify-center text-2xl font-bold flex-shrink-0">
               {user.email?.charAt(0).toUpperCase() || '?'}
             </div>
             <div className="profile-details flex-1 min-w-0">
