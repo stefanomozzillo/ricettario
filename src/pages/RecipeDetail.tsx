@@ -65,8 +65,9 @@ export function RecipeDetail() {
   const [toast, setToast] = useState<string | null>(null)
 
   const isAuthorized = user !== null
-  // Traccia se il cambio mood è stato iniziato dall'utente (non da link diretto)
-  const userInitiatedMoodChange = useRef(false)
+  // Traccia il mood precedente per rilevare cambi attivi dell'utente
+  const prevMoodRef = useRef<string>(mood)
+  const isInitialMount = useRef(true)
 
   // Carica ricetta
   const loadRecipe = useCallback(async () => {
@@ -104,17 +105,23 @@ export function RecipeDetail() {
   }, [loadRecipe])
 
   // Gestione cambio mood: se l'utente cambia mood dalla pagina di dettaglio,
-  // reindirizza sempre all'elenco filtrato per il nuovo mood
+  // reindirizza automaticamente all'elenco filtrato per il nuovo mood
   useEffect(() => {
-    if (!recipe || !userInitiatedMoodChange.current) return
+    // Salta il redirect al mount iniziale
+    if (isInitialMount.current) {
+      isInitialMount.current = false
+      prevMoodRef.current = mood
+      return
+    }
 
-    const currentMood = mood
-    userInitiatedMoodChange.current = false
-
-    const moodLabel = MOOD_LABELS[currentMood]
-    setToast(`Visualizzi l'elenco per ${moodLabel}`)
-    // Sostituisce la voce di cronologia
-    navigate('/', { replace: true, state: { mood: currentMood } })
+    // Se il mood è cambiato rispetto al precedente (cambio attivo utente)
+    if (mood !== prevMoodRef.current && recipe) {
+      prevMoodRef.current = mood
+      const moodLabel = MOOD_LABELS[mood]
+      setToast(`Visualizzi l'elenco per ${moodLabel}`)
+      // Naviga alla lista ricette (home) con il nuovo mood
+      navigate('/', { replace: true })
+    }
   }, [mood, recipe, navigate])
 
   // Toast auto-dismiss
