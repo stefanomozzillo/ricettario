@@ -61,7 +61,7 @@ function RecipeFormComponent({ isEditing }: RecipeFormComponentProps) {
       stato: 'completa',
       categoria: undefined,
       mood: isEditing ? undefined : (mood !== 'tutti' ? mood : undefined),
-      difficolta: undefined,
+      difficolta: 'media',
       tags: [],
       tempo_minuti: null,
       porzioni: null,
@@ -97,6 +97,8 @@ function RecipeFormComponent({ isEditing }: RecipeFormComponentProps) {
               ...formData,
               categoria: formData.categoria ?? undefined,
               mood: formData.mood ?? undefined,
+              // Ricette vecchie senza difficoltà: default 'media' così il salvataggio la persiste
+              difficolta: formData.difficolta ?? 'media',
               tempo_minuti: formData.tempo_minuti ?? null,
               porzioni: formData.porzioni ?? null,
               note: formData.note ?? '',

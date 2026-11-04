@@ -386,6 +386,8 @@ export function prepareRecipeForDb(data: RecipeFormData): RecipeInsert {
 
   return {
     ...data,
+    // Nome colonna DB esatto: 'difficolta' (facile | media | difficile | null)
+    difficolta: (data.difficolta as Difficolta | null) || null,
     tempo_minuti: normalizeNumber(data.tempo_minuti),
     porzioni: normalizeNumber(data.porzioni),
     ingredienti: data.ingredienti.map(ing => ({
