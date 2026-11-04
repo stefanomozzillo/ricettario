@@ -16,7 +16,7 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
       ' disabled:opacity-50 disabled:cursor-not-allowed'
 
     const variants = {
-      primary: 'bg-[var(--accento)] text-[var(--accento-test)]' +
+      primary: 'bg-[var(--accento)] text-[var(--accento-testo)]' +
         ' hover:brightness-105 active:brightness-95 active:scale-[0.97]' +
         ' focus-visible:outline-[var(--accento)]',
       secondary: 'bg-[var(--card)] text-[var(--testo)] border border-[var(--bordo)]' +
@@ -29,7 +29,7 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
         ' hover:brightness-105 active:brightness-95 active:scale-[0.97]' +
         ' focus-visible:outline-red-600',
       fab: 'fixed bottom-6 right-4 z-50 w-14 h-14 rounded-full shadow-lg' +
-        ' bg-[var(--accento)] text-[var(--accento-test)]' +
+        ' bg-[var(--accento)] text-[var(--accento-testo)]' +
         ' hover:brightness-105 active:brightness-95 active:scale-[0.95]' +
         ' focus-visible:outline-[var(--accento)]',
     }

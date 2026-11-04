@@ -33,10 +33,12 @@
   body {
     @apply m-0 min-h-screen bg-sfondo font-base text-testo;
     line-height: 1.6;
+    transition: background-color 0.4s ease, color 0.4s ease, border-color 0.4s ease;
   }
 
   h1, h2, h3, h4, h5, h6 {
     @apply m-0 mb-2 font-titoli leading-tight text-secondario;
+    transition: color 0.4s ease, border-color 0.4s ease;
   }
   h1 { font-size: clamp(1.75rem, 5vw, 2.5rem); }
   h2 { font-size: clamp(1.5rem, 4vw, 2rem); }
@@ -44,6 +46,7 @@
 
   a {
     @apply text-link no-underline;
+    transition: color 0.4s ease;
   }
   a:hover {
     color: var(--link-hover);
@@ -62,6 +65,7 @@
   button {
     @apply cursor-pointer rounded-lg px-6 py-3 text-base font-semibold;
     font-family: inherit;
+    transition: background-color 0.4s ease, color 0.4s ease, border-color 0.4s ease;
   }
   button:disabled {
     @apply cursor-not-allowed opacity-50;
@@ -69,6 +73,7 @@
 
   input, textarea, select {
     @apply w-full rounded-lg border border-input-bordo bg-input-sfondo px-4 py-3 text-base text-testo;
+    transition: background-color 0.4s ease, color 0.4s ease, border-color 0.4s ease;
   }
   input[type='checkbox'], input[type='radio'] {
     @apply w-auto px-0 py-0;
@@ -83,13 +88,14 @@
 
   #root {
     @apply flex min-h-screen flex-col;
+    transition: background-color 0.4s ease, color 0.4s ease, border-color 0.4s ease;
   }
 }
 
 @layer components {
   /* Layout generale */
-  .app-layout { @apply min-h-screen flex flex-col bg-sfondo text-testo; }
-  .app-header { @apply sticky top-0 z-40 flex items-center justify-between gap-2 px-4 h-14 bg-card border-b border-card-bordo shadow-[var(--elevazione-1)]; }
+  .app-layout { @apply min-h-screen flex flex-col bg-sfondo text-testo; transition: background-color 0.4s ease, color 0.4s ease, border-color 0.4s ease; }
+  .app-header { @apply sticky top-0 z-40 flex items-center justify-between gap-2 px-4 h-14 bg-card border-b border-card-bordo shadow-[var(--elevazione-1)]; transition: background-color 0.4s ease, color 0.4s ease, border-color 0.4s ease; }
   .header-left { @apply flex items-center gap-2; }
   .header-center { @apply flex-1 flex items-center justify-center; }
   .header-right { @apply flex items-center gap-2; }
@@ -97,55 +103,55 @@
   .header-actions { @apply flex items-center gap-2; }
   .header-meta { @apply text-sm text-testo/60; }
   .header-spacer { @apply flex-1; }
-  .app-title { @apply font-titoli text-lg font-bold text-secondario m-0; }
+  .app-title { @apply font-titoli text-lg font-bold text-secondario m-0; transition: color 0.4s ease; }
   .app-main { @apply flex-1 w-full max-w-3xl mx-auto px-4 pt-4 pb-28; }
-  .bottom-nav { @apply fixed bottom-0 inset-x-0 z-40 flex bg-card border-t border-card-bordo; padding-bottom: env(safe-area-inset-bottom); }
-  .nav-item { @apply flex-1 flex flex-col items-center gap-0.5 py-2 text-testo/50; }
+  .bottom-nav { @apply fixed bottom-0 inset-x-0 z-40 flex bg-card border-t border-card-bordo; padding-bottom: env(safe-area-inset-bottom); transition: background-color 0.4s ease, color 0.4s ease, border-color 0.4s ease; }
+  .nav-item { @apply flex-1 flex flex-col items-center gap-0.5 py-2 text-testo/50; transition: color 0.4s ease; }
   .nav-item.active { @apply text-accento font-semibold; }
   .nav-label { @apply text-[11px] leading-tight; }
   .mood-selector { @apply relative; }
-  .mood-trigger { @apply flex items-center gap-1 px-3 py-2 rounded-full bg-badge-sfondo text-badge-testo text-sm font-semibold; }
+  .mood-trigger { @apply flex items-center gap-1 px-3 py-2 rounded-full bg-badge-sfondo text-badge-testo text-sm font-semibold; transition: background-color 0.4s ease, color 0.4s ease; }
   .mood-label { @apply whitespace-nowrap; }
   .mood-chevron { @apply transition-transform; }
   .mood-chevron.rotate { @apply rotate-180; }
-  .mood-dropdown { @apply absolute left-1/2 -translate-x-1/2 top-full mt-1 min-w-44 list-none m-0 p-1 bg-card border border-card-bordo rounded-xl shadow-[var(--elevazione-2)] z-50; }
-  .mood-option { @apply block w-full text-left px-3 py-2 rounded-lg text-sm text-testo hover:bg-badge-sfondo; }
+  .mood-dropdown { @apply absolute left-1/2 -translate-x-1/2 top-full mt-1 min-w-44 list-none m-0 p-1 bg-card border border-card-bordo rounded-xl shadow-[var(--elevazione-2)] z-50; transition: background-color 0.4s ease, border-color 0.4s ease; }
+  .mood-option { @apply block w-full text-left px-3 py-2 rounded-lg text-sm text-testo hover:bg-badge-sfondo; transition: background-color 0.4s ease, color 0.4s ease; }
   .mood-option.active { @apply bg-badge-sfondo font-bold text-accento; }
   .user-menu { @apply relative; }
-  .user-trigger { @apply rounded-full p-2 hover:bg-badge-sfondo text-testo; }
-  .user-dropdown { @apply absolute right-0 top-full mt-1 min-w-48 bg-card border border-card-bordo rounded-xl shadow-[var(--elevazione-2)] z-50 py-1; }
-  .user-info { @apply px-4 py-2 border-b border-card-bordo; }
+  .user-trigger { @apply rounded-full p-2 hover:bg-badge-sfondo text-testo; transition: background-color 0.4s ease, color 0.4s ease; }
+  .user-dropdown { @apply absolute right-0 top-full mt-1 min-w-48 bg-card border border-card-bordo rounded-xl shadow-[var(--elevazione-2)] z-50 py-1; transition: background-color 0.4s ease, border-color 0.4s ease; }
+  .user-info { @apply px-4 py-2 border-b border-card-bordo; transition: border-color 0.4s ease; }
   .user-email { @apply text-sm font-medium text-testo break-all; }
-  .dropdown-item { @apply flex items-center gap-2 w-full px-4 py-2 text-sm font-medium text-testo hover:bg-badge-sfondo; }
+  .dropdown-item { @apply flex items-center gap-2 w-full px-4 py-2 text-sm font-medium text-testo hover:bg-badge-sfondo; transition: background-color 0.4s ease, color 0.4s ease; }
   .dropdown-overlay { @apply fixed inset-0 z-30; }
   .btn-add { @apply flex items-center gap-1 px-3 rounded-full; }
   .btn-add-text { @apply text-sm hidden sm:inline; }
-  .loading-screen { @apply min-h-screen flex items-center justify-center bg-sfondo; }
+  .loading-screen { @apply min-h-screen flex items-center justify-center bg-sfondo; transition: background-color 0.4s ease; }
   .spin { @apply animate-spin; }
   .rotate { @apply rotate-180; }
 
   /* Bottoni */
-  .btn-primary { @apply bg-accento text-accento-testo; }
+  .btn-primary { @apply bg-accento text-accento-testo; transition: background-color 0.4s ease, color 0.4s ease; }
   .btn-primary:hover:not(:disabled) { filter: brightness(1.1); }
-  .btn-secondary { @apply bg-card text-testo border border-card-bordo; }
+  .btn-secondary { @apply bg-card text-testo border border-card-bordo; transition: background-color 0.4s ease, color 0.4s ease, border-color 0.4s ease; }
   .btn-secondary:hover:not(:disabled) { @apply bg-card-bordo; }
-  .btn-ghost { @apply bg-transparent text-testo; }
+  .btn-ghost { @apply bg-transparent text-testo; transition: background-color 0.4s ease, color 0.4s ease; }
   .btn-ghost:hover:not(:disabled) { @apply bg-badge-sfondo; }
   .btn-danger { @apply bg-red-600 text-white; }
   .btn-danger:hover:not(:disabled) { @apply bg-red-700; }
-  .btn-text { @apply bg-transparent text-testo/60 font-medium px-3 py-2; }
+  .btn-text { @apply bg-transparent text-testo/60 font-medium px-3 py-2; transition: color 0.4s ease; }
   .btn-text.active { @apply text-accento border-b-2 border-accento; }
-  .btn-back { @apply bg-transparent text-testo flex items-center gap-1 text-sm px-2 py-2 rounded-lg hover:bg-badge-sfondo cursor-pointer font-semibold; font-family: inherit; }
-  .btn-icon { @apply p-2 rounded-full hover:bg-badge-sfondo bg-transparent text-testo; }
+  .btn-back { @apply bg-transparent text-testo flex items-center gap-1 text-sm px-2 py-2 rounded-lg hover:bg-badge-sfondo cursor-pointer font-semibold; font-family: inherit; transition: background-color 0.4s ease, color 0.4s ease; }
+  .btn-icon { @apply p-2 rounded-full hover:bg-badge-sfondo bg-transparent text-testo; transition: background-color 0.4s ease, color 0.4s ease; }
   .btn-nav { @apply flex items-center gap-1 text-sm; }
-  .btn-made { @apply bg-card text-testo border border-card-bordo flex items-center gap-1 text-sm; }
-  .btn-porzioni { @apply p-1.5 rounded-md border border-card-bordo bg-card text-testo; }
+  .btn-made { @apply bg-card text-testo border border-card-bordo flex items-center gap-1 text-sm; transition: background-color 0.4s ease, color 0.4s ease, border-color 0.4s ease; }
+  .btn-porzioni { @apply p-1.5 rounded-md border border-card-bordo bg-card text-testo; transition: background-color 0.4s ease, color 0.4s ease, border-color 0.4s ease; }
   .btn-remove { @apply p-1.5 rounded-md text-red-500 hover:bg-red-50 bg-transparent; }
   .btn-remove-small { @apply p-1 rounded text-red-500 hover:bg-red-50 bg-transparent text-sm; }
-  .btn-video-link { @apply flex items-center gap-1 text-sm text-link bg-transparent px-2 py-1 hover:text-link-hover; }
+  .btn-video-link { @apply flex items-center gap-1 text-sm text-link bg-transparent px-2 py-1 hover:text-link-hover; transition: color 0.4s ease; }
 
   /* Card & badge */
-  .card { @apply bg-card border border-card-bordo rounded-xl shadow-[var(--elevazione-1)]; }
+  .card { @apply bg-card border border-card-bordo rounded-xl shadow-[var(--elevazione-1)]; transition: background-color 0.4s ease, color 0.4s ease, border-color 0.4s ease; }
   .card-header { @apply flex items-start justify-between gap-2; }
   .badge { @apply inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-semibold bg-badge-sfondo text-badge-testo; }
   .badge-tag { @apply inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold bg-badge-sfondo text-badge-testo; }
