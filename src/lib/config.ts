@@ -198,6 +198,24 @@ export interface Variante {
 }
 
 // ============================================
+// DIFFICOLTÀ
+// ============================================
+export const DIFFICOLTA = ['facile', 'media', 'difficile'] as const;
+export type Difficolta = (typeof DIFFICOLTA)[number];
+
+export const DIFFICOLTA_LABELS: Record<Difficolta, string> = {
+  facile: 'Facile',
+  media: 'Media',
+  difficile: 'Difficile',
+};
+
+export const DIFFICOLTA_COLORS: Record<Difficolta, string> = {
+  facile: 'emerald',
+  media: 'amber',
+  difficile: 'red',
+};
+
+// ============================================
 // STATO RICETTA
 // ============================================
 export const STATO_RICETTA = ['completa', 'da_completare'] as const;

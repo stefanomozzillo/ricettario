@@ -18,6 +18,7 @@ import { getRecipeById, createRecipe, updateRecipe, getAllIngredients } from '..
 import {
   CATEGORIE, CATEGORIE_LABELS, ALL_TAGS, TAG_LABELS, MOODS, MOOD_LABELS,
   COMMON_UNITS, COMMON_GROUPS, STATO_RICETTA, STATO_LABELS, DEFAULT_PORZIONI_UNITA,
+  DIFFICOLTA, DIFFICOLTA_LABELS,
   type Mood
 } from '../lib/config'
 import type { RecipeInsert, RecipeUpdate } from '../lib/supabase'
@@ -60,6 +61,7 @@ function RecipeFormComponent({ isEditing }: RecipeFormComponentProps) {
       stato: 'completa',
       categoria: undefined,
       mood: isEditing ? undefined : (mood !== 'tutti' ? mood : undefined),
+      difficolta: undefined,
       tags: [],
       tempo_minuti: null,
       porzioni: null,
@@ -253,7 +255,7 @@ function RecipeFormComponent({ isEditing }: RecipeFormComponentProps) {
         {isComplete && (
           <>
             <section className="form-section card bg-[var(--card)] rounded-2xl border border-[var(--bordo)] p-4 mb-4">
-              <div className="form-row grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="form-row grid grid-cols-1 sm:grid-cols-3 gap-4">
                 <div className="form-field">
                   <label htmlFor="categoria" className="block text-sm font-medium text-[var(--testo)] mb-1">Categoria <span className="text-[var(--accento)]">*</span></label>
                   <select id="categoria" {...register('categoria')} className={clsx('form-select w-full px-4 py-3 rounded-xl border border-[var(--bordo)] bg-[var(--sfondo)] text-[var(--testo)] focus:outline-none focus:ring-2 focus:ring-[var(--accento)] focus:border-transparent transition-all duration-150 appearance-none', errors.categoria && 'border-[var(--accento)]')}>
@@ -274,6 +276,17 @@ function RecipeFormComponent({ isEditing }: RecipeFormComponentProps) {
                     ))}
                   </select>
                   {errors.mood && <p className="field-error text-sm text-[var(--accento)] mt-1">{errors.mood.message}</p>}
+                </div>
+
+                <div className="form-field">
+                  <label htmlFor="difficolta" className="block text-sm font-medium text-[var(--testo)] mb-1">Difficoltà <span className="text-[var(--accento)]">*</span></label>
+                  <select id="difficolta" {...register('difficolta')} className={clsx('form-select w-full px-4 py-3 rounded-xl border border-[var(--bordo)] bg-[var(--sfondo)] text-[var(--testo)] focus:outline-none focus:ring-2 focus:ring-[var(--accento)] focus:border-transparent transition-all duration-150 appearance-none', errors.difficolta && 'border-[var(--accento)]')}>
+                    <option value="">Seleziona difficoltà</option>
+                    {DIFFICOLTA.map(d => (
+                      <option key={d} value={d}>{DIFFICOLTA_LABELS[d]}</option>
+                    ))}
+                  </select>
+                  {errors.difficolta && <p className="field-error text-sm text-[var(--accento)] mt-1">{errors.difficolta.message}</p>}
                 </div>
               </div>
 

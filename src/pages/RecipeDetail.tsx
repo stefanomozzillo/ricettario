@@ -18,10 +18,17 @@ import { getRecipeById, incrementRecipeMade } from '../lib/supabase'
 import { addHistoryEntry } from '../lib/history'
 import {
   MOOD_LABELS,
-  GRUPPI_INGREDIENTI
+  CATEGORIE_LABELS,
+  STATO_LABELS,
+  GRUPPI_INGREDIENTI,
+  DIFFICOLTA_LABELS,
+  DIFFICOLTA_COLORS,
+  type Mood,
+  type Difficolta
 } from '../lib/config'
 import { type Ingrediente, type Passaggio, type Variante, normalizeRecipeFromDb } from '../lib/types'
 import { Button } from '../components/Button'
+import { Badge } from '../components/Badge'
 
 interface RecipeDetailData {
   id: string
@@ -32,6 +39,7 @@ interface RecipeDetailData {
   stato: 'completa' | 'da_completare'
   categoria: string | null
   mood: string | null
+  difficolta: string | null
   tags: string[] | null
   tempo_minuti: number | null
   porzioni: number | null
@@ -273,6 +281,33 @@ export function RecipeDetail() {
           <ChevronLeft size={20} />
           <span>Torna all'elenco</span>
         </Link>
+
+        {/* Titolo ricetta con badge mood, categoria, difficoltà */}
+        <section className="card bg-[var(--card)] rounded-2xl border border-[var(--card-bordo)] p-4 mb-4 shadow-[var(--elevazione-1)]">
+          <h1 className="text-xl md:text-2xl font-semibold text-[var(--testo)] mb-3 break-words hyphens-auto text-wrap">{recipe.titolo}</h1>
+          <div className="flex flex-wrap gap-2">
+            {recipe.mood && (
+              <span className="inline-flex items-center gap-1">
+                <Badge variant="mood" className="px-2 py-0.5">{MOOD_LABELS[recipe.mood as Mood] || recipe.mood}</Badge>
+              </span>
+            )}
+            {recipe.categoria && (
+              <span className="inline-flex items-center gap-1">
+                <Badge variant="tag" className="px-2 py-0.5">{CATEGORIE_LABELS[recipe.categoria as keyof typeof CATEGORIE_LABELS] || recipe.categoria}</Badge>
+              </span>
+            )}
+            {recipe.difficolta && (
+              <span className="inline-flex items-center gap-1">
+                <Badge variant="tag" className={clsx('px-2 py-0.5', `bg-${DIFFICOLTA_COLORS[recipe.difficolta as Difficolta]}-100 text-${DIFFICOLTA_COLORS[recipe.difficolta as Difficolta]}-700`)}>
+                  {DIFFICOLTA_LABELS[recipe.difficolta as Difficolta]}
+                </Badge>
+              </span>
+            )}
+            {recipe.stato === 'da_completare' && (
+              <Badge variant="stato" className="px-2 py-0.5">{STATO_LABELS.da_completare}</Badge>
+            )}
+          </div>
+        </section>
 
         {/* Info principali - 3 riquadri di uguale larghezza */}
         <section className="card bg-[var(--card)] rounded-2xl border border-[var(--card-bordo)] p-4 mb-4 shadow-[var(--elevazione-1)]">

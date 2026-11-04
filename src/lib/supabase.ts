@@ -93,6 +93,17 @@ export type AllowedUser = Database['public']['Tables']['utenti_abilitati']['Row'
 export type AllowedUserInsert = Database['public']['Tables']['utenti_abilitati']['Insert'];
 
 /**
+ * Opzioni di ordinamento per le ricette
+ */
+export type SortOption =
+  | 'tempo_asc'
+  | 'tempo_desc'
+  | 'title_asc'
+  | 'title_desc'
+  | 'most_cooked'
+  | 'most_recent';
+
+/**
  * Query helper per ricette con filtri comuni
  */
 export async function getRecipes(filters?: {
@@ -101,14 +112,17 @@ export async function getRecipes(filters?: {
   tags?: string[];
   search?: string;
   stato?: 'completa' | 'da_completare';
+  difficolta?: string;
+  autore?: string;
+  sort?: SortOption;
   limit?: number;
   offset?: number;
 }) {
   let query = supabase
     .from('ricette')
-    .select('*')
-    .order('created_at', { ascending: false });
+    .select('*');
 
+  // Applica filtri
   if (filters?.mood && filters.mood !== 'tutti') {
     query = query.eq('mood', filters.mood);
   }
@@ -129,6 +143,38 @@ export async function getRecipes(filters?: {
     query = query.eq('stato', filters.stato);
   }
 
+  if (filters?.difficolta) {
+    query = query.eq('difficolta', filters.difficolta);
+  }
+
+  if (filters?.autore) {
+    query = query.eq('autore', filters.autore);
+  }
+
+  // Applica ordinamento
+  const sortOption = filters?.sort || 'most_recent';
+  switch (sortOption) {
+    case 'tempo_asc':
+      query = query.order('tempo_minuti', { ascending: true });
+      break;
+    case 'tempo_desc':
+      query = query.order('tempo_minuti', { ascending: false });
+      break;
+    case 'title_asc':
+      query = query.order('titolo', { ascending: true });
+      break;
+    case 'title_desc':
+      query = query.order('titolo', { ascending: false });
+      break;
+    case 'most_cooked':
+      query = query.order('volte_fatta', { ascending: false });
+      break;
+    case 'most_recent':
+    default:
+      query = query.order('created_at', { ascending: false });
+      break;
+  }
+
   if (filters?.limit) {
     query = query.limit(filters.limit);
   }
@@ -140,6 +186,25 @@ export async function getRecipes(filters?: {
   const { data, error } = await query;
   if (error) throw error;
   return data;
+}
+
+/**
+ * Ottieni tutti gli autori unici dal database (per dropdown filtro autore)
+ */
+export async function getAllAuthors() {
+  const { data, error } = await supabase
+    .from('ricette')
+    .select('autore')
+    .not('autore', 'is', null);
+
+  if (error) throw error;
+
+  const authors = new Set<string>();
+  data?.forEach(recipe => {
+    if (recipe.autore) authors.add(recipe.autore.trim());
+  });
+
+  return Array.from(authors).sort((a, b) => a.localeCompare(b, 'it'));
 }
 
 /**

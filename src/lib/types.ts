@@ -106,6 +106,15 @@ export const MOOD_LABELS: Record<Mood, string> = {
   etnici: 'Piatti etnici',
 }
 
+export const DIFFICOLTA = ['facile', 'media', 'difficile'] as const
+export type Difficolta = (typeof DIFFICOLTA)[number]
+
+export const DIFFICOLTA_LABELS: Record<Difficolta, string> = {
+  facile: 'Facile',
+  media: 'Media',
+  difficile: 'Difficile',
+}
+
 export const STATO_RICETTA = ['completa', 'da_completare'] as const
 export type StatoRicetta = (typeof STATO_RICETTA)[number]
 
@@ -190,6 +199,7 @@ const baseRecipeSchema = z.object({
   stato: enumValidator(STATO_RICETTA, 'Stato'),
   categoria: enumValidator(CATEGORIE, 'Categoria').optional().nullable(),
   mood: enumValidator(MOODS, 'Mood').optional().nullable(),
+  difficolta: enumValidator(DIFFICOLTA, 'Difficoltà').optional().nullable(),
   tags: z.array(enumValidator(ALL_TAGS, 'Tag')).default([]),
   tempo_minuti: z.number().int().min(1).max(1440).optional().nullable(),
   porzioni: z.number().int().min(1).max(100).optional().nullable(),
@@ -285,6 +295,7 @@ export type RecipeFormData = {
   stato: StatoRicetta
   categoria: string | null
   mood: string | null
+  difficolta: string | null
   tags: string[]  // Tag[] è troppo restrittivo per l'input form
   tempo_minuti: number | null
   porzioni: number | null
@@ -347,6 +358,7 @@ export function normalizeRecipeFromDb(data: unknown): RecipeFormData {
     stato: (r.stato as StatoRicetta) ?? 'completa',
     categoria: (r.categoria as string | null) ?? null,
     mood: (r.mood as string | null) ?? null,
+    difficolta: (r.difficolta as string | null) ?? null,
     tags: (r.tags as string[]) ?? [],
     tempo_minuti: (r.tempo_minuti as number | null) ?? null,
     porzioni: (r.porzioni as number | null) ?? null,

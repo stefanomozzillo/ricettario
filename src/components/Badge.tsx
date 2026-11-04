@@ -9,10 +9,10 @@ interface BadgeProps extends HTMLAttributes<HTMLSpanElement> {
 export const Badge = forwardRef<HTMLSpanElement, BadgeProps>(
   ({ variant = 'tag', className, children, ...props }, ref) => {
     const variants = {
-      mood: 'px-2 py-0.5 rounded-full text-xs font-medium bg-[var(--accento)] text-[var(--accento-test)]',
+      mood: 'px-2 py-0.5 rounded-full text-xs font-medium bg-[var(--accento)] text-[var(--accento-testo)]',
       tag: 'px-2 py-0.5 rounded-full text-xs bg-[var(--bordo)] text-[var(--secondario)]',
       stato: 'px-2 py-0.5 rounded-full text-xs bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-300',
-      filter: 'px-2 py-0.5 rounded-full text-xs font-medium bg-[var(--accento)] text-[var(--accento-test)]',
+      filter: 'px-2 py-0.5 rounded-full text-xs font-medium bg-[var(--accento)] text-[var(--accento-testo)]',
     }
 
     return (

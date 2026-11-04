@@ -24,6 +24,7 @@ export interface Database {
           stato: 'completa' | 'da_completare';
           categoria: string | null;
           mood: string | null;
+          difficolta: string | null;
           tags: string[] | null;
           descrizione: string | null;
           porzioni: number | null;
@@ -46,6 +47,7 @@ export interface Database {
           stato?: 'completa' | 'da_completare';
           categoria?: string | null;
           mood?: string | null;
+          difficolta?: string | null;
           tags?: string[] | null;
           descrizione?: string | null;
           porzioni?: number | null;
@@ -68,6 +70,7 @@ export interface Database {
           stato?: 'completa' | 'da_completare';
           categoria?: string | null;
           mood?: string | null;
+          difficolta?: string | null;
           tags?: string[] | null;
           descrizione?: string | null;
           porzioni?: number | null;

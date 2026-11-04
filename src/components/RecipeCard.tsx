@@ -1,6 +1,6 @@
 import { Clock, Users } from 'lucide-react'
 import { clsx } from 'clsx'
-import { MOOD_LABELS, CATEGORIE_LABELS, TAG_LABELS, STATO_LABELS } from '../lib/config'
+import { MOOD_LABELS, CATEGORIE_LABELS, TAG_LABELS, STATO_LABELS, DIFFICOLTA_LABELS, DIFFICOLTA_COLORS, type Difficolta } from '../lib/config'
 import type { Mood } from '../lib/config'
 import { Badge } from './Badge'
 
@@ -12,6 +12,7 @@ interface RecipeCardProps {
     stato: 'completa' | 'da_completare'
     categoria: string | null
     mood: string | null
+    difficolta: string | null
     tags: string[] | null
     tempo_minuti: number | null
     porzioni: number | null
@@ -84,6 +85,14 @@ export function RecipeCard({ recipe, onClick }: RecipeCardProps) {
           <span className="flex items-center gap-1">
             <span className="font-medium text-[var(--testo)]">Categoria:</span> {categoriaLabel}
           </span>
+          {recipe.difficolta && (
+            <span className="flex items-center gap-1">
+              <span className="font-medium text-[var(--testo)]">Difficoltà:</span>
+              <Badge variant="tag" className={clsx('px-2 py-0.5', `bg-${DIFFICOLTA_COLORS[recipe.difficolta as Difficolta]}-100 text-${DIFFICOLTA_COLORS[recipe.difficolta as Difficolta]}-700`)}>
+                {DIFFICOLTA_LABELS[recipe.difficolta as Difficolta]}
+              </Badge>
+            </span>
+          )}
         </div>
 
         {firstTags.length > 0 && (
