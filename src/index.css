@@ -317,6 +317,19 @@
   .ready { @apply inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold bg-emerald-100 text-emerald-800; }
   .missing { @apply inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold bg-red-100 text-red-800; }
 
+  /* Slot machine roulette */
+  .slot-window { @apply relative overflow-hidden rounded-2xl border border-card-bordo bg-sfondo; }
+  .slot-strip { @apply relative z-[1] flex flex-col will-change-transform; }
+  .slot-row { @apply flex items-center justify-center px-4 text-center text-sm text-testo/50 line-clamp-2; }
+  .slot-row.dist-1 { @apply text-base text-testo/70; }
+  .slot-row.dist-0 { @apply text-xl font-bold text-accento; }
+  .slot-highlight { @apply absolute left-0 right-0 z-0 pointer-events-none bg-accento/10 border-y-2 border-accento; }
+  .slot-fade { @apply absolute left-0 right-0 h-12 pointer-events-none z-10; }
+  .slot-fade-top { @apply top-0 bg-gradient-to-b from-sfondo to-transparent; }
+  .slot-fade-bottom { @apply bottom-0 bg-gradient-to-t from-sfondo to-transparent; }
+  .autocomplete-option { @apply block w-full text-left px-3 py-2 rounded-lg text-sm text-testo hover:bg-badge-sfondo; }
+  .autocomplete-option.active { @apply bg-badge-sfondo font-semibold text-accento; }
+
   /* Network status */
   .online, .offline { @apply fixed top-0 inset-x-0 z-50 px-4 py-2 text-sm text-center text-white font-medium; }
   .online { @apply bg-emerald-600; }
