@@ -131,7 +131,7 @@ export function Layout() {
       {/* Header fisso con titolo e azioni utente */}
       <header className="app-header" role="banner">
         <div className="header-left">
-          <img src="/favicon-32x32.png" alt="" aria-hidden="true" className="app-logo" />
+          <img src="/android-chrome-512x512.png" alt="" aria-hidden="true" className="app-logo" />
           <h1 className="app-title">Ricettario</h1>
         </div>
 
