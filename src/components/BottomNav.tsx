@@ -81,7 +81,7 @@ export function BottomNav() {
           aria-label="Aggiungi ricetta"
           className="bottom-nav-fab"
         >
-          <Plus size={28} aria-hidden="true" />
+          <Plus size={32} strokeWidth={2.5} aria-hidden="true" />
         </Button>
       )}
 

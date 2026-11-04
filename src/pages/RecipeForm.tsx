@@ -147,16 +147,40 @@ function RecipeFormComponent({ isEditing }: RecipeFormComponentProps) {
     if (!user) return
     setSaving(true)
     setError(null)
-    try {
-      const payload = prepareRecipeForDb(data)
+    const payload = prepareRecipeForDb(data)
 
+    const save = async (p: typeof payload) => {
       if (isEditing && id) {
-        await updateRecipe(id, payload as RecipeUpdate)
+        await updateRecipe(id, p as RecipeUpdate)
       } else {
-        await createRecipe(payload as RecipeInsert)
+        await createRecipe(p as RecipeInsert)
       }
+    }
+
+    try {
+      await save(payload)
       navigate('/')
     } catch (err) {
+      // Se la colonna non esiste ancora nel DB (PGRST204, es. 'difficolta' prima
+      // della migrazione), la rimuoviamo dal payload e riproviamo una volta.
+      if ((err as { code?: string })?.code === 'PGRST204') {
+        const e = err as { code?: string; message?: string; details?: string; hint?: string }
+        const text = [e?.message, e?.details, e?.hint].filter(Boolean).join(' ')
+        const match = text.match(/column [\w.]+\.?"?(\w+)"? does not exist/) || text.match(/'(\w+)' column/)
+        const column = match?.[1]
+        if (column && column in payload) {
+          const rest: Record<string, unknown> = { ...(payload as Record<string, unknown>) }
+          delete rest[column]
+          try {
+            await save(rest as typeof payload)
+            navigate('/')
+            return
+          } catch (retryErr) {
+            console.error('Errore salvataggio (retry senza colonna):', retryErr)
+            err = retryErr
+          }
+        }
+      }
       console.error('Errore salvataggio:', err)
       // Mostra il dettaglio reale dell'errore PostgREST/Supabase (code, message, details)
       // così si capisce subito la causa (es. colonna mancante, RLS, vincolo).

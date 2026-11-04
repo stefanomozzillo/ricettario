@@ -71,14 +71,6 @@ export function RecipeCard({ recipe, onClick }: RecipeCardProps) {
             {recipe.titolo}
           </h3>
           <div className="flex items-center gap-1.5 flex-shrink-0">
-            {recipe.difficolta && (
-              <Flame
-                size={18}
-                role="img"
-                aria-label={`Difficoltà: ${DIFFICOLTA_LABELS[recipe.difficolta as Difficolta]}`}
-                className={clsx('fill-current', DIFFICOLTA_ICON_CLASSES[recipe.difficolta as Difficolta])}
-              />
-            )}
             {recipe.stato === 'da_completare' && (
               <Badge variant="stato" className="flex-shrink-0">{STATO_LABELS.da_completare}</Badge>
             )}
@@ -95,14 +87,6 @@ export function RecipeCard({ recipe, onClick }: RecipeCardProps) {
           <span className="flex items-center gap-1">
             <span className="font-medium text-[var(--testo)]">Categoria:</span> {categoriaLabel}
           </span>
-          {recipe.difficolta && (
-            <span className="flex items-center gap-1">
-              <span className="font-medium text-[var(--testo)]">Difficoltà:</span>
-              <Badge variant="tag" className={clsx('px-2 py-0.5', DIFFICOLTA_BADGE_CLASSES[recipe.difficolta as Difficolta])}>
-                {DIFFICOLTA_LABELS[recipe.difficolta as Difficolta]}
-              </Badge>
-            </span>
-          )}
         </div>
 
         {firstTags.length > 0 && (
@@ -127,6 +111,19 @@ export function RecipeCard({ recipe, onClick }: RecipeCardProps) {
             <Users size={14} aria-hidden="true" className="text-[var(--accento)]" />
             <span className="font-medium text-[var(--testo)]">{formatPorzioni(recipe.porzioni, recipe.porzioni_unita)}</span>
           </span>
+          {recipe.difficolta && (
+            <span className="flex items-center gap-1.5">
+              <Flame
+                size={14}
+                role="img"
+                aria-label={`Difficoltà: ${DIFFICOLTA_LABELS[recipe.difficolta as Difficolta]}`}
+                className={clsx('fill-current', DIFFICOLTA_ICON_CLASSES[recipe.difficolta as Difficolta])}
+              />
+              <Badge variant="tag" className={clsx('px-2 py-0.5 text-xs font-semibold', DIFFICOLTA_BADGE_CLASSES[recipe.difficolta as Difficolta])}>
+                {DIFFICOLTA_LABELS[recipe.difficolta as Difficolta]}
+              </Badge>
+            </span>
+          )}
         </div>
       </div>
     </article>

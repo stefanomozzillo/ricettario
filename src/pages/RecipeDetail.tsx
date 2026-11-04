@@ -7,7 +7,7 @@
 import { useState, useEffect, useMemo, useCallback, useRef } from 'react'
 import { useParams, useNavigate, Link } from 'react-router-dom'
 import {
-  Clock, Users, Tag, AlertCircle,
+  Clock, Users, Tag, AlertCircle, Flame,
   ChefHat, X, Check, ChevronUp, ChevronDown,
   Plus, Minus, Edit, ChevronLeft
 } from 'lucide-react'
@@ -23,6 +23,7 @@ import {
   GRUPPI_INGREDIENTI,
   DIFFICOLTA_LABELS,
   DIFFICOLTA_BADGE_CLASSES,
+  DIFFICOLTA_ICON_CLASSES,
   type Mood,
   type Difficolta
 } from '../lib/config'
@@ -311,7 +312,7 @@ export function RecipeDetail() {
 
         {/* Info principali - 3 riquadri di uguale larghezza */}
         <section className="card bg-[var(--card)] rounded-2xl border border-[var(--card-bordo)] p-4 mb-4 shadow-[var(--elevazione-1)]">
-          <div className="grid grid-cols-3 gap-3 mb-4">
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-4">
             {/* Riquadro Tempo */}
             <div className="info-box flex flex-col items-center justify-center p-4 bg-[var(--sfondo)] rounded-xl min-h-[80px] border border-[var(--card-bordo)]">
               <Clock size={24} className="text-[var(--accento)] mb-2" aria-hidden="true" />
@@ -384,6 +385,21 @@ export function RecipeDetail() {
               <p className="text-xs text-[var(--secondario)] text-center font-medium uppercase tracking-wider">Autore</p>
               <p className="font-medium text-[var(--testo)] text-center break-words">{formatAutore(recipe.autore)}</p>
             </div>
+
+            {/* Riquadro Difficoltà */}
+            {recipe.difficolta && (
+              <div className="info-box flex flex-col items-center justify-center p-4 bg-[var(--sfondo)] rounded-xl min-h-[80px] border border-[var(--card-bordo)]">
+                <Flame
+                  size={24}
+                  aria-hidden="true"
+                  className={clsx('fill-current mb-2', DIFFICOLTA_ICON_CLASSES[recipe.difficolta as Difficolta])}
+                />
+                <p className="text-xs text-[var(--secondario)] text-center font-medium uppercase tracking-wider">Difficoltà</p>
+                <Badge variant="tag" className={clsx('px-2 py-0.5 mt-1 font-semibold', DIFFICOLTA_BADGE_CLASSES[recipe.difficolta as Difficolta])}>
+                  {DIFFICOLTA_LABELS[recipe.difficolta as Difficolta]}
+                </Badge>
+              </div>
+            )}
           </div>
 
           {recipe.volte_fatta != null && recipe.volte_fatta > 0 && (
