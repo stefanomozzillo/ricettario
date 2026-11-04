@@ -129,6 +129,16 @@ export function Pantry() {
     [recipes, mood]
   )
 
+  // Debug: conta ricette complete per mood
+  const completeRecipesCount = useMemo(
+    () => recipes.filter(r => r.stato === 'completa').length,
+    [recipes]
+  )
+  const moodFilteredCount = useMemo(
+    () => recipes.filter(r => r.stato === 'completa' && (mood === 'tutti' || r.mood === mood)).length,
+    [recipes, mood]
+  )
+
   // Toast auto-dismiss
   useEffect(() => {
     if (!message) return
@@ -408,6 +418,15 @@ export function Pantry() {
             {loading && <span className="loading-badge text-xs text-[var(--accento)] animate-pulse">Calcolo in corso…</span>}
           </div>
 
+          {/* Debug info (solo se ingredienti selezionati) */}
+          {ingredients.length > 0 && !loading && (
+            <div className="debug-info text-xs text-[var(--secondario)] mb-3 p-2 bg-[var(--sfondo)] rounded-lg">
+              <div>Ricette complete nel DB: {completeRecipesCount}</div>
+              <div>Ricette complete nel mood «{MOOD_LABELS[mood as keyof typeof MOOD_LABELS]}»: {moodFilteredCount}</div>
+              <div>Ingredienti selezionati: {ingredients.length} | Basi ignorate: {ignoredIngredients.length}</div>
+            </div>
+          )}
+
           {/* Stato iniziale */}
           {ingredients.length === 0 && !loading && (
             <div className="pantry-placeholder text-center py-8">
@@ -470,7 +489,7 @@ export function Pantry() {
               {/* Ti manca poco */}
               {results.almost.length > 0 && (
                 <div className="match-section">
-                  <h3 className="section-subtitle flex items-center gap-2 text-amber-600 dark:text-amber-400 mb-3">
+                  <h3 className="section-subtitle flex items-center gap-2 text-amber-500 mb-3" style={{ color: 'var(--accento)' }}>
                     <AlertCircle size={20} aria-hidden="true" /> Ti manca poco ({results.almost.length})
                   </h3>
                   <ul className="space-y-2">
@@ -482,7 +501,7 @@ export function Pantry() {
                         />
                         <div className="flex flex-wrap gap-1.5 mt-2 ml-1">
                           {m.missing.map(name => (
-                            <span key={name} className="missing inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold bg-red-100 dark:bg-red-900/30 text-red-800 dark:text-red-300">
+                            <span key={name} className="missing inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold" style={{ backgroundColor: 'color-mix(in srgb, var(--accento) 20%, transparent)', color: 'var(--accento)' }}>
                               {name}
                             </span>
                           ))}
@@ -496,9 +515,14 @@ export function Pantry() {
               {/* Nessuna ricetta trovata */}
               {results.ready.length === 0 && results.almost.length === 0 && (
                 <div className="pantry-placeholder text-center py-8">
-                  <CheckCircle size={48} className="pantry-icon mx-auto mb-4 text-[var(--secondario)]" aria-hidden="true" />
+                  <AlertCircle size={48} className="pantry-icon mx-auto mb-4 text-[var(--secondario)]" aria-hidden="true" />
                   <h3 className="text-lg font-medium text-[var(--testo)] mb-2">Nessuna ricetta trovata</h3>
-                  <p className="text-[var(--secondario)]">Prova ad aggiungere più ingredienti o cambia il filtro mood.</p>
+                  <p className="text-[var(--secondario)] mb-4">Prova ad aggiungere più ingredienti o cambia il filtro mood.</p>
+                  {moodFilteredCount === 0 && (
+                    <Button variant="primary" onClick={() => setMood('tutti')}>
+                      <RotateCcw size={16} aria-hidden="true" /> Mostra tutti i mood ({completeRecipesCount} ricette totali)
+                    </Button>
+                  )}
                 </div>
               )}
 

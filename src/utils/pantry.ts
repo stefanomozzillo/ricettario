@@ -15,11 +15,19 @@ interface RecipeLike {
   ingredienti?: unknown
 }
 
+/** Estrae in modo sicuro l'array ingredienti da Json (Supabase). */
+function getIngredientList(recipe: RecipeLike): Array<{ nome?: unknown }> {
+  const ing = recipe.ingredienti
+  if (Array.isArray(ing)) return ing
+  if (ing && typeof ing === 'object' && 'nome' in ing) return [ing as { nome?: unknown }]
+  return []
+}
+
 /** Nomi unici normalizzati di TUTTI gli ingredienti presenti nelle ricette (per autocomplete). */
 export function collectAllIngredients(recipes: RecipeLike[]): string[] {
   const set = new Set<string>()
   for (const r of recipes) {
-    const list = (r.ingredienti as Array<{ nome?: unknown }> | null) ?? []
+    const list = getIngredientList(r)
     for (const ing of list) {
       if (ing && typeof ing.nome === 'string' && ing.nome.trim()) {
         set.add(normalizeIngredientName(ing.nome))
@@ -31,7 +39,7 @@ export function collectAllIngredients(recipes: RecipeLike[]): string[] {
 
 /** Nomi unici normalizzati di una singola ricetta (un ingrediente ripetuto conta 1). */
 export function recipeIngredientNames(recipe: RecipeLike): string[] {
-  const list = (recipe.ingredienti as Array<{ nome?: unknown }> | null) ?? []
+  const list = getIngredientList(recipe)
   const set = new Set<string>()
   for (const ing of list) {
     if (ing && typeof ing.nome === 'string' && ing.nome.trim()) {
@@ -72,7 +80,10 @@ export function computeMatches<T extends RecipeLike>(
   const almost: PantryMatch<T>[] = []
 
   for (const recipe of recipes) {
+    // Solo ricette complete
     if (recipe.stato !== 'completa') continue
+    // Filtro mood: se mood non è 'tutti', la ricetta deve avere quel mood esatto
+    // Se recipe.mood è null/undefined, non matcha nessun mood specifico
     if (mood !== 'tutti' && recipe.mood !== mood) continue
 
     const valid = recipeIngredientNames(recipe).filter(n => !ignoredSet.has(n))

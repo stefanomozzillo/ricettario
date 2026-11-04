@@ -297,7 +297,7 @@ export function Roulette() {
             {pool.length > 0 && (
               <section className="card bg-[var(--card)] rounded-2xl border border-[var(--bordo)] p-4 shadow-[var(--elevazione-1)] flex flex-col items-center gap-4">
                 <div
-                  className="slot-window relative w-full max-w-md overflow-hidden rounded-2xl border border-[var(--card-bordo)] bg-[var(--sfondo)]"
+                  className="slot-window relative w-full max-w-lg overflow-hidden rounded-2xl border border-[var(--card-bordo)] bg-[var(--sfondo)]"
                   style={{ height: VISIBLE_ROWS * ROW_H }}
                   aria-hidden={spinning}
                 >
@@ -317,19 +317,19 @@ export function Roulette() {
                       }}
                     >
                       {stripTitles.map((t, i) => (
-                        <div key={i} className="slot-row" style={{ height: ROW_H }}>{t}</div>
+                        <div key={i} className="slot-row break-words hyphens-auto" style={{ height: ROW_H }}><span className="text-wrap">{t}</span></div>
                       ))}
                     </div>
                   ) : winner ? (
                     <div className="absolute inset-0 z-[1] flex items-center justify-center">
                       <button
                         type="button"
-                        className="slot-row dist-0 w-full px-4 cursor-pointer"
+                        className="slot-row dist-0 w-full px-4 cursor-pointer break-words hyphens-auto"
                         style={{ height: ROW_H }}
                         onClick={() => navigate(`/recipe/${winner.id}`)}
                         aria-label={`Apri ricetta: ${winner.titolo}`}
                       >
-                        {winner.titolo}
+                        <span className="text-base md:text-lg font-bold text-wrap break-words">{winner.titolo}</span>
                       </button>
                     </div>
                   ) : (
@@ -337,10 +337,10 @@ export function Roulette() {
                       {preview.map((r, i) => (
                         <div
                           key={`${r.id}-${i}`}
-                          className={`slot-row dist-${Math.min(Math.abs(i - CENTER_IDX), 2)}`}
+                          className={`slot-row dist-${Math.min(Math.abs(i - CENTER_IDX), 2)} break-words hyphens-auto`}
                           style={{ height: ROW_H }}
                         >
-                          {r.titolo}
+                          <span className="text-wrap">{r.titolo}</span>
                         </div>
                       ))}
                     </div>
@@ -369,9 +369,9 @@ export function Roulette() {
 
             {/* Risultato */}
             {winner && !spinning && (
-              <section className="card bg-[var(--card)] rounded-2xl border border-[var(--card-bordo)] p-4 shadow-[var(--elevazione-2)] w-full max-w-md mx-auto">
+              <section className="card bg-[var(--card)] rounded-2xl border border-[var(--card-bordo)] p-4 shadow-[var(--elevazione-2)] w-full max-w-lg mx-auto">
                 <div className="flex items-start justify-between gap-2 mb-3">
-                  <h2 className="text-lg font-semibold text-[var(--testo)] m-0">{winner.titolo}</h2>
+                  <h2 className="text-xl md:text-2xl font-semibold text-[var(--testo)] m-0 break-words hyphens-auto text-wrap">{winner.titolo}</h2>
                   {winner.stato === 'da_completare' && (
                     <Badge variant="stato" className="flex-shrink-0">{STATO_LABELS.da_completare}</Badge>
                   )}
