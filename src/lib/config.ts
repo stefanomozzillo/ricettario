@@ -217,9 +217,9 @@ export const DIFFICOLTA_COLORS: Record<Difficolta, string> = {
 
 // Classi complete (Tailwind le rileva solo se la stringa appare intera nei sorgenti)
 export const DIFFICOLTA_BADGE_CLASSES: Record<Difficolta, string> = {
-  facile: 'bg-green-100 text-green-800 border border-green-200 dark:bg-green-900/30 dark:text-green-300 dark:border-green-800',
-  media: 'bg-amber-100 text-amber-800 border border-amber-200 dark:bg-amber-900/30 dark:text-amber-300 dark:border-amber-800',
-  difficile: 'bg-red-100 text-red-800 border border-red-200 dark:bg-red-900/30 dark:text-red-300 dark:border-red-800',
+  facile: 'bg-emerald-500/20 text-emerald-600 border border-emerald-500/30 dark:bg-emerald-500/20 dark:text-emerald-400 dark:border-emerald-500/30',
+  media: 'bg-amber-500/20 text-amber-600 border border-amber-500/30 dark:bg-amber-500/20 dark:text-amber-400 dark:border-amber-500/30',
+  difficile: 'bg-rose-500/20 text-rose-600 border border-rose-500/30 dark:bg-rose-500/20 dark:text-rose-400 dark:border-rose-500/30',
 };
 
 export const DIFFICOLTA_ICON_CLASSES: Record<Difficolta, string> = {

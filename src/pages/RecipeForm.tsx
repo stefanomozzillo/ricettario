@@ -61,7 +61,7 @@ function RecipeFormComponent({ isEditing }: RecipeFormComponentProps) {
       stato: 'completa',
       categoria: undefined,
       mood: isEditing ? undefined : (mood !== 'tutti' ? mood : undefined),
-      difficolta: 'media',
+      difficolta: '',
       tags: [],
       tempo_minuti: null,
       porzioni: null,
@@ -97,8 +97,8 @@ function RecipeFormComponent({ isEditing }: RecipeFormComponentProps) {
               ...formData,
               categoria: formData.categoria ?? undefined,
               mood: formData.mood ?? undefined,
-              // Ricette vecchie senza difficoltà: default 'media' così il salvataggio la persiste
-              difficolta: formData.difficolta ?? 'media',
+              // Nessun default forzato: se nel DB è null resta la selezione vuota
+              difficolta: formData.difficolta ?? '',
               tempo_minuti: formData.tempo_minuti ?? null,
               porzioni: formData.porzioni ?? null,
               note: formData.note ?? '',
@@ -150,6 +150,7 @@ function RecipeFormComponent({ isEditing }: RecipeFormComponentProps) {
     setSaving(true)
     setError(null)
     const payload = prepareRecipeForDb(data)
+    console.log('Payload update:', payload)
 
     const save = async (p: typeof payload) => {
       if (isEditing && id) {

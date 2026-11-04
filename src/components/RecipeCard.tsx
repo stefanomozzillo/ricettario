@@ -34,6 +34,7 @@ const formatPorzioni = (value: number | null, unit: string | null) => {
 }
 
 export function RecipeCard({ recipe, onClick }: RecipeCardProps) {
+  console.log('Recipe in card:', recipe.id, recipe.difficolta)
   const moodLabel = recipe.mood ? MOOD_LABELS[recipe.mood as Mood] : '—'
   const categoriaLabel = recipe.categoria ? CATEGORIE_LABELS[recipe.categoria as keyof typeof CATEGORIE_LABELS] : '—'
   const tags = recipe.tags || []

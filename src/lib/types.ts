@@ -199,7 +199,8 @@ const baseRecipeSchema = z.object({
   stato: enumValidator(STATO_RICETTA, 'Stato'),
   categoria: enumValidator(CATEGORIE, 'Categoria').optional().nullable(),
   mood: enumValidator(MOODS, 'Mood').optional().nullable(),
-  difficolta: enumValidator(DIFFICOLTA, 'Difficoltà').optional().nullable(),
+  // '' = "Seleziona difficoltà" non scelta (verrà salvata come null)
+  difficolta: z.union([enumValidator(DIFFICOLTA, 'Difficoltà'), z.literal('')]).optional().nullable(),
   tags: z.array(enumValidator(ALL_TAGS, 'Tag')).default([]),
   tempo_minuti: z.number().int().min(1).max(1440).optional().nullable(),
   porzioni: z.number().int().min(1).max(100).optional().nullable(),
