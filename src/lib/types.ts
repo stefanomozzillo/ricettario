@@ -385,10 +385,14 @@ export function prepareRecipeForDb(data: RecipeFormData): RecipeInsert {
     return isNaN(num) ? null : num
   }
 
+  // Logica rigorosa: solo i 3 valori validi passano, ''/undefined/null diventano null
+  const d = data.difficolta
+  const difficolta = d === 'facile' || d === 'media' || d === 'difficile' ? d : null
+
   return {
     ...data,
     // Nome colonna DB esatto: 'difficolta' (facile | media | difficile | null)
-    difficolta: (data.difficolta as Difficolta | null) || null,
+    difficolta,
     tempo_minuti: normalizeNumber(data.tempo_minuti),
     porzioni: normalizeNumber(data.porzioni),
     ingredienti: data.ingredienti.map(ing => ({

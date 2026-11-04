@@ -237,12 +237,15 @@ export async function createRecipe(recipe: RecipeInsert) {
  * Aggiorna ricetta
  */
 export async function updateRecipe(id: string, updates: RecipeUpdate) {
+  const payload = { ...updates, updated_at: new Date().toISOString() };
+  console.log('SUPABASE UPDATE PAYLOAD:', payload);
   const { data, error } = await supabase
     .from('ricette')
-    .update({ ...updates, updated_at: new Date().toISOString() })
+    .update(payload)
     .eq('id', id)
     .select()
     .single();
+  console.log('4. Supabase response data:', data, 'error:', error);
   if (error) throw error;
   return data;
 }

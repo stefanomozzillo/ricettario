@@ -51,6 +51,7 @@ function RecipeFormComponent({ isEditing }: RecipeFormComponentProps) {
     handleSubmit,
     watch,
     setValue,
+    getValues,
     formState: { errors, isValid },
     reset,
   } = useForm<RecipeFormData>({
@@ -149,8 +150,10 @@ function RecipeFormComponent({ isEditing }: RecipeFormComponentProps) {
     if (!user) return
     setSaving(true)
     setError(null)
+    console.log('1. Form raw data:', getValues())
+    console.log('2. Zod validated data:', data)
     const payload = prepareRecipeForDb(data)
-    console.log('Payload update:', payload)
+    console.log('3. Prepared DB payload:', payload)
 
     const save = async (p: typeof payload) => {
       if (isEditing && id) {
