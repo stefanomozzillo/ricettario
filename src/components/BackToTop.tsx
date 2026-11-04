@@ -1,7 +1,7 @@
 /**
  * Pulsante "Torna in cima": FAB circolare in basso centrato orizzontalmente
- * (sopra la bottom nav e la zona del FAB "+"), visibile solo dopo aver
- * scrollato oltre SHOW_AFTER_PX. Click = scroll fluido in cima.
+ * (sopra la bottom nav), visibile solo dopo aver scrollato oltre SHOW_AFTER_PX.
+ * Click = scroll fluido in cima.
  */
 
 import { useEffect, useState } from 'react'

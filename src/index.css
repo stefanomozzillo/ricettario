@@ -495,15 +495,6 @@
     @apply text-xs leading-none;
   }
 
-  .bottom-nav-fab {
-    position: fixed;
-    bottom: 5rem;
-    right: 1rem;
-    z-index: 30;
-    box-shadow: var(--elevazione-3);
-    animation: zoom-in-95 150ms ease-out both;
-  }
-
   .bottom-nav-spacer {
     @apply h-20 sm:h-24;
   }

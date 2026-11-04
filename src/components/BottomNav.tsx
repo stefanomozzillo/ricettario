@@ -1,8 +1,6 @@
-import { Home, Shuffle, Package, Plus, History } from 'lucide-react'
+import { Home, Shuffle, Package, History } from 'lucide-react'
 import { clsx } from 'clsx'
 import { useLocation, useNavigate } from 'react-router-dom'
-import { useAuth } from '../contexts/AuthContext'
-import { Button } from './Button'
 
 const NAV_ITEMS = [
   { path: '/', label: 'Elenco', icon: Home, exact: true },
@@ -14,7 +12,6 @@ const NAV_ITEMS = [
 export function BottomNav() {
   const location = useLocation()
   const navigate = useNavigate()
-  const { user } = useAuth()
 
   const isActive = (path: string, exact: boolean) => {
     if (exact) return location.pathname === path
@@ -72,18 +69,6 @@ export function BottomNav() {
           </div>
         </div>
       </nav>
-
-      {user && (
-        <Button
-          variant="fab"
-          size="lg"
-          onClick={() => navigate('/add')}
-          aria-label="Aggiungi ricetta"
-          className="bottom-nav-fab"
-        >
-          <Plus size={32} strokeWidth={2.5} aria-hidden="true" />
-        </Button>
-      )}
 
       <div className="bottom-nav-spacer" aria-hidden="true" />
     </>
