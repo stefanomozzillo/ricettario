@@ -30,6 +30,7 @@ const ROW_H = 56
 const VISIBLE_ROWS = 5
 const CENTER_IDX = Math.floor(VISIBLE_ROWS / 2)
 const SPIN_MS = 2200
+const FADE_OUT_MS = 200
 
 const REASON_TEXT: Record<Exclude<EmptyPoolReason, null>, string> = {
   mood: 'Nessuna ricetta in questo mood',
@@ -62,6 +63,7 @@ export function Roulette() {
   const [announcement, setAnnouncement] = useState('')
   const [toast, setToast] = useState<string | null>(null)
   const [madeLoading, setMadeLoading] = useState(false)
+  const [winnerFading, setWinnerFading] = useState(false)
 
   const spinTimer = useRef<number | null>(null)
 
@@ -95,6 +97,21 @@ export function Roulette() {
     const t = window.setTimeout(() => setToast(null), 3000)
     return () => window.clearTimeout(t)
   }, [toast])
+
+  // Reset winner when mood changes - fade out animation
+  useEffect(() => {
+    if (winner && !spinning) {
+      setWinnerFading(true)
+      const timer = window.setTimeout(() => {
+        setWinner(null)
+        setWinnerFading(false)
+        setAnnouncement('')
+        setStripTitles([])
+        setOffset(0)
+      }, FADE_OUT_MS)
+      return () => window.clearTimeout(timer)
+    }
+  }, [mood])
 
   const pool = useMemo(() => buildPool(recipes, filters, mood), [recipes, filters, mood])
   const reason = useMemo(
@@ -297,7 +314,7 @@ export function Roulette() {
             {pool.length > 0 && (
               <section className="card bg-[var(--card)] rounded-2xl border border-[var(--bordo)] p-4 shadow-[var(--elevazione-1)] flex flex-col items-center gap-4">
                 <div
-                  className="slot-window relative w-full max-w-lg overflow-hidden rounded-2xl border border-[var(--card-bordo)] bg-[var(--sfondo)]"
+                  className="slot-window relative w-full max-w-2xl overflow-hidden rounded-2xl border border-[var(--card-bordo)] bg-[var(--sfondo)]"
                   style={{ height: VISIBLE_ROWS * ROW_H }}
                   aria-hidden={spinning}
                 >
@@ -369,7 +386,7 @@ export function Roulette() {
 
             {/* Risultato */}
             {winner && !spinning && (
-              <section className="card bg-[var(--card)] rounded-2xl border border-[var(--card-bordo)] p-4 shadow-[var(--elevazione-2)] w-full max-w-lg mx-auto">
+              <section className={`card bg-[var(--card)] rounded-2xl border border-[var(--card-bordo)] p-4 shadow-[var(--elevazione-2)] w-full max-w-2xl mx-auto transition-all duration-200 ease-out ${winnerFading ? 'opacity-0 scale-95' : 'opacity-100 scale-100'}`}>
                 <div className="flex items-start justify-between gap-2 mb-3">
                   <h2 className="text-xl md:text-2xl font-semibold text-[var(--testo)] m-0 break-words hyphens-auto text-wrap">{winner.titolo}</h2>
                   {winner.stato === 'da_completare' && (
