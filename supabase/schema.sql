@@ -88,6 +88,7 @@ create table if not exists public.ricette (
     'zuppe', 'lievitati', 'dolci', 'colazione_merende', 'salse_basi', 'bevande'
   )),
   mood text check (mood in ('gourmet', 'pasticceria', 'comfort', 'fresca', 'etnici')),
+  difficolta text check (difficolta in ('facile', 'media', 'difficile')),
   tags text[] default '{}',
 
   -- Contenuto
@@ -124,6 +125,7 @@ create index if not exists idx_ricette_mood on public.ricette (mood);
 create index if not exists idx_ricette_stato on public.ricette (stato);
 create index if not exists idx_ricette_created_at on public.ricette (created_at desc);
 create index if not exists idx_ricette_autore on public.ricette (autore);
+create index if not exists idx_ricette_difficolta on public.ricette (difficolta);
 create index if not exists idx_ricette_tags on public.ricette using gin (tags);
 
 -- Indice per ricerca full-text su titolo (opzionale, per performance)

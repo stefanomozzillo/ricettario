@@ -1,6 +1,6 @@
-import { Clock, Users } from 'lucide-react'
+import { Clock, Users, Flame } from 'lucide-react'
 import { clsx } from 'clsx'
-import { MOOD_LABELS, CATEGORIE_LABELS, TAG_LABELS, STATO_LABELS, DIFFICOLTA_LABELS, DIFFICOLTA_COLORS, type Difficolta } from '../lib/config'
+import { MOOD_LABELS, CATEGORIE_LABELS, TAG_LABELS, STATO_LABELS, DIFFICOLTA_LABELS, DIFFICOLTA_BADGE_CLASSES, DIFFICOLTA_ICON_CLASSES, type Difficolta } from '../lib/config'
 import type { Mood } from '../lib/config'
 import { Badge } from './Badge'
 
@@ -70,9 +70,19 @@ export function RecipeCard({ recipe, onClick }: RecipeCardProps) {
           <h3 className="text-base sm:text-lg font-semibold text-[var(--testo)] line-clamp-1 flex-1 min-w-0 leading-snug">
             {recipe.titolo}
           </h3>
-          {recipe.stato === 'da_completare' && (
-            <Badge variant="stato" className="flex-shrink-0">{STATO_LABELS.da_completare}</Badge>
-          )}
+          <div className="flex items-center gap-1.5 flex-shrink-0">
+            {recipe.difficolta && (
+              <Flame
+                size={18}
+                role="img"
+                aria-label={`Difficoltà: ${DIFFICOLTA_LABELS[recipe.difficolta as Difficolta]}`}
+                className={clsx('fill-current', DIFFICOLTA_ICON_CLASSES[recipe.difficolta as Difficolta])}
+              />
+            )}
+            {recipe.stato === 'da_completare' && (
+              <Badge variant="stato" className="flex-shrink-0">{STATO_LABELS.da_completare}</Badge>
+            )}
+          </div>
         </div>
 
         <p className="text-sm text-[var(--secondario)] mb-3 leading-relaxed">di {formatAutore(recipe.autore)}</p>
@@ -88,7 +98,7 @@ export function RecipeCard({ recipe, onClick }: RecipeCardProps) {
           {recipe.difficolta && (
             <span className="flex items-center gap-1">
               <span className="font-medium text-[var(--testo)]">Difficoltà:</span>
-              <Badge variant="tag" className={clsx('px-2 py-0.5', `bg-${DIFFICOLTA_COLORS[recipe.difficolta as Difficolta]}-100 text-${DIFFICOLTA_COLORS[recipe.difficolta as Difficolta]}-700`)}>
+              <Badge variant="tag" className={clsx('px-2 py-0.5', DIFFICOLTA_BADGE_CLASSES[recipe.difficolta as Difficolta])}>
                 {DIFFICOLTA_LABELS[recipe.difficolta as Difficolta]}
               </Badge>
             </span>

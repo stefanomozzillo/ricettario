@@ -22,7 +22,7 @@ import {
   STATO_LABELS,
   GRUPPI_INGREDIENTI,
   DIFFICOLTA_LABELS,
-  DIFFICOLTA_COLORS,
+  DIFFICOLTA_BADGE_CLASSES,
   type Mood,
   type Difficolta
 } from '../lib/config'
@@ -298,7 +298,7 @@ export function RecipeDetail() {
             )}
             {recipe.difficolta && (
               <span className="inline-flex items-center gap-1">
-                <Badge variant="tag" className={clsx('px-2 py-0.5', `bg-${DIFFICOLTA_COLORS[recipe.difficolta as Difficolta]}-100 text-${DIFFICOLTA_COLORS[recipe.difficolta as Difficolta]}-700`)}>
+                <Badge variant="tag" className={clsx('px-2 py-0.5', DIFFICOLTA_BADGE_CLASSES[recipe.difficolta as Difficolta])}>
                   {DIFFICOLTA_LABELS[recipe.difficolta as Difficolta]}
                 </Badge>
               </span>

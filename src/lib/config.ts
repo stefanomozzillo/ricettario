@@ -215,6 +215,19 @@ export const DIFFICOLTA_COLORS: Record<Difficolta, string> = {
   difficile: 'red',
 };
 
+// Classi complete (Tailwind le rileva solo se la stringa appare intera nei sorgenti)
+export const DIFFICOLTA_BADGE_CLASSES: Record<Difficolta, string> = {
+  facile: 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300',
+  media: 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-300',
+  difficile: 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-300',
+};
+
+export const DIFFICOLTA_ICON_CLASSES: Record<Difficolta, string> = {
+  facile: 'text-emerald-500',
+  media: 'text-amber-500',
+  difficile: 'text-red-500',
+};
+
 // ============================================
 // STATO RICETTA
 // ============================================
