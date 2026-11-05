@@ -25,7 +25,7 @@ export function BackToTop() {
       onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
       aria-label="Torna in cima"
       className={clsx(
-        'fixed bottom-6 left-1/2 -translate-x-1/2 z-50',
+        'fixed bottom-6 left-1/2 z-50',
         'flex items-center justify-center w-11 h-11 rounded-full',
         'bg-gray-900 text-white shadow-lg',
         'hover:bg-gray-700 active:scale-[0.95]',
@@ -33,6 +33,7 @@ export function BackToTop() {
         'focus-visible:outline-2 focus-visible:outline-white focus-visible:outline-offset-2',
         'animate-in fade-in zoom-in-95 duration-200'
       )}
+      style={{ transform: 'translateX(-50%)' }}
     >
       <ChevronUp size={20} strokeWidth={2.5} aria-hidden="true" />
     </button>
