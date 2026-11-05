@@ -10,7 +10,7 @@ import { useState, useEffect, useCallback } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { useForm, useFieldArray, Controller } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { Plus, GripVertical, Trash2, AlertCircle, CheckCircle, Loader2 } from 'lucide-react'
+import { Plus, GripVertical, Trash2, AlertCircle, CheckCircle, Loader2, Info } from 'lucide-react'
 import { clsx } from 'clsx'
 import { useAuth } from '../contexts/AuthContext'
 import { useMood } from '../contexts/MoodContext'
@@ -78,7 +78,6 @@ function RecipeFormComponent({ isEditing }: RecipeFormComponentProps) {
   const { fields: ingredientFields, append: appendIngredient, remove: removeIngredient } = useFieldArray({ control, name: 'ingredienti' })
   const { fields: stepFields, append: appendStep, remove: removeStep } = useFieldArray({ control, name: 'passaggi' })
   const { fields: variantFields, append: appendVariant, remove: removeVariant } = useFieldArray({ control, name: 'varianti' })
-  const watchedStato = watch('stato')
 
   // Carica ingredienti per autocomplete
   useEffect(() => {
@@ -115,8 +114,6 @@ function RecipeFormComponent({ isEditing }: RecipeFormComponentProps) {
       load()
     }
   }, [isEditing, id, reset])
-
-  const isComplete = watchedStato === 'completa'
 
   const filteredIngredients = useCallback((input: string) => {
     if (!input) return allIngredients
@@ -270,58 +267,49 @@ function RecipeFormComponent({ isEditing }: RecipeFormComponentProps) {
             {errors.stato && <p className="field-error text-sm text-[var(--accento)] mt-2">{errors.stato.message}</p>}
           </fieldset>
 
-          {isComplete && (
-            <p className="form-hint flex items-center gap-2 text-sm text-[var(--secondario)] mt-3 p-3 bg-[var(--sfondo)] rounded-xl">
-              <CheckCircle size={16} className="hint-icon text-[var(--accento)] flex-shrink-0" />
-              Modalità completa: servono categoria, mood, almeno un ingrediente e un passaggio.
-            </p>
-          )}
-          {!isComplete && (
-            <p className="form-hint warning flex items-center gap-2 text-sm text-[var(--secondario)] mt-3 p-3 bg-amber-50 dark:bg-amber-900/20 rounded-xl border border-amber-200 dark:border-amber-800">
-              <AlertCircle size={16} className="hint-icon text-amber-600 dark:text-amber-400 flex-shrink-0" />
-              Modalità "Da completare": solo il titolo è obbligatorio. Potrai completare dopo.
-            </p>
-          )}
+          {/* Hint: solo titolo e autore obbligatori per tutte le ricette */}
+          <p className="form-hint flex items-center gap-2 text-sm text-[var(--secondario)] mt-3 p-3 bg-[var(--sfondo)] rounded-xl border border-[var(--bordo)]">
+            <Info size={16} className="hint-icon text-[var(--accento)] flex-shrink-0" />
+            Solo titolo e autore sono obbligatori. Tutti gli altri campi sono facoltativi.
+          </p>
         </section>
 
-        {/* Campi solo per ricette complete */}
-        {isComplete && (
-          <>
-            <section className="form-section card bg-[var(--card)] rounded-2xl border border-[var(--bordo)] p-4 mb-4">
-              <div className="form-row grid grid-cols-1 sm:grid-cols-3 gap-4">
-                <div className="form-field">
-                  <label htmlFor="categoria" className="block text-sm font-medium text-[var(--testo)] mb-1">Categoria <span className="text-[var(--accento)]">*</span></label>
-                  <select id="categoria" {...register('categoria')} className={clsx('form-select w-full px-4 py-3 rounded-xl border border-[var(--bordo)] bg-[var(--sfondo)] text-[var(--testo)] focus:outline-none focus:ring-2 focus:ring-[var(--accento)] focus:border-transparent transition-all duration-150 appearance-none', errors.categoria && 'border-[var(--accento)]')}>
-                    <option value="">Seleziona categoria</option>
-                    {CATEGORIE.map(cat => (
-                      <option key={cat} value={cat}>{CATEGORIE_LABELS[cat]}</option>
-                    ))}
-                  </select>
-                  {errors.categoria && <p className="field-error text-sm text-[var(--accento)] mt-1">{errors.categoria.message}</p>}
-                </div>
+        {/* Campi opzionali per tutte le ricette */}
+        <section className="form-section card bg-[var(--card)] rounded-2xl border border-[var(--bordo)] p-4 mb-4">
+          <div className="form-row grid grid-cols-1 sm:grid-cols-3 gap-4">
+            <div className="form-field">
+              <label htmlFor="categoria" className="block text-sm font-medium text-[var(--testo)] mb-1">Categoria</label>
+              <select id="categoria" {...register('categoria')} className={clsx('form-select w-full px-4 py-3 rounded-xl border border-[var(--bordo)] bg-[var(--sfondo)] text-[var(--testo)] focus:outline-none focus:ring-2 focus:ring-[var(--accento)] focus:border-transparent transition-all duration-150 appearance-none', errors.categoria && 'border-[var(--accento)]')}>
+                <option value="">Seleziona categoria (facoltativo)</option>
+                {CATEGORIE.map(cat => (
+                  <option key={cat} value={cat}>{CATEGORIE_LABELS[cat]}</option>
+                ))}
+              </select>
+              {errors.categoria && <p className="field-error text-sm text-[var(--accento)] mt-1">{errors.categoria.message}</p>}
+            </div>
 
-                <div className="form-field">
-                  <label htmlFor="mood" className="block text-sm font-medium text-[var(--testo)] mb-1">Mood <span className="text-[var(--accento)]">*</span></label>
-                  <select id="mood" {...register('mood')} className={clsx('form-select w-full px-4 py-3 rounded-xl border border-[var(--bordo)] bg-[var(--sfondo)] text-[var(--testo)] focus:outline-none focus:ring-2 focus:ring-[var(--accento)] focus:border-transparent transition-all duration-150 appearance-none', errors.mood && 'border-[var(--accento)]')}>
-                    <option value="">Seleziona mood</option>
-                    {MOODS.map(m => (
-                      <option key={m} value={m}>{MOOD_LABELS[m as Mood]}</option>
-                    ))}
-                  </select>
-                  {errors.mood && <p className="field-error text-sm text-[var(--accento)] mt-1">{errors.mood.message}</p>}
-                </div>
+            <div className="form-field">
+              <label htmlFor="mood" className="block text-sm font-medium text-[var(--testo)] mb-1">Mood</label>
+              <select id="mood" {...register('mood')} className={clsx('form-select w-full px-4 py-3 rounded-xl border border-[var(--bordo)] bg-[var(--sfondo)] text-[var(--testo)] focus:outline-none focus:ring-2 focus:ring-[var(--accento)] focus:border-transparent transition-all duration-150 appearance-none', errors.mood && 'border-[var(--accento)]')}>
+                <option value="">Seleziona mood (facoltativo)</option>
+                {MOODS.map(m => (
+                  <option key={m} value={m}>{MOOD_LABELS[m as Mood]}</option>
+                ))}
+              </select>
+              {errors.mood && <p className="field-error text-sm text-[var(--accento)] mt-1">{errors.mood.message}</p>}
+            </div>
 
-                <div className="form-field">
-                  <label htmlFor="difficolta" className="block text-sm font-medium text-[var(--testo)] mb-1">Difficoltà <span className="text-[var(--accento)]">*</span></label>
-                  <select id="difficolta" {...register('difficolta')} className={clsx('form-select w-full px-4 py-3 rounded-xl border border-[var(--bordo)] bg-[var(--sfondo)] text-[var(--testo)] focus:outline-none focus:ring-2 focus:ring-[var(--accento)] focus:border-transparent transition-all duration-150 appearance-none', errors.difficolta && 'border-[var(--accento)]')}>
-                    <option value="">Seleziona difficoltà</option>
-                    {DIFFICOLTA.map(d => (
-                      <option key={d} value={d}>{DIFFICOLTA_LABELS[d]}</option>
-                    ))}
-                  </select>
-                  {errors.difficolta && <p className="field-error text-sm text-[var(--accento)] mt-1">{errors.difficolta.message}</p>}
-                </div>
-              </div>
+            <div className="form-field">
+              <label htmlFor="difficolta" className="block text-sm font-medium text-[var(--testo)] mb-1">Difficoltà</label>
+              <select id="difficolta" {...register('difficolta')} className={clsx('form-select w-full px-4 py-3 rounded-xl border border-[var(--bordo)] bg-[var(--sfondo)] text-[var(--testo)] focus:outline-none focus:ring-2 focus:ring-[var(--accento)] focus:border-transparent transition-all duration-150 appearance-none', errors.difficolta && 'border-[var(--accento)]')}>
+                <option value="">Seleziona difficoltà (facoltativo)</option>
+                {DIFFICOLTA.map(d => (
+                  <option key={d} value={d}>{DIFFICOLTA_LABELS[d]}</option>
+                ))}
+              </select>
+              {errors.difficolta && <p className="field-error text-sm text-[var(--accento)] mt-1">{errors.difficolta.message}</p>}
+            </div>
+          </div>
 
               <div className="form-row grid grid-cols-1 sm:grid-cols-3 gap-4 mt-4">
                 <div className="form-field">
@@ -650,8 +638,6 @@ function RecipeFormComponent({ isEditing }: RecipeFormComponentProps) {
                 className="form-textarea w-full px-4 py-3 rounded-xl border border-[var(--bordo)] bg-[var(--sfondo)] text-[var(--testo)] placeholder-[var(--secondario)] focus:outline-none focus:ring-2 focus:ring-[var(--accento)] focus:border-transparent transition-all duration-150 resize-y"
               />
             </section>
-          </>
-        )}
 
         {/* Pulsanti salvataggio - flusso normale (non fixed) per evitare sovrapposizione con BottomNav */}
         <footer className="form-footer bg-[var(--sfondo)]/95 backdrop-blur supports-[backdrop-filter]:bg-[var(--sfondo)]/80 border-t border-[var(--bordo)] p-4 pt-6 max-w-[720px] mx-auto">

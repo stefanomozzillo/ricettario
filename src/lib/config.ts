@@ -210,9 +210,9 @@ export const DIFFICOLTA_LABELS: Record<Difficolta, string> = {
 };
 
 export const DIFFICOLTA_BADGE_CLASSES: Record<Difficolta, string> = {
-  facile: 'bg-emerald-700 text-white font-semibold text-xs px-2.5 py-1 rounded-full shadow-sm',
-  media: 'bg-amber-700 text-white font-semibold text-xs px-2.5 py-1 rounded-full shadow-sm',
-  difficile: 'bg-red-700 text-white font-semibold text-xs px-2.5 py-1 rounded-full shadow-sm',
+  facile: 'bg-emerald-700 !text-white font-semibold text-xs px-2.5 py-1 rounded-full shadow-sm',
+  media: 'bg-amber-700 !text-white font-semibold text-xs px-2.5 py-1 rounded-full shadow-sm',
+  difficile: 'bg-red-700 !text-white font-semibold text-xs px-2.5 py-1 rounded-full shadow-sm',
 };
 
 export const DIFFICOLTA_ICON_CLASSES: Record<Difficolta, string> = {
