@@ -224,11 +224,13 @@ export async function getRecipeById(id: string) {
  * Crea nuova ricetta
  */
 export async function createRecipe(recipe: RecipeInsert) {
+  console.log('SUPABASE INSERT PAYLOAD:', recipe);
   const { data, error } = await supabase
     .from('ricette')
     .insert(recipe)
     .select()
     .single();
+  console.log('4. Supabase insert response:', data, 'error:', error);
   if (error) throw error;
   return data;
 }

@@ -187,10 +187,9 @@ function RecipeFormComponent({ isEditing }: RecipeFormComponentProps) {
           }
         }
       }
-      console.error('Errore salvataggio:', err)
-      // Mostra il dettaglio reale dell'errore PostgREST/Supabase (code, message, details)
-      // così si capisce subito la causa (es. colonna mancante, RLS, vincolo).
+      // Logging dettagliato errore Supabase per debug
       const e = err as { code?: string; message?: string; details?: string; hint?: string }
+      console.error('Supabase Error:', e?.message, e?.details, e?.hint, e?.code)
       const detail = [e?.code, e?.message, e?.details, e?.hint].filter(Boolean).join(' — ')
       setError(detail ? `Errore durante il salvataggio: ${detail}` : 'Errore durante il salvataggio. Riprova.')
     } finally {
