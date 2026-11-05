@@ -216,10 +216,11 @@ export const DIFFICOLTA_COLORS: Record<Difficolta, string> = {
 };
 
 // Classi complete (Tailwind le rileva solo se la stringa appare intera nei sorgenti)
+// Colori solidi ad alto contrasto per funzionare su qualsiasi background mood
 export const DIFFICOLTA_BADGE_CLASSES: Record<Difficolta, string> = {
-  facile: 'bg-emerald-500/20 text-emerald-600 border border-emerald-500/30 dark:bg-emerald-500/20 dark:text-emerald-400 dark:border-emerald-500/30',
-  media: 'bg-amber-500/20 text-amber-600 border border-amber-500/30 dark:bg-amber-500/20 dark:text-amber-400 dark:border-amber-500/30',
-  difficile: 'bg-rose-500/20 text-rose-600 border border-rose-500/30 dark:bg-rose-500/20 dark:text-rose-400 dark:border-rose-500/30',
+  facile: 'bg-emerald-600 text-white border-emerald-700 dark:bg-emerald-500 dark:text-white dark:border-emerald-400',
+  media: 'bg-amber-600 text-white border-amber-700 dark:bg-amber-500 dark:text-white dark:border-amber-400',
+  difficile: 'bg-rose-600 text-white border-rose-700 dark:bg-rose-500 dark:text-white dark:border-rose-400',
 };
 
 export const DIFFICOLTA_ICON_CLASSES: Record<Difficolta, string> = {
