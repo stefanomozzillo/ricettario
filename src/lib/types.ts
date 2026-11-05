@@ -193,14 +193,15 @@ export const varianteSchema = z.object({
 export type Variante = z.infer<typeof varianteSchema>
 
 // Ricetta base (campi comuni) - RIMOSSO fonte_url
+// Obbligatori: titolo, autore, categoria, mood, difficoltà. Tutti gli altri opzionali.
 const baseRecipeSchema = z.object({
   titolo: z.string().min(1, 'Titolo obbligatorio'),
-  autore: z.string().optional().nullable(),
+  autore: z.string().min(1, 'Autore obbligatorio'),
   stato: enumValidator(STATO_RICETTA, 'Stato'),
-  categoria: enumValidator(CATEGORIE, 'Categoria').optional().nullable(),
-  mood: enumValidator(MOODS, 'Mood').optional().nullable(),
-  // '' = "Seleziona difficoltà" non scelta (verrà salvata come null)
-  difficolta: z.union([enumValidator(DIFFICOLTA, 'Difficoltà'), z.literal('')]).optional().nullable(),
+  categoria: enumValidator(CATEGORIE, 'Categoria'),
+  mood: enumValidator(MOODS, 'Mood'),
+  // '' = "Seleziona difficoltà" non scelta (non più permessa: campo obbligatorio)
+  difficolta: enumValidator(DIFFICOLTA, 'Difficoltà'),
   tags: z.array(enumValidator(ALL_TAGS, 'Tag')).default([]),
   tempo_minuti: z.number().int().min(1).max(1440).optional().nullable(),
   porzioni: z.number().int().min(1).max(100).optional().nullable(),
@@ -213,24 +214,14 @@ const baseRecipeSchema = z.object({
 })
 
 // Ricetta per INSERT (senza id, created_at, updated_at, contatori)
-// Solo titolo e autore obbligatori per TUTTE le ricette (complete e da completare)
-export const recipeInsertSchema = baseRecipeSchema.superRefine((data, ctx) => {
-  // Autore obbligatorio per tutte le ricette
-  if (!data.autore || data.autore.trim() === '') {
-    ctx.addIssue({ code: z.ZodIssueCode.custom, message: 'Autore obbligatorio', path: ['autore'] })
-  }
-})
+// Obbligatori: titolo, autore, categoria, mood, difficoltà
+export const recipeInsertSchema = baseRecipeSchema
 
 export type RecipeInsert = z.infer<typeof recipeInsertSchema>
 
 // Ricetta per UPDATE (tutti i campi opzionali eccetto stato)
-// Solo titolo e autore obbligatori per TUTTE le ricette
-export const recipeUpdateSchema = baseRecipeSchema.partial().superRefine((data, ctx) => {
-  // Autore obbligatorio se presente nel payload
-  if (data.autore !== undefined && (!data.autore || data.autore.trim() === '')) {
-    ctx.addIssue({ code: z.ZodIssueCode.custom, message: 'Autore obbligatorio', path: ['autore'] })
-  }
-})
+// Obbligatori se presenti: titolo, autore, categoria, mood, difficoltà
+export const recipeUpdateSchema = baseRecipeSchema.partial()
 
 export type RecipeUpdate = z.infer<typeof recipeUpdateSchema>
 
@@ -246,7 +237,7 @@ export const recipeSchema = baseRecipeSchema.extend({
 export type Recipe = z.infer<typeof recipeSchema>
 
 // Tipo per il form (con campi opzionali per default values) - RIMOSSO fonte_url
-// Solo titolo e autore obbligatori per TUTTE le ricette (complete e da completare)
+// Obbligatori: titolo, autore, categoria, mood, difficoltà
 export const recipeFormSchema = baseRecipeSchema.extend({
   // Override per rendere tutti i campi opzionali nel form (default values)
   ingredienti: z.array(ingredienteSchema).default([]),
@@ -254,21 +245,16 @@ export const recipeFormSchema = baseRecipeSchema.extend({
   varianti: z.array(varianteSchema).default([]),
   tags: z.array(enumValidator(ALL_TAGS, 'Tag')).default([]),
   porzioni_unita: z.string().default(DEFAULT_PORZIONI_UNITA),
-}).superRefine((data, ctx) => {
-  // Autore obbligatorio per tutte le ricette
-  if (!data.autore || data.autore.trim() === '') {
-    ctx.addIssue({ code: z.ZodIssueCode.custom, message: 'Autore obbligatorio', path: ['autore'] })
-  }
 })
 
 // Tipo output esplicito per il form (array sempre required) - RIMOSSO fonte_url
 export type RecipeFormData = {
   titolo: string
-  autore: string | null
+  autore: string
   stato: StatoRicetta
-  categoria: string | null
-  mood: string | null
-  difficolta: string | null
+  categoria: string
+  mood: string
+  difficolta: string
   tags: string[]  // Tag[] è troppo restrittivo per l'input form
   tempo_minuti: number | null
   porzioni: number | null
@@ -327,11 +313,11 @@ export function normalizeRecipeFromDb(data: unknown): RecipeFormData {
   const r = data as Record<string, unknown>
   return {
     titolo: String(r.titolo ?? ''),
-    autore: (r.autore as string | null) ?? null,
+    autore: String(r.autore ?? ''),
     stato: (r.stato as StatoRicetta) ?? 'completa',
-    categoria: (r.categoria as string | null) ?? null,
-    mood: (r.mood as string | null) ?? null,
-    difficolta: (r.difficolta as string | null) ?? null,
+    categoria: (r.categoria as string | null) ?? '',
+    mood: (r.mood as string | null) ?? '',
+    difficolta: (r.difficolta as string | null) ?? '',
     tags: (r.tags as string[]) ?? [],
     tempo_minuti: (r.tempo_minuti as number | null) ?? null,
     porzioni: (r.porzioni as number | null) ?? null,
@@ -357,16 +343,15 @@ export function prepareRecipeForDb(data: RecipeFormData): RecipeInsert {
     return isNaN(num) ? null : num
   }
 
-  // Logica rigorosa: solo i 3 valori validi passano, ''/undefined/null diventano null
-  const d = data.difficolta
-  const difficolta = d === 'facile' || d === 'media' || d === 'difficile' ? d : null
+  // Campi obbligatori (validati dallo schema): passati direttamente
+  const difficolta = data.difficolta as Difficolta
 
-  // Gestione difensiva per ricette da completare: campi opzionali diventano null/array vuoto
+  // Gestione difensiva per ricette da completare: array vuoti -> array vuoto
   const isIncomplete = data.stato === 'da_completare'
 
   return {
     ...data,
-    // Nome colonna DB esatto: 'difficolta' (facile | media | difficile | null)
+    // Nome colonna DB esatto: 'difficolta' (facile | media | difficile)
     difficolta,
     tempo_minuti: normalizeNumber(data.tempo_minuti),
     porzioni: normalizeNumber(data.porzioni),
@@ -388,9 +373,7 @@ export function prepareRecipeForDb(data: RecipeFormData): RecipeInsert {
       testo: v.testo.trim(),
     })),
     tags: data.tags || [],
-    // Per ricette incomplete: categoria, mood, note, descrizione -> null se vuoti
-    categoria: isIncomplete ? null : (data.categoria || null),
-    mood: isIncomplete ? null : (data.mood || null),
+    // Per ricette incomplete: note, descrizione -> null se vuoti
     note: isIncomplete ? null : (data.note?.trim() || null),
     descrizione: isIncomplete ? null : (data.descrizione?.trim() || null),
   }

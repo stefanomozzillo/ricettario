@@ -60,8 +60,8 @@ function RecipeFormComponent({ isEditing }: RecipeFormComponentProps) {
       titolo: '',
       autore: '',
       stato: 'completa',
-      categoria: undefined,
-      mood: isEditing ? undefined : (mood !== 'tutti' ? mood : undefined),
+      categoria: '',
+      mood: isEditing ? '' : (mood !== 'tutti' ? mood : ''),
       difficolta: '',
       tags: [],
       tempo_minuti: null,
@@ -236,7 +236,7 @@ function RecipeFormComponent({ isEditing }: RecipeFormComponentProps) {
           </div>
 
           <div className="form-field mt-4">
-            <label htmlFor="autore" className="block text-sm font-medium text-[var(--testo)] mb-1">Autore</label>
+            <label htmlFor="autore" className="block text-sm font-medium text-[var(--testo)] mb-1">Autore <span className="text-[var(--accento)]">*</span></label>
             <input
               id="autore"
               type="text"
@@ -250,7 +250,7 @@ function RecipeFormComponent({ isEditing }: RecipeFormComponentProps) {
         {/* Stato */}
         <section className="form-section card bg-[var(--card)] rounded-2xl border border-[var(--bordo)] p-4 mb-4">
           <fieldset>
-            <legend className="block text-sm font-medium text-[var(--testo)] mb-3">Stato ricetta <span className="text-[var(--accento)]">*</span></legend>
+            <legend className="block text-sm font-medium text-[var(--testo)] mb-3">Stato ricetta</legend>
             <div className="radio-group flex gap-6">
               {STATO_RICETTA.map(stato => (
                 <label key={stato} className="radio-label flex items-center gap-2 cursor-pointer">
@@ -267,10 +267,10 @@ function RecipeFormComponent({ isEditing }: RecipeFormComponentProps) {
             {errors.stato && <p className="field-error text-sm text-[var(--accento)] mt-2">{errors.stato.message}</p>}
           </fieldset>
 
-          {/* Hint: solo titolo e autore obbligatori per tutte le ricette */}
+          {/* Hint: campi obbligatori */}
           <p className="form-hint flex items-center gap-2 text-sm text-[var(--secondario)] mt-3 p-3 bg-[var(--sfondo)] rounded-xl border border-[var(--bordo)]">
             <Info size={16} className="hint-icon text-[var(--accento)] flex-shrink-0" />
-            Solo titolo e autore sono obbligatori. Tutti gli altri campi sono facoltativi.
+            Solo titolo, autore, categoria, mood e difficoltà sono obbligatori. Tutti gli altri campi sono facoltativi.
           </p>
         </section>
 
@@ -278,9 +278,9 @@ function RecipeFormComponent({ isEditing }: RecipeFormComponentProps) {
         <section className="form-section card bg-[var(--card)] rounded-2xl border border-[var(--bordo)] p-4 mb-4">
           <div className="form-row grid grid-cols-1 sm:grid-cols-3 gap-4">
             <div className="form-field">
-              <label htmlFor="categoria" className="block text-sm font-medium text-[var(--testo)] mb-1">Categoria</label>
+              <label htmlFor="categoria" className="block text-sm font-medium text-[var(--testo)] mb-1">Categoria <span className="text-[var(--accento)]">*</span></label>
               <select id="categoria" {...register('categoria')} className={clsx('form-select w-full px-4 py-3 rounded-xl border border-[var(--bordo)] bg-[var(--sfondo)] text-[var(--testo)] focus:outline-none focus:ring-2 focus:ring-[var(--accento)] focus:border-transparent transition-all duration-150 appearance-none', errors.categoria && 'border-[var(--accento)]')}>
-                <option value="">Seleziona categoria (facoltativo)</option>
+                <option value="">Seleziona categoria</option>
                 {CATEGORIE.map(cat => (
                   <option key={cat} value={cat}>{CATEGORIE_LABELS[cat]}</option>
                 ))}
@@ -289,9 +289,9 @@ function RecipeFormComponent({ isEditing }: RecipeFormComponentProps) {
             </div>
 
             <div className="form-field">
-              <label htmlFor="mood" className="block text-sm font-medium text-[var(--testo)] mb-1">Mood</label>
+              <label htmlFor="mood" className="block text-sm font-medium text-[var(--testo)] mb-1">Mood <span className="text-[var(--accento)]">*</span></label>
               <select id="mood" {...register('mood')} className={clsx('form-select w-full px-4 py-3 rounded-xl border border-[var(--bordo)] bg-[var(--sfondo)] text-[var(--testo)] focus:outline-none focus:ring-2 focus:ring-[var(--accento)] focus:border-transparent transition-all duration-150 appearance-none', errors.mood && 'border-[var(--accento)]')}>
-                <option value="">Seleziona mood (facoltativo)</option>
+                <option value="">Seleziona mood</option>
                 {MOODS.map(m => (
                   <option key={m} value={m}>{MOOD_LABELS[m as Mood]}</option>
                 ))}
@@ -300,9 +300,9 @@ function RecipeFormComponent({ isEditing }: RecipeFormComponentProps) {
             </div>
 
             <div className="form-field">
-              <label htmlFor="difficolta" className="block text-sm font-medium text-[var(--testo)] mb-1">Difficoltà</label>
+              <label htmlFor="difficolta" className="block text-sm font-medium text-[var(--testo)] mb-1">Difficoltà <span className="text-[var(--accento)]">*</span></label>
               <select id="difficolta" {...register('difficolta')} className={clsx('form-select w-full px-4 py-3 rounded-xl border border-[var(--bordo)] bg-[var(--sfondo)] text-[var(--testo)] focus:outline-none focus:ring-2 focus:ring-[var(--accento)] focus:border-transparent transition-all duration-150 appearance-none', errors.difficolta && 'border-[var(--accento)]')}>
-                <option value="">Seleziona difficoltà (facoltativo)</option>
+                <option value="">Seleziona difficoltà</option>
                 {DIFFICOLTA.map(d => (
                   <option key={d} value={d}>{DIFFICOLTA_LABELS[d]}</option>
                 ))}
@@ -381,7 +381,7 @@ function RecipeFormComponent({ isEditing }: RecipeFormComponentProps) {
             {/* Ingredienti */}
             <section className="form-section card bg-[var(--card)] rounded-2xl border border-[var(--bordo)] p-4 mb-4">
               <div className="section-header flex items-center justify-between mb-4">
-                <h2 className="text-lg font-semibold text-[var(--testo)]">Ingredienti <span className="text-[var(--accento)]">*</span></h2>
+                <h2 className="text-lg font-semibold text-[var(--testo)]">Ingredienti</h2>
                 <Button variant="secondary" size="sm" onClick={handleAddIngredient} className="gap-2">
                   <Plus size={18} /> Aggiungi
                 </Button>
@@ -403,7 +403,7 @@ function RecipeFormComponent({ isEditing }: RecipeFormComponentProps) {
 
                     <div className="ingredient-fields flex-1 flex flex-col sm:flex-row gap-3 min-w-0">
                       <div className="form-field flex-1">
-                        <label htmlFor={`ing-${index}-nome`} className="block text-sm font-medium text-[var(--testo)] mb-1">Nome <span className="text-[var(--accento)]">*</span></label>
+                        <label htmlFor={`ing-${index}-nome`} className="block text-sm font-medium text-[var(--testo)] mb-1">Nome</label>
                         <div className="autocomplete-wrapper relative">
                           <input
                             id={`ing-${index}-nome`}
@@ -490,7 +490,7 @@ function RecipeFormComponent({ isEditing }: RecipeFormComponentProps) {
             {/* Passaggi - RIMOSSO video_secondi */}
             <section className="form-section card bg-[var(--card)] rounded-2xl border border-[var(--bordo)] p-4 mb-4">
               <div className="section-header flex items-center justify-between mb-4">
-                <h2 className="text-lg font-semibold text-[var(--testo)]">Passaggi <span className="text-[var(--accento)]">*</span></h2>
+                <h2 className="text-lg font-semibold text-[var(--testo)]">Passaggi</h2>
                 <Button variant="secondary" size="sm" onClick={handleAddStep} className="gap-2">
                   <Plus size={18} /> Aggiungi
                 </Button>
@@ -527,7 +527,7 @@ function RecipeFormComponent({ isEditing }: RecipeFormComponentProps) {
                       </div>
 
                       <div className="form-field">
-                        <label htmlFor={`step-${index}-testo`} className="block text-sm font-medium text-[var(--testo)] mb-1">Testo <span className="text-[var(--accento)]">*</span></label>
+                        <label htmlFor={`step-${index}-testo`} className="block text-sm font-medium text-[var(--testo)] mb-1">Testo</label>
                         <textarea
                           id={`step-${index}-testo`}
                           rows={3}
@@ -582,7 +582,7 @@ function RecipeFormComponent({ isEditing }: RecipeFormComponentProps) {
 
                     <div className="variant-fields flex-1 flex flex-col gap-4 min-w-0">
                       <div className="form-field flex-1">
-                        <label htmlFor={`variant-${index}-titolo`} className="block text-sm font-medium text-[var(--testo)] mb-1">Titolo <span className="text-[var(--accento)]">*</span></label>
+                        <label htmlFor={`variant-${index}-titolo`} className="block text-sm font-medium text-[var(--testo)] mb-1">Titolo</label>
                         <input
                           id={`variant-${index}-titolo`}
                           type="text"
@@ -596,7 +596,7 @@ function RecipeFormComponent({ isEditing }: RecipeFormComponentProps) {
                       </div>
 
                       <div className="form-field flex-1">
-                        <label htmlFor={`variant-${index}-testo`} className="block text-sm font-medium text-[var(--testo)] mb-1">Testo <span className="text-[var(--accento)]">*</span></label>
+                        <label htmlFor={`variant-${index}-testo`} className="block text-sm font-medium text-[var(--testo)] mb-1">Testo</label>
                         <textarea
                           id={`variant-${index}-testo`}
                           rows={2}
