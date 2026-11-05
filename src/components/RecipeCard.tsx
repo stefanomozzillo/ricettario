@@ -120,9 +120,9 @@ export function RecipeCard({ recipe, onClick }: RecipeCardProps) {
                 aria-label={`Difficoltà: ${DIFFICOLTA_LABELS[recipe.difficolta as Difficolta]}`}
                 className={clsx('fill-current', DIFFICOLTA_ICON_CLASSES[recipe.difficolta as Difficolta])}
               />
-              <Badge variant="tag" className={clsx('px-2 py-0.5 text-xs font-semibold', DIFFICOLTA_BADGE_CLASSES[recipe.difficolta as Difficolta])}>
+              <span className={clsx('inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold', DIFFICOLTA_BADGE_CLASSES[recipe.difficolta as Difficolta])}>
                 {DIFFICOLTA_LABELS[recipe.difficolta as Difficolta]}
-              </Badge>
+              </span>
             </span>
           )}
         </div>
