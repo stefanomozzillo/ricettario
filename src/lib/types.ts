@@ -227,6 +227,11 @@ export const recipeInsertSchema = baseRecipeSchema.superRefine((data, ctx) => {
     if (!data.passaggi || data.passaggi.length === 0) {
       ctx.addIssue({ code: z.ZodIssueCode.custom, message: 'Almeno un passaggio obbligatorio', path: ['passaggi'] })
     }
+  } else if (data.stato === 'da_completare') {
+    // Per ricette da completare: solo titolo e autore obbligatori
+    if (!data.autore || data.autore.trim() === '') {
+      ctx.addIssue({ code: z.ZodIssueCode.custom, message: 'Autore obbligatorio per ricette da completare', path: ['autore'] })
+    }
   }
 })
 
@@ -247,6 +252,11 @@ export const recipeUpdateSchema = baseRecipeSchema.partial().superRefine((data, 
     }
     if (!data.passaggi || data.passaggi.length === 0) {
       ctx.addIssue({ code: z.ZodIssueCode.custom, message: 'Almeno un passaggio obbligatorio', path: ['passaggi'] })
+    }
+  } else if (data.stato === 'da_completare') {
+    // Per ricette da completare: solo titolo e autore obbligatori
+    if (data.autore !== undefined && (!data.autore || data.autore.trim() === '')) {
+      ctx.addIssue({ code: z.ZodIssueCode.custom, message: 'Autore obbligatorio per ricette da completare', path: ['autore'] })
     }
   }
 })
@@ -285,6 +295,11 @@ export const recipeFormSchema = baseRecipeSchema.extend({
     }
     if (!data.passaggi || data.passaggi.length === 0) {
       ctx.addIssue({ code: z.ZodIssueCode.custom, message: 'Almeno un passaggio obbligatorio', path: ['passaggi'] })
+    }
+  } else if (data.stato === 'da_completare') {
+    // Per ricette da completare: solo titolo e autore obbligatori
+    if (!data.autore || data.autore.trim() === '') {
+      ctx.addIssue({ code: z.ZodIssueCode.custom, message: 'Autore obbligatorio per ricette da completare', path: ['autore'] })
     }
   }
 })
@@ -389,13 +404,17 @@ export function prepareRecipeForDb(data: RecipeFormData): RecipeInsert {
   const d = data.difficolta
   const difficolta = d === 'facile' || d === 'media' || d === 'difficile' ? d : null
 
+  // Gestione difensiva per ricette da completare: campi opzionali diventano null/array vuoto
+  const isIncomplete = data.stato === 'da_completare'
+
   return {
     ...data,
     // Nome colonna DB esatto: 'difficolta' (facile | media | difficile | null)
     difficolta,
     tempo_minuti: normalizeNumber(data.tempo_minuti),
     porzioni: normalizeNumber(data.porzioni),
-    ingredienti: data.ingredienti.map(ing => ({
+    // Per ricette incomplete: se array vuoti o undefined, invia array vuoto
+    ingredienti: isIncomplete ? [] : data.ingredienti.map(ing => ({
       ...ing,
       nome: ing.nome.toLowerCase().trim(),
       quantita: typeof ing.quantita === 'string' && ing.quantita.trim() === '' ? null : ing.quantita,
@@ -403,14 +422,19 @@ export function prepareRecipeForDb(data: RecipeFormData): RecipeInsert {
       gruppo: ing.gruppo?.trim() || null,
       note: ing.note?.trim() || null,
     })),
-    passaggi: data.passaggi.map(p => ({
+    passaggi: isIncomplete ? [] : data.passaggi.map(p => ({
       titolo: p.titolo?.trim() || null,
       testo: p.testo.trim(),
     })),
-    varianti: data.varianti.map(v => ({
+    varianti: isIncomplete ? [] : data.varianti.map(v => ({
       titolo: v.titolo.trim(),
       testo: v.testo.trim(),
     })),
-    tags: data.tags,
+    tags: data.tags || [],
+    // Per ricette incomplete: categoria, mood, note, descrizione -> null se vuoti
+    categoria: isIncomplete ? null : (data.categoria || null),
+    mood: isIncomplete ? null : (data.mood || null),
+    note: isIncomplete ? null : (data.note?.trim() || null),
+    descrizione: isIncomplete ? null : (data.descrizione?.trim() || null),
   }
 }

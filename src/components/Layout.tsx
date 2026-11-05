@@ -328,7 +328,7 @@ export function Layout() {
           onClick={() => navigate('/add')}
           aria-label="Aggiungi ricetta"
         >
-          <Plus size={32} strokeWidth={2.5} />
+          <Plus size={44} strokeWidth={2.5} />
         </button>
       )}
     </div>

@@ -9,12 +9,12 @@ import { useParams, useNavigate, Link } from 'react-router-dom'
 import {
   Clock, Users, Tag, AlertCircle,
   ChefHat, X, Check, ChevronUp, ChevronDown,
-  Plus, Minus, Edit, ChevronLeft
+  Plus, Minus, Edit, ChevronLeft, Trash2
 } from 'lucide-react'
 import { clsx } from 'clsx'
 import { useAuth } from '../contexts/AuthContext'
 import { useMood } from '../contexts/MoodContext'
-import { getRecipeById, incrementRecipeMade } from '../lib/supabase'
+import { getRecipeById, incrementRecipeMade, deleteRecipe } from '../lib/supabase'
 import { addHistoryEntry } from '../lib/history'
 import {
   MOOD_LABELS,
@@ -205,6 +205,19 @@ export function RecipeDetail() {
       setToast(`«${recipe.titolo}» aggiunta alla Cronologia`)
     } catch (err) {
       console.error('Errore aggiornamento contatore:', err)
+    }
+  }
+
+  const handleDeleteRecipe = async () => {
+    if (!recipe || !isAuthorized) return
+    const confirmed = window.confirm(`Sei sicuro di voler eliminare "${recipe.titolo}"? L'operazione non è annullabile.`)
+    if (!confirmed) return
+    try {
+      await deleteRecipe(recipe.id)
+      navigate('/')
+    } catch (err) {
+      console.error('Errore eliminazione ricetta:', err)
+      alert('Errore durante l\'eliminazione. Riprova.')
     }
   }
 
@@ -443,11 +456,21 @@ export function RecipeDetail() {
         {/* Pulsante "Modifica ricetta" - per tutti gli utenti autorizzati */}
         {isAuthorized && (
           <section className="card bg-[var(--card)] rounded-2xl border border-[var(--card-bordo)] p-4 mb-4 shadow-[var(--elevazione-1)]">
-            <Link to={`/edit/${recipe.id}`}>
-              <Button variant="secondary" size="lg" className="w-full">
-                <Edit size={20} className="mr-2" style={{ flexShrink: 0 }} /> Modifica
-              </Button>
-            </Link>
+            <div className="flex gap-3">
+              <Link to={`/edit/${recipe.id}`} className="flex-1">
+                <Button variant="secondary" size="lg" className="w-full">
+                  <Edit size={20} className="mr-2" style={{ flexShrink: 0 }} /> Modifica
+                </Button>
+              </Link>
+              <button
+                type="button"
+                onClick={handleDeleteRecipe}
+                className="flex-1 flex items-center justify-center gap-2 px-4 py-3 rounded-xl bg-rose-500 text-white font-medium hover:bg-rose-600 active:bg-rose-700 active:scale-[0.97] transition-[transform,background-color] duration-150 touch-manipulation focus-visible:outline-2 focus-visible:outline-rose-500 focus-visible:outline-offset-2"
+              >
+                <Trash2 size={20} className="flex-shrink-0" />
+                <span>Elimina</span>
+              </button>
+            </div>
           </section>
         )}
 
