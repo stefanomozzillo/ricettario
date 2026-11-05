@@ -209,27 +209,16 @@ export const DIFFICOLTA_LABELS: Record<Difficolta, string> = {
   difficile: 'Difficile',
 };
 
-export const DIFFICOLTA_COLORS: Record<Difficolta, string> = {
-  facile: 'emerald',
-  media: 'amber',
-  difficile: 'red',
-};
-
-// Classi complete (Tailwind le rileva solo se la stringa appare intera nei sorgenti)
-// Badge difficoltà: colori solidi ad alto contrasto come da specifica
-// !text-white forza il bianco su qualsiasi override CSS/mood
 export const DIFFICOLTA_BADGE_CLASSES: Record<Difficolta, string> = {
-  facile: 'bg-emerald-600 !text-white font-semibold text-xs px-2.5 py-1 rounded-full shadow-sm',
-  media: 'bg-amber-500 !text-white font-semibold text-xs px-2.5 py-1 rounded-full shadow-sm',
-  difficile: 'bg-rose-600 !text-white font-semibold text-xs px-2.5 py-1 rounded-full shadow-sm',
+  facile: 'bg-emerald-700 text-white font-semibold text-xs px-2.5 py-1 rounded-full shadow-sm',
+  media: 'bg-amber-700 text-white font-semibold text-xs px-2.5 py-1 rounded-full shadow-sm',
+  difficile: 'bg-red-700 text-white font-semibold text-xs px-2.5 py-1 rounded-full shadow-sm',
 };
-
-// Rimuovo DIFFICOLTA_BADGE_STYLE (non serve più con classi solide)
 
 export const DIFFICOLTA_ICON_CLASSES: Record<Difficolta, string> = {
-  facile: 'text-green-500',
-  media: 'text-amber-500',
-  difficile: 'text-red-500',
+  facile: 'text-emerald-600',
+  media: 'text-amber-600',
+  difficile: 'text-red-600',
 };
 
 // ============================================

@@ -144,7 +144,7 @@ export function Layout() {
               onClick={() => navigate('/add')}
               aria-label="Aggiungi ricetta"
             >
-              <Plus size={28} strokeWidth={2.5} />
+              <Plus size={16} strokeWidth={2.5} />
               <span className="btn-add-text">Aggiungi</span>
             </button>
           )}
@@ -318,6 +318,18 @@ export function Layout() {
             </div>
           </aside>
         </>
+      )}
+
+      {/* Floating button: aggiungi ricetta - bottom right */}
+      {location.pathname !== '/settings' && !location.pathname.startsWith('/add') && !location.pathname.startsWith('/edit/') && (
+        <button
+          type="button"
+          className="fixed bottom-6 right-6 z-40 w-14 h-14 rounded-full bg-[var(--accento)] text-[var(--accento-testo)] shadow-lg flex items-center justify-center touch-manipulation hover:brightness-105 active:scale-[0.95] transition-[transform,background-color] duration-200 ease-out focus-visible:outline-2 focus-visible:outline-[var(--accento)] focus-visible:outline-offset-2"
+          onClick={() => navigate('/add')}
+          aria-label="Aggiungi ricetta"
+        >
+          <Plus size={32} strokeWidth={2.5} />
+        </button>
       )}
     </div>
   )

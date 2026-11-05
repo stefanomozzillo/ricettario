@@ -19,6 +19,8 @@
   --accento-testo: #FFFFFF;
   --card-sfondo: #FFFFFF;
   --card-bordo: #E8E0D4;
+  --card: var(--card-sfondo);
+  --bordo: var(--card-bordo);
   --input-sfondo: #FFFFFF;
   --input-bordo: #D4C9BB;
   --input-focus: #B5532B;
@@ -42,6 +44,8 @@
     --accento-testo: #1E1914;
     --card-sfondo: #2A241D;
     --card-bordo: #3D3328;
+    --card: var(--card-sfondo);
+    --bordo: var(--card-bordo);
     --input-sfondo: #2A241D;
     --input-bordo: #4A3D2E;
     --input-focus: #E08A5B;
@@ -67,6 +71,8 @@
   --accento-testo: #1A1A1D;
   --card-sfondo: #252627;
   --card-bordo: #333436;
+  --card: var(--card-sfondo);
+  --bordo: var(--card-bordo);
   --input-sfondo: #252627;
   --input-bordo: #3E3F42;
   --input-focus: #D4AF37;
@@ -92,6 +98,8 @@
   --accento-testo: #FFFFFF;
   --card-sfondo: #FFFFFF;
   --card-bordo: #F0E8DD;
+  --card: var(--card-sfondo);
+  --bordo: var(--card-bordo);
   --input-sfondo: #FFFFFF;
   --input-bordo: #DCCBB8;
   --input-focus: #C23B4E;
@@ -123,6 +131,8 @@
   /* Card bianco caldo con bordo nocciola chiaro */
   --card-sfondo: #FFFFFF;
   --card-bordo: #E8D5C4;
+  --card: var(--card-sfondo);
+  --bordo: var(--card-bordo);
   --input-sfondo: #FFFFFF;
   --input-bordo: #D4B89C;
   --input-focus: #C9762E;
@@ -156,6 +166,8 @@
   /* Card bianco puro con bordo verde tenue */
   --card-sfondo: #FFFFFF;
   --card-bordo: #D0E0D4;
+  --card: var(--card-sfondo);
+  --bordo: var(--card-bordo);
   --input-sfondo: #FFFFFF;
   --input-bordo: #B8D0BC;
   --input-focus: #2E8B4A;
@@ -189,6 +201,8 @@
   /* Card bianco caldo con bordo spezia tenue */
   --card-sfondo: #FFFFFF;
   --card-bordo: #E8DCC8;
+  --card: var(--card-sfondo);
+  --bordo: var(--card-bordo);
   --input-sfondo: #FFFFFF;
   --input-bordo: #D4C4A8;
   --input-focus: #E8A838;

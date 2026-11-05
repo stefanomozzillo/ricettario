@@ -13,7 +13,6 @@ import { CATEGORIE, CATEGORIE_LABELS, ALL_TAGS, TAG_LABELS, MOOD_LABELS, TEMPO_V
 import { useMood } from '../contexts/MoodContext'
 import { RecipeCard } from '../components/RecipeCard'
 import { Button } from '../components/Button'
-import { BottomNav } from '../components/BottomNav'
 import { BackToTop } from '../components/BackToTop'
 
 interface Recipe {
@@ -228,7 +227,6 @@ export function RecipeList() {
             ))}
           </div>
         </div>
-        <BottomNav />
       </div>
     )
   }
@@ -242,7 +240,6 @@ export function RecipeList() {
           <p className="text-[var(--secondario)] mb-6">{error}</p>
           <Button variant="primary" onClick={loadRecipes}>Riprova</Button>
         </div>
-        <BottomNav />
       </div>
     )
   }
@@ -510,7 +507,6 @@ export function RecipeList() {
       </main>
 
       <BackToTop />
-      <BottomNav />
     </div>
   )
 }

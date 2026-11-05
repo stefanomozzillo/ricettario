@@ -33,9 +33,8 @@ export function BackToTop() {
         'shadow-[var(--elevazione-2)]',
         'flex items-center justify-center touch-manipulation',
         'hover:bg-[var(--card-bordo)] active:scale-[0.95]',
-        'transition-[transform,background-color] duration-200 ease-out',
-        'focus-visible:outline-2 focus-visible:outline-[var(--accento)] focus-visible:outline-offset-2',
-        'animate-in fade-in zoom-in-95 duration-200'
+        'transition-[transform,background-color,opacity] duration-200 ease-out',
+        'focus-visible:outline-2 focus-visible:outline-[var(--accento)] focus-visible:outline-offset-2'
       )}
       style={{ bottom: 'calc(5rem + env(safe-area-inset-bottom, 0px))' }}
     >
