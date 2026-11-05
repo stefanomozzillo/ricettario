@@ -465,7 +465,7 @@ export function RecipeDetail() {
               <button
                 type="button"
                 onClick={handleDeleteRecipe}
-                className="flex-1 flex items-center justify-center gap-2 px-4 py-3 rounded-xl bg-rose-500 text-white font-medium hover:bg-rose-600 active:bg-rose-700 active:scale-[0.97] transition-[transform,background-color] duration-150 touch-manipulation focus-visible:outline-2 focus-visible:outline-rose-500 focus-visible:outline-offset-2"
+                className="flex-1 flex items-center justify-center gap-2 px-4 py-3 rounded-xl bg-rose-400 text-white font-medium hover:bg-rose-500 active:bg-rose-600 active:scale-[0.97] transition-[transform,background-color] duration-150 touch-manipulation focus-visible:outline-2 focus-visible:outline-rose-400 focus-visible:outline-offset-2"
               >
                 <Trash2 size={20} className="flex-shrink-0" />
                 <span>Elimina</span>

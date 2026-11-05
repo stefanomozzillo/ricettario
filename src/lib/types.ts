@@ -213,51 +213,22 @@ const baseRecipeSchema = z.object({
 })
 
 // Ricetta per INSERT (senza id, created_at, updated_at, contatori)
+// Solo titolo e autore obbligatori per TUTTE le ricette (complete e da completare)
 export const recipeInsertSchema = baseRecipeSchema.superRefine((data, ctx) => {
-  if (data.stato === 'completa') {
-    if (!data.categoria) {
-      ctx.addIssue({ code: z.ZodIssueCode.custom, message: 'Categoria obbligatoria per ricette complete', path: ['categoria'] })
-    }
-    if (!data.mood) {
-      ctx.addIssue({ code: z.ZodIssueCode.custom, message: 'Mood obbligatorio per ricette complete', path: ['mood'] })
-    }
-    if (!data.ingredienti || data.ingredienti.length === 0) {
-      ctx.addIssue({ code: z.ZodIssueCode.custom, message: 'Almeno un ingrediente obbligatorio', path: ['ingredienti'] })
-    }
-    if (!data.passaggi || data.passaggi.length === 0) {
-      ctx.addIssue({ code: z.ZodIssueCode.custom, message: 'Almeno un passaggio obbligatorio', path: ['passaggi'] })
-    }
-  } else if (data.stato === 'da_completare') {
-    // Per ricette da completare: solo titolo e autore obbligatori
-    if (!data.autore || data.autore.trim() === '') {
-      ctx.addIssue({ code: z.ZodIssueCode.custom, message: 'Autore obbligatorio per ricette da completare', path: ['autore'] })
-    }
+  // Autore obbligatorio per tutte le ricette
+  if (!data.autore || data.autore.trim() === '') {
+    ctx.addIssue({ code: z.ZodIssueCode.custom, message: 'Autore obbligatorio', path: ['autore'] })
   }
 })
 
 export type RecipeInsert = z.infer<typeof recipeInsertSchema>
 
 // Ricetta per UPDATE (tutti i campi opzionali eccetto stato)
+// Solo titolo e autore obbligatori per TUTTE le ricette
 export const recipeUpdateSchema = baseRecipeSchema.partial().superRefine((data, ctx) => {
-  // Se si sta cambiando lo stato a 'completa', validiamo i campi richiesti
-  if (data.stato === 'completa') {
-    if (data.categoria === undefined || data.categoria === null) {
-      ctx.addIssue({ code: z.ZodIssueCode.custom, message: 'Categoria obbligatoria per ricette complete', path: ['categoria'] })
-    }
-    if (data.mood === undefined || data.mood === null) {
-      ctx.addIssue({ code: z.ZodIssueCode.custom, message: 'Mood obbligatorio per ricette complete', path: ['mood'] })
-    }
-    if (!data.ingredienti || data.ingredienti.length === 0) {
-      ctx.addIssue({ code: z.ZodIssueCode.custom, message: 'Almeno un ingrediente obbligatorio', path: ['ingredienti'] })
-    }
-    if (!data.passaggi || data.passaggi.length === 0) {
-      ctx.addIssue({ code: z.ZodIssueCode.custom, message: 'Almeno un passaggio obbligatorio', path: ['passaggi'] })
-    }
-  } else if (data.stato === 'da_completare') {
-    // Per ricette da completare: solo titolo e autore obbligatori
-    if (data.autore !== undefined && (!data.autore || data.autore.trim() === '')) {
-      ctx.addIssue({ code: z.ZodIssueCode.custom, message: 'Autore obbligatorio per ricette da completare', path: ['autore'] })
-    }
+  // Autore obbligatorio se presente nel payload
+  if (data.autore !== undefined && (!data.autore || data.autore.trim() === '')) {
+    ctx.addIssue({ code: z.ZodIssueCode.custom, message: 'Autore obbligatorio', path: ['autore'] })
   }
 })
 
@@ -275,6 +246,7 @@ export const recipeSchema = baseRecipeSchema.extend({
 export type Recipe = z.infer<typeof recipeSchema>
 
 // Tipo per il form (con campi opzionali per default values) - RIMOSSO fonte_url
+// Solo titolo e autore obbligatori per TUTTE le ricette (complete e da completare)
 export const recipeFormSchema = baseRecipeSchema.extend({
   // Override per rendere tutti i campi opzionali nel form (default values)
   ingredienti: z.array(ingredienteSchema).default([]),
@@ -283,24 +255,9 @@ export const recipeFormSchema = baseRecipeSchema.extend({
   tags: z.array(enumValidator(ALL_TAGS, 'Tag')).default([]),
   porzioni_unita: z.string().default(DEFAULT_PORZIONI_UNITA),
 }).superRefine((data, ctx) => {
-  if (data.stato === 'completa') {
-    if (!data.categoria) {
-      ctx.addIssue({ code: z.ZodIssueCode.custom, message: 'Categoria obbligatoria per ricette complete', path: ['categoria'] })
-    }
-    if (!data.mood) {
-      ctx.addIssue({ code: z.ZodIssueCode.custom, message: 'Mood obbligatorio per ricette complete', path: ['mood'] })
-    }
-    if (!data.ingredienti || data.ingredienti.length === 0) {
-      ctx.addIssue({ code: z.ZodIssueCode.custom, message: 'Almeno un ingrediente obbligatorio', path: ['ingredienti'] })
-    }
-    if (!data.passaggi || data.passaggi.length === 0) {
-      ctx.addIssue({ code: z.ZodIssueCode.custom, message: 'Almeno un passaggio obbligatorio', path: ['passaggi'] })
-    }
-  } else if (data.stato === 'da_completare') {
-    // Per ricette da completare: solo titolo e autore obbligatori
-    if (!data.autore || data.autore.trim() === '') {
-      ctx.addIssue({ code: z.ZodIssueCode.custom, message: 'Autore obbligatorio per ricette da completare', path: ['autore'] })
-    }
+  // Autore obbligatorio per tutte le ricette
+  if (!data.autore || data.autore.trim() === '') {
+    ctx.addIssue({ code: z.ZodIssueCode.custom, message: 'Autore obbligatorio', path: ['autore'] })
   }
 })
 
