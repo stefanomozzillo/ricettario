@@ -295,6 +295,31 @@ export async function getAllIngredients() {
 }
 
 /**
+ * Galleria: tutte le ricette con almeno un'immagine (legge solo id, titolo, immagini)
+ */
+export async function getRecipesWithImages() {
+  const { data, error } = await supabase
+    .from('ricette')
+    .select('id, titolo, immagini')
+    .not('immagini', 'is', null)
+    .order('created_at', { ascending: false });
+  if (error) throw error;
+  return (data ?? []).filter(r => Array.isArray(r.immagini) && r.immagini.length > 0);
+}
+
+/**
+ * Selettore ricetta nella modale "Aggiungi foto": id e titolo di tutte le ricette
+ */
+export async function getRecipeOptions() {
+  const { data, error } = await supabase
+    .from('ricette')
+    .select('id, titolo')
+    .order('titolo', { ascending: true });
+  if (error) throw error;
+  return data ?? [];
+}
+
+/**
  * Verifica se l'utente corrente è abilitato (usa la funzione SQL is_authorized)
  */
 export async function checkUserAuthorized() {

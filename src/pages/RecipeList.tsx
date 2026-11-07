@@ -6,7 +6,7 @@
 
 import { useState, useEffect, useMemo, useCallback, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Search, X, AlertCircle, RotateCcw, SlidersHorizontal, ChevronDown, Loader2 } from 'lucide-react'
+import { Search, X, AlertCircle, RotateCcw, SlidersHorizontal, ChevronDown, Loader2, Image } from 'lucide-react'
 import { clsx } from 'clsx'
 import { getRecipes, getAllAuthors, type SortOption } from '../lib/supabase'
 import { CATEGORIE, CATEGORIE_LABELS, ALL_TAGS, TAG_LABELS, MOOD_LABELS, TEMPO_VELOCE_MINUTI, DIFFICOLTA, DIFFICOLTA_LABELS } from '../lib/config'
@@ -29,6 +29,7 @@ interface Recipe {
   porzioni_unita: string | null
   created_at: string
   volte_fatta: number | null
+  immagini: string[] | null
 }
 
 interface FiltersState {
@@ -79,6 +80,16 @@ export function RecipeList() {
   const [debouncedSearch, setDebouncedSearch] = useState('')
   const [filterPanelHeight, setFilterPanelHeight] = useState(0)
   const [refreshing, setRefreshing] = useState(false)
+  const [showPhotos, setShowPhotos] = useState(() => {
+    if (typeof window === 'undefined') return true
+    const saved = localStorage.getItem('recipeListShowPhotos')
+    return saved ? JSON.parse(saved) : true
+  })
+
+  // Persist showPhotos preference
+  useEffect(() => {
+    localStorage.setItem('recipeListShowPhotos', JSON.stringify(showPhotos))
+  }, [showPhotos])
   // Ref: true solo al primo caricamento. Durante le ricerche successive la
   // pagina resta montata (niente skeleton a pagina intera) così l'input di
   // ricerca non viene smontato e non perde il focus mentre si digita.
@@ -218,11 +229,14 @@ export function RecipeList() {
         <div className="max-w-[720px] mx-auto px-4">
           <div className="loading-skeleton space-y-4">
             {[...Array(5)].map((_, i) => (
-              <div key={i} className="skeleton-card bg-[var(--card)] rounded-2xl border border-[var(--bordo)] p-4 animate-pulse">
-                <div className="h-6 w-3/4 bg-[var(--bordo)] rounded mb-2" />
-                <div className="h-4 w-1/2 bg-[var(--bordo)] rounded mb-3" />
-                <div className="h-4 w-1/3 bg-[var(--bordo)] rounded mb-3" />
-                <div className="h-4 w-1/4 bg-[var(--bordo)] rounded" />
+              <div key={i} className="skeleton-card bg-[var(--card)] rounded-2xl border border-[var(--bordo)] overflow-hidden animate-pulse">
+                <div className="aspect-video w-full bg-[var(--bordo)]" />
+                <div className="p-4 sm:p-5 space-y-3">
+                  <div className="h-6 w-3/4 bg-[var(--bordo)] rounded" />
+                  <div className="h-4 w-1/2 bg-[var(--bordo)] rounded" />
+                  <div className="h-4 w-1/3 bg-[var(--bordo)] rounded" />
+                  <div className="h-4 w-1/4 bg-[var(--bordo)] rounded mt-4" />
+                </div>
               </div>
             ))}
           </div>
@@ -256,6 +270,23 @@ export function RecipeList() {
             )}
           </div>
           <div className="flex items-center gap-2">
+            {/* Toggle Mostra Foto */}
+            <button
+              type="button"
+              onClick={() => setShowPhotos(!showPhotos)}
+              className={clsx(
+                'p-2 rounded-full min-h-[40px] min-w-[40px] transition-colors touch-manipulation',
+                'focus-visible:outline-2 focus-visible:outline-[var(--accento)] focus-visible:outline-offset-2',
+                showPhotos
+                  ? 'bg-[var(--accento)] text-[var(--accento-testo)]'
+                  : 'text-[var(--secondario)] hover:bg-[var(--card-bordo)] hover:text-[var(--testo)]'
+              )}
+              aria-label={showPhotos ? 'Nascondi foto' : 'Mostra foto'}
+              aria-pressed={showPhotos}
+              title={showPhotos ? 'Nascondi foto' : 'Mostra foto'}
+            >
+              <Image size={20} />
+            </button>
             <Button
               variant="ghost"
               size="sm"
@@ -500,7 +531,12 @@ export function RecipeList() {
         ) : (
           <div className="recipes-grid grid grid-cols-1 sm:grid-cols-2 gap-4" role="list">
             {finalRecipes.map(recipe => (
-              <RecipeCard key={recipe.id} recipe={recipe} onClick={() => navigate(`/recipe/${recipe.id}`)} />
+              <RecipeCard
+                key={recipe.id}
+                recipe={recipe}
+                onClick={() => navigate(`/recipe/${recipe.id}`)}
+                showPhotos={showPhotos}
+              />
             ))}
           </div>
         )}

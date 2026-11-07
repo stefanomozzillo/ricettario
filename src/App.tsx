@@ -8,11 +8,15 @@ import { RecipeForm } from './pages/RecipeForm'
 import { Settings } from './pages/Settings'
 import { Roulette } from './pages/Roulette'
 import { Pantry } from './pages/Pantry'
+import { Gallery } from './pages/Gallery'
 import { HistoryPage } from './pages/HistoryPage'
 import { LandingPage } from './pages/LandingPage'
 import { ErrorBoundary } from './components/ErrorBoundary'
 import { NetworkStatus } from './components/NetworkStatus'
+import { UpdatePrompt } from './components/UpdatePrompt'
+import { IosInstallHint } from './components/IosInstallHint'
 import { Loader2 } from 'lucide-react'
+import { Toaster } from 'react-hot-toast'
 
 // Wrapper per route protette - redirect a LandingPage se non autenticato
 function RequireAuth() {
@@ -59,6 +63,36 @@ function App() {
         <MoodProvider>
           <ErrorBoundary>
             <NetworkStatus />
+            <UpdatePrompt />
+            <IosInstallHint />
+            <Toaster
+              position="bottom-center"
+              toastOptions={{
+                duration: 4000,
+                style: {
+                  background: 'var(--card)',
+                  color: 'var(--testo)',
+                  border: '1px solid var(--card-bordo)',
+                  borderRadius: '12px',
+                  padding: '14px 16px',
+                  boxShadow: 'var(--elevazione-3)',
+                  fontSize: '14px',
+                  fontWeight: '500',
+                },
+                success: {
+                  iconTheme: {
+                    primary: 'var(--accento)',
+                    secondary: 'var(--accento-testo)',
+                  },
+                },
+                error: {
+                  iconTheme: {
+                    primary: 'var(--accento)',
+                    secondary: 'var(--accento-testo)',
+                  },
+                },
+              }}
+            />
             <Routes>
               {/* Route pubbliche (solo login) */}
               <Route element={<RequireGuest />}>
@@ -74,6 +108,7 @@ function App() {
                   <Route path="edit/:id" element={<RecipeForm />} />
                   <Route path="settings" element={<Settings />} />
                   <Route path="roulette" element={<Roulette />} />
+                  <Route path="gallery" element={<Gallery />} />
                   <Route path="pantry" element={<Pantry />} />
                   <Route path="history" element={<HistoryPage />} />
                   {/* FASE C - placeholder */}

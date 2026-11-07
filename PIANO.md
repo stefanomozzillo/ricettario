@@ -1,10 +1,11 @@
 # PIANO — Ricettario
 
-Ultimo aggiornamento: 2026-11-06
+Ultimo aggiornamento: 2026-11-07
 
 ## Stato generale
 
 FASE A in corso — codice completato, **verifiche mancanti**.
+PWA pronta per il deploy su Cloudflare Pages.
 
 ## Completato
 
@@ -29,6 +30,9 @@ FASE A in corso — codice completato, **verifiche mancanti**.
 - [x] BUG 1 fix: elenco mostra tutte le ricette (default), filtro "Da completare" mostra solo quelle (modificato `getRecipes` con parametro `stato` e logica in `RecipeList`)
 - [x] BUG 2 fix: dettaglio sicuro per campi NULL/vuoti, aggiunti descrizione/fonte_url, pulsante "Completa" per da_completare, errore visibile in dev via ErrorBoundary
 - [x] Migrazione `supabase/migrations/03-fix-seed.sql`: array vuoti espliciti per da_completare, vincolo CHECK per ricette complete
+- [x] PWA: manifest.webmanifest, icone (incl. maskable-512 e apple-touch-icon opaca), service worker `public/sw.js` (solo prod, mai cache Supabase, fallback SPA), `_redirects`, meta theme-color dinamico per mood, prompt "Nuova versione" e hint installazione iOS
+- [x] Pulizia dipendenze: rimosso eslint (lint via oxlint), `npm ci` pulita senza legacy-peer-deps, engines node >=20.19
+- [x] `.github/workflows/keep-alive.yml` (cron ogni 3 giorni + manuale)
 
 ## Da fare (verifiche FASE A)
 
@@ -36,7 +40,8 @@ FASE A in corso — codice completato, **verifiche mancanti**.
 - [ ] Verifica login con utente abilitato (dall'app)
 - [ ] Verifica registrazione nuova rifiutata (via REST API, non SQL Editor)
 - [ ] Test RLS da app/REST: utente abilitato → INSERT ok; anon → INSERT fallisce (mai da SQL Editor)
-- [ ] Deploy Cloudflare Pages (repo privato, env vars VITE_SUPABASE_URL / VITE_SUPABASE_ANON_KEY)
+- [ ] Deploy Cloudflare Pages (repo privato, env vars VITE_SUPABASE_URL / VITE_SUPABASE_ANON_KEY, NODE_VERSION=22)
+- [ ] Test PWA su telefono reale (installazione Android/iOS, reload pagina interna, offline app shell)
 - [ ] Test su telefono reale
 
 ## FASE B (prossima)
@@ -56,7 +61,7 @@ FASE A in corso — codice completato, **verifiche mancanti**.
 - [ ] Secret `GEMINI_API_KEY` in dashboard Supabase (da fare dall'utente)
 - [ ] Migrazione `06-ai-usage.sql` eseguita in SQL Editor (da fare dall'utente)
 - [ ] Deploy `supabase functions deploy ai-assistant` (da fare dall'utente)
-- [ ] GitHub Actions keep-alive ogni 3 giorni
+- [x] GitHub Actions keep-alive ogni 3 giorni (`.github/workflows/keep-alive.yml`, secret SUPABASE_URL + SUPABASE_ANON_KEY da impostare in GitHub)
 
 ## Note operative
 

@@ -328,9 +328,9 @@
   /* Slot machine roulette */
   .slot-window { @apply relative overflow-hidden rounded-2xl border border-card-bordo bg-sfondo; }
   .slot-strip { @apply relative z-[1] flex flex-col will-change-transform; }
-  .slot-row { @apply flex items-center justify-center px-4 text-center text-sm text-testo/50 line-clamp-2; }
-  .slot-row.dist-1 { @apply text-base text-testo/70; }
-  .slot-row.dist-0 { @apply text-xl font-bold text-accento; }
+  .slot-row { @apply flex items-center justify-center px-6 md:px-8 text-center text-base text-testo/50; }
+  .slot-row.dist-1 { @apply text-lg text-testo/70; }
+  .slot-row.dist-0 { @apply text-2xl md:text-3xl font-bold text-accento leading-tight; }
   .slot-highlight { @apply absolute left-0 right-0 z-0 pointer-events-none bg-accento/10 border-y-2 border-accento; }
   .slot-fade { @apply absolute left-0 right-0 h-12 pointer-events-none z-10; }
   .slot-fade-top { @apply top-0 bg-gradient-to-b from-sfondo to-transparent; }

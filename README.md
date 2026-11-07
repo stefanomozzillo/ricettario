@@ -12,8 +12,8 @@ App web personale per ricette sincronizzata tra dispositivi, con interfaccia in 
 ## Setup locale
 
 ```bash
-# 1. Installa dipendenze
-npm install --legacy-peer-deps
+# 1. Installa dipendenze (installazione pulita, come su Cloudflare)
+npm ci
 
 # 2. Crea .env.local con le credenziali Supabase (già presente, non committare)
 cp .env.example .env.local
@@ -22,6 +22,24 @@ cp .env.example .env.local
 # 3. Avvia dev server
 npm run dev
 ```
+
+## Deploy (Cloudflare Pages)
+
+- **Build command**: `npm run build`
+- **Output directory**: `dist`
+- **Variabili d'ambiente** (Project Settings → Environment variables):
+  - `VITE_SUPABASE_URL`
+  - `VITE_SUPABASE_ANON_KEY`
+  - `NODE_VERSION` = `22`
+- Per la Edge Function `ai-assistant`, imposta il secret `ALLOWED_ORIGIN` con l'indirizzo di produzione (es. `https://tuo-dominio.pages.dev`).
+- Le pagine interne (`/recipe/...`, `/gallery`) funzionano al reload grazie a `public/_redirects` (`/* → /index.html 200`).
+
+## Installazione sul telefono (PWA)
+
+- **Android (Chrome)**: menu ⋮ → "Installa app" / "Aggiungi a schermata Home".
+- **iPhone (Safari)**: pulsante **Condividi** → **Aggiungi alla schermata Home**.
+
+L'app è una PWA: `manifest.webmanifest`, service worker (`public/sw.js`, solo in produzione) con precache dell'app shell e cache dei soli asset statici — le chiamate a Supabase e gli URL firmati delle foto vanno sempre in rete. Su iOS Safari compare una sola volta un suggerimento con le istruzioni di installazione.
 
 ## FASE C — Assistente AI (Edge Function + Gemini)
 

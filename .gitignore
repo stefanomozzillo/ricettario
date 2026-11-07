@@ -8,6 +8,8 @@ build/
 # Environment files (mai committare!)
 .env
 .env.local
+.env.*
+!.env.example
 .env.*.local
 
 # IDE

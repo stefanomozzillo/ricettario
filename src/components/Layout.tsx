@@ -9,7 +9,7 @@ import { useState, useRef, useCallback, useEffect } from 'react'
 import { Outlet, useLocation, useNavigate } from 'react-router-dom'
 import { useAuth } from '../contexts/AuthContext'
 import { useMood } from '../contexts/MoodContext'
-import { BookOpen, Shuffle, Home, History, Settings as SettingsIcon, Plus, LogOut, User, X } from 'lucide-react'
+import { BookOpen, Shuffle, Images, Home, History, Settings as SettingsIcon, Plus, LogOut, User, X } from 'lucide-react'
 import { clsx } from 'clsx'
 import { MOOD_OPTIONS, MOOD_LABELS } from '../lib/config'
 import { SettingsPage } from '../pages/Settings'
@@ -17,15 +17,18 @@ import { SettingsPage } from '../pages/Settings'
 interface NavItem {
   path: string
   label: string
+  shortLabel?: string
   icon: React.ElementType
   exact?: boolean
 }
 
 // NAV_ITEMS senza Impostazioni (ora accessibile da header)
+// Ordine: Elenco, Roulette, Galleria, Cosa ho in casa, Cronologia
 const NAV_ITEMS: NavItem[] = [
   { path: '/', label: 'Elenco', icon: BookOpen, exact: true },
   { path: '/roulette', label: 'Roulette', icon: Shuffle },
-  { path: '/pantry', label: 'Cosa ho in casa', icon: Home },
+  { path: '/gallery', label: 'Galleria', icon: Images },
+  { path: '/pantry', label: 'Cosa ho in casa', shortLabel: 'In casa', icon: Home },
   { path: '/history', label: 'Cronologia', icon: History },
 ]
 
@@ -262,13 +265,13 @@ export function Layout() {
             <button
               key={item.path}
               type="button"
-              className={clsx('nav-item', isActive && 'active')}
+              className={clsx('nav-item min-w-0', isActive && 'active')}
               onClick={() => navigate(item.path)}
               aria-current={isActive ? 'page' : undefined}
               aria-label={item.label}
             >
-              <Icon size={24} />
-              <span className="nav-label">{item.label}</span>
+              <Icon size={24} className="flex-shrink-0" />
+              <span className="nav-label max-w-full truncate">{item.shortLabel ?? item.label}</span>
             </button>
           )
         })}

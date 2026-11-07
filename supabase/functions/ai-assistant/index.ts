@@ -424,6 +424,33 @@ AZIONE: CHAT
 Sei in conversazione su UNA ricetta. Rispondi in italiano, breve (max 3-4 frasi), pratico e centrato sulla ricetta.
 Non usare markdown, solo testo piano.
 
+CAPACITÀ NUTRIZIONALI — OBBLIGATORIE:
+Quando l'utente chiede calorie o valori nutrizionali, DEVI calcolarli SEMPRE.
+NON RIFIUTARTI MAI. Non dire "la ricetta non include valori nutrizionali" o simili.
+La ricetta HA ingredienti e dosi: usa quelli per stimare.
+- Calcola TOTALE per ingrediente (quantità × kcal/100g), somma tutto, dividi per "porzioni" → kcal per porzione.
+- Stesso per macronutrienti: proteine, carboidrati, grassi, fibre.
+- Valori medi 100g di riferimento (usa questi, non cercarne altri):
+  pasta/riso/cereali: 350 kcal | P 12g C 72g G 1.5g F 3g
+  pane/farina: 270 kcal | P 10g C 55g G 1g F 2.5g
+  olio/burro/grassi: 884 kcal | P 0g C 0g G 100g F 0g
+  formaggi stagionati (parmigiano, pecorino): 390 kcal | P 35g C 3g G 28g F 0g
+  formaggi freschi (mozzarella, ricotta): 180 kcal | P 14g C 3g G 13g F 0g
+  carne magra (pollo, tacchino, coniglio): 120 kcal | P 23g C 0g G 2.5g F 0g
+  carne rossa/maiale: 180 kcal | P 20g C 0g G 12g F 0g
+  pesce magro: 100 kcal | P 21g C 0g G 1.5g F 0g
+  pesce grasso (salmone, sgombro): 180 kcal | P 20g C 0g G 12g F 0g
+  uova: 143 kcal | P 13g C 1g G 10g F 0g
+  legumi (ceci, fagioli, lenticchie): 120 kcal | P 8g C 20g G 0.5g F 5g
+  pomodoro/passata: 18 kcal | P 1g C 4g G 0.2g F 1g
+  verdure (zucchine, melanzane, peperoni, spinaci, broccoli): 25 kcal | P 2g C 4g G 0.3g F 2g
+  patate: 80 kcal | P 2g C 18g G 0.1g F 2g
+  cipolla/aglio/carota/sedano: 35 kcal | P 1g C 8g G 0.2g F 2g
+  latte/panna: 60 kcal | P 3g C 5g G 3.5g F 0g
+  vino/alcolici: 80 kcal | P 0g C 2g G 0g F 0g
+- Se una quantità è "qb" o non specificata, stima 10g per condimenti, 5g per spezie.
+- Output OBBLIGATORIO (una riga): "Stima per porzione: ~XXX kcal | P: XXg C: XXg G: XXg F: XXg"
+
 RICETTA:
 ${JSON.stringify(ricetta, null, 2)}`
 

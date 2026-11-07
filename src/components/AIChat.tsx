@@ -24,10 +24,14 @@ export function AIChat({ recipe }: AIChatProps) {
   const [error, setError] = useState<string | null>(null)
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const isFirstMount = useRef(true)
+  const shouldScrollRef = useRef(false)
 
-  // Scroll to bottom when messages change
+  // Scroll to bottom solo quando l'utente invia un messaggio (non al mount)
   useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
+    if (shouldScrollRef.current) {
+      messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
+      shouldScrollRef.current = false
+    }
   }, [messages])
 
   // Verifica disponibilità AI al mount
@@ -48,6 +52,8 @@ export function AIChat({ recipe }: AIChatProps) {
 
     // Aggiunge messaggio utente subito per UX immediata
     setMessages(prev => [...prev, { ruolo: 'utente', testo: userMessage }])
+    // Attiva scroll dopo l'aggiunta del messaggio
+    shouldScrollRef.current = true
 
     try {
       const { risposta } = await aiChat(
@@ -55,6 +61,7 @@ export function AIChat({ recipe }: AIChatProps) {
         [...messages, { ruolo: 'utente' as const, testo: userMessage }].slice(-6)
       )
       setMessages(prev => [...prev, { ruolo: 'assistente', testo: risposta }])
+      shouldScrollRef.current = true
     } catch (e: any) {
       setError(e?.message ?? 'Errore durante la chat.')
       // Rimuove l'ultimo messaggio utente se c'è errore

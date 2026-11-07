@@ -12,6 +12,7 @@ import {
   Plus, Minus, Edit, ChevronLeft, Trash2
 } from 'lucide-react'
 import { clsx } from 'clsx'
+import { toast } from 'react-hot-toast'
 import { useAuth } from '../contexts/AuthContext'
 import { useMood } from '../contexts/MoodContext'
 import { getRecipeById, incrementRecipeMade, deleteRecipe } from '../lib/supabase'
@@ -52,6 +53,7 @@ interface RecipeDetailData {
   descrizione: string | null
   volte_fatta: number | null
   ultima_volta: string | null
+  immagini: string[] | null
 }
 
 interface ScaledIngredient extends Ingrediente {
@@ -71,7 +73,6 @@ export function RecipeDetail() {
   const [porzioni, setPorzioni] = useState<number>(1)
   const [cookingMode, setCookingMode] = useState(false)
   const [currentStep, setCurrentStep] = useState(0)
-  const [toast, setToast] = useState<string | null>(null)
 
   const isAuthorized = user !== null
   // Traccia il mood precedente per rilevare cambi attivi dell'utente
@@ -127,19 +128,11 @@ export function RecipeDetail() {
     if (mood !== prevMoodRef.current && recipe) {
       prevMoodRef.current = mood
       const moodLabel = MOOD_LABELS[mood]
-      setToast(`Visualizzi l'elenco per ${moodLabel}`)
+      toast(`Visualizzi l'elenco per ${moodLabel}`, { icon: 'ℹ️' })
       // Naviga alla lista ricette (home) con il nuovo mood
       navigate('/', { replace: true })
     }
   }, [mood, recipe, navigate])
-
-  // Toast auto-dismiss
-  useEffect(() => {
-    if (toast) {
-      const timer = setTimeout(() => setToast(null), 3000)
-      return () => clearTimeout(timer)
-    }
-  }, [toast])
 
   // Calcola ingredienti scalati
   const scaledIngredients = useMemo((): ScaledIngredient[] => {
@@ -203,9 +196,10 @@ export function RecipeDetail() {
         mood: recipe.mood,
         categoria: recipe.categoria,
       })
-      setToast(`«${recipe.titolo}» aggiunta alla Cronologia`)
+      toast.success(`«${recipe.titolo}» aggiunta alla Cronologia`)
     } catch (err) {
       console.error('Errore aggiornamento contatore:', err)
+      toast.error('Errore nell\'aggiornamento del contatore. Riprova.')
     }
   }
 
@@ -215,10 +209,11 @@ export function RecipeDetail() {
     if (!confirmed) return
     try {
       await deleteRecipe(recipe.id)
+      toast.success('Ricetta eliminata')
       navigate('/')
     } catch (err) {
       console.error('Errore eliminazione ricetta:', err)
-      alert('Errore durante l\'eliminazione. Riprova.')
+      toast.error('Errore durante l\'eliminazione. Riprova.')
     }
   }
 
@@ -276,15 +271,6 @@ export function RecipeDetail() {
 
   return (
     <div className="page-container detail-page">
-      {/* Toast per redirect mood */}
-      {toast && (
-        <div className="fixed top-16 left-4 right-4 max-w-[720px] mx-auto z-50 animate-in slide-in-from-top-2 duration-200">
-          <div className="bg-[var(--accento)] text-[var(--accento-testo)] px-4 py-3 rounded-xl shadow-lg">
-            {toast}
-          </div>
-        </div>
-      )}
-
       <main className="detail-content max-w-[720px] mx-auto px-4 pt-4 pb-[calc(5rem+env(safe-area-inset-bottom))]">
         {/* Back button - top left */}
         <Link
@@ -322,6 +308,37 @@ export function RecipeDetail() {
             )}
           </div>
         </section>
+
+        {/* Galleria miniature - sotto titolo/tag, sopra info blocchi */}
+        {recipe.immagini && recipe.immagini.length > 0 && (
+          <section className="card bg-[var(--card)] rounded-2xl border border-[var(--card-bordo)] p-4 mb-4 shadow-[var(--elevazione-1)]">
+            <div className="flex items-center justify-between mb-3">
+              <h2 className="text-sm font-semibold text-[var(--testo)] uppercase tracking-wider">Foto</h2>
+              <span className="text-xs text-[var(--secondario)]">{recipe.immagini.length} {recipe.immagini.length === 1 ? 'foto' : 'foto'}</span>
+            </div>
+            <div className="thumbnail-gallery flex gap-2 overflow-x-auto pb-2 scrollbar-thin" role="list" aria-label="Foto della ricetta">
+              {recipe.immagini.map((url, idx) => (
+                <button
+                  key={idx}
+                  type="button"
+                  onClick={() => window.open(url, '_blank')}
+                  className="thumbnail-item relative flex-shrink-0 group touch-manipulation focus-visible:outline-2 focus-visible:outline-[var(--accento)] focus-visible:outline-offset-2"
+                  aria-label={`Visualizza foto ${idx + 1} a schermo intero`}
+                >
+                  <img
+                    src={url}
+                    alt={`Foto ${idx + 1} di ${recipe.titolo}`}
+                    className="w-24 h-24 sm:w-28 sm:h-28 object-cover rounded-xl border border-[var(--card-bordo)] transition-transform duration-200 hover:scale-105"
+                    loading="lazy"
+                  />
+                  <span className="absolute -bottom-2 -right-2 w-5 h-5 rounded-full bg-[var(--accento)] text-[var(--accento-testo)] flex items-center justify-center text-xs font-bold opacity-0 group-hover:opacity-100 transition-opacity">
+                    +
+                  </span>
+                </button>
+              ))}
+            </div>
+          </section>
+        )}
 
         {/* Info principali - 3 riquadri di uguale larghezza */}
         <section className="card bg-[var(--card)] rounded-2xl border border-[var(--card-bordo)] p-4 mb-4 shadow-[var(--elevazione-1)]">
@@ -481,9 +498,11 @@ export function RecipeDetail() {
 
           {Object.entries(groupedIngredients).map(([gruppo, ingredients]) => (
             <div key={gruppo} className="ingredient-group mb-4">
-              <h3 className="group-title text-sm font-semibold text-[var(--secondario)] uppercase tracking-wider mb-2 pb-2 border-b border-[var(--card-bordo)]">
-                {(GRUPPI_INGREDIENTI as readonly string[]).includes(gruppo) ? gruppo.charAt(0).toUpperCase() + gruppo.slice(1) : gruppo}
-              </h3>
+              {gruppo !== 'altro' && (
+                <h3 className="group-title text-sm font-semibold text-[var(--secondario)] uppercase tracking-wider mb-2 pb-2 border-b border-[var(--card-bordo)]">
+                  {(GRUPPI_INGREDIENTI as readonly string[]).includes(gruppo) ? gruppo.charAt(0).toUpperCase() + gruppo.slice(1) : gruppo}
+                </h3>
+              )}
               <ul className="ingredients-list space-y-2">
                 {ingredients.map(ing => (
                   <li key={`${ing.nome}-${ing.unita}-${ing.gruppo}`} className="ingredient-item flex items-center gap-3 p-3 bg-[var(--sfondo)] rounded-xl border border-[var(--card-bordo)] transition-[background-color,border-color] duration-150 ease-out hover:border-[var(--accento)]">
@@ -607,6 +626,7 @@ export function RecipeDetail() {
               ingredienti: recipe.ingredienti,
               passaggi: recipe.passaggi,
               varianti: recipe.varianti,
+              immagini: recipe.immagini ?? undefined,
             }}
           />
         )}

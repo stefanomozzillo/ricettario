@@ -33,11 +33,30 @@ export function MoodProvider({ children }: { children: ReactNode }) {
     }
   }, [])
 
-  // Applica data-mood su :root quando mood cambia
+  // Applica data-mood su :root quando mood cambia + aggiorna meta theme-color
   useEffect(() => {
     if (!mounted) return
     document.documentElement.setAttribute('data-mood', mood)
+    // theme-color segue l'accento del mood corrente (rilegge la palette CSS)
+    const accento = getComputedStyle(document.documentElement).getPropertyValue('--accento').trim()
+    if (accento) {
+      document.querySelector('meta[name="theme-color"]')?.setAttribute('content', accento)
+    }
   }, [mood, mounted])
+
+  // Mood "tutti" segue il tema di sistema: rilegge l'accento quando cambia
+  useEffect(() => {
+    if (!mounted) return
+    const mq = window.matchMedia('(prefers-color-scheme: dark)')
+    const onChange = () => {
+      const accento = getComputedStyle(document.documentElement).getPropertyValue('--accento').trim()
+      if (accento) {
+        document.querySelector('meta[name="theme-color"]')?.setAttribute('content', accento)
+      }
+    }
+    mq.addEventListener('change', onChange)
+    return () => mq.removeEventListener('change', onChange)
+  }, [mounted])
 
   const setMood = useCallback((newMood: Mood) => {
     setMoodState(newMood)

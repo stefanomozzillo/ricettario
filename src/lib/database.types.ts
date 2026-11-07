@@ -37,6 +37,7 @@ export interface Database {
           fonte_url: string | null;
           volte_fatta: number | null;
           ultima_volta: string | null;
+          immagini: string[] | null;
         };
         Insert: {
           id?: string;
@@ -60,6 +61,7 @@ export interface Database {
           fonte_url?: string | null;
           volte_fatta?: number | null;
           ultima_volta?: string | null;
+          immagini?: string[] | null;
         };
         Update: {
           id?: string;
@@ -83,6 +85,7 @@ export interface Database {
           fonte_url?: string | null;
           volte_fatta?: number | null;
           ultima_volta?: string | null;
+          immagini?: string[] | null;
         };
         Relationships: [];
       };

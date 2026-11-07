@@ -15,6 +15,7 @@ export interface RouletteRecipe {
   porzioni: number | null
   porzioni_unita: string | null
   autore: string | null
+  difficolta: string | null
   ultima_volta: string | null
 }
 
@@ -121,17 +122,37 @@ export function pickWinner(pool: RouletteRecipe[], previousId?: string | null, r
 
 /**
  * Costruisce la striscia verticale di titoli per l'animazione:
- * titoli del pool mescolati (ripetuti se il pool è piccolo) + vincitore in fondo.
- * Ritorna i titoli; il vincitore è sempre all'ultimo indice.
+ * Crea un nastro lungo e ciclico ripetendo il pool molte volte,
+ * con il vincitore posizionato per finire esattamente al centro.
+ * Ritorna { titles, winnerIndex, startOffset }.
  */
-export function buildStrip(pool: RouletteRecipe[], winner: RouletteRecipe, minLength = 25, rng: () => number = Math.random): string[] {
+export function buildStrip(
+  pool: RouletteRecipe[],
+  winner: RouletteRecipe,
+  minLength = 100,
+  rng: () => number = Math.random
+): { titles: string[]; winnerIndex: number; startOffset: number } {
+  const shuffled = shuffle(pool, rng)
+
+  // Crea un nastro lungo ripetendo il pool mescolato
   const titles: string[] = []
   while (titles.length < minLength) {
-    for (const r of shuffle(pool, rng)) {
+    for (const r of shuffled) {
       titles.push(r.titolo)
       if (titles.length >= minLength) break
     }
   }
-  titles.push(winner.titolo)
-  return titles
+
+  // Posiziona il vincitore a un indice casuale nella seconda metà
+  // per dare spazio allo scrolling iniziale
+  const winnerIndex = Math.floor(rng() * (titles.length / 2)) + Math.floor(titles.length / 2)
+  titles[winnerIndex] = winner.titolo
+
+  // Calcola l'offset di partenza: inizia alcune posizioni prima del vincitore
+  // per dare l'effetto di uno scrolling continuo già in corso
+  const visibleRows = 5
+  const centerIdx = Math.floor(visibleRows / 2)
+  const startOffset = Math.max(0, winnerIndex - centerIdx - 3)
+
+  return { titles, winnerIndex, startOffset }
 }

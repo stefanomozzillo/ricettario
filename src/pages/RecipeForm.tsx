@@ -6,15 +6,16 @@
  * NOTA: Rimossi campi video_secondi e fonte_url
  */
 
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useRef } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { useForm, useFieldArray, Controller } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { Plus, GripVertical, Trash2, AlertCircle, CheckCircle, Loader2, Info, FileText, Sparkles } from 'lucide-react'
+import { Plus, GripVertical, Trash2, AlertCircle, CheckCircle, Loader2, Info, FileText, Sparkles, Image, X } from 'lucide-react'
 import { clsx } from 'clsx'
 import { useAuth } from '../contexts/AuthContext'
 import { useMood } from '../contexts/MoodContext'
 import { getRecipeById, createRecipe, updateRecipe, getAllIngredients } from '../lib/supabase'
+import { uploadRecipeImage } from '../lib/images'
 import { aiImport, aiFill, useAiAvailable, filterNewIngredients } from '../lib/ai'
 import {
   CATEGORIE, CATEGORIE_LABELS, ALL_TAGS, TAG_LABELS, MOODS, MOOD_LABELS,
@@ -30,6 +31,7 @@ import {
   normalizeRecipeFromDb,
 } from '../lib/types'
 import { Button } from '../components/Button'
+import { toast } from 'react-hot-toast'
 
 interface RecipeFormComponentProps {
   isEditing: boolean
@@ -54,6 +56,46 @@ function RecipeFormComponent({ isEditing }: RecipeFormComponentProps) {
   const [fillDescrizione, setFillDescrizione] = useState('')
   const [fillLoading, setFillLoading] = useState(false)
   const [fillError, setFillError] = useState<string | null>(null)
+
+  // === Immagini ===
+  const [images, setImages] = useState<string[]>([])
+  const [uploading, setUploading] = useState(false)
+  const [uploadError, setUploadError] = useState<string | null>(null)
+  const fileInputRef = useRef<HTMLInputElement>(null)
+
+  // Upload immagine su Supabase Storage (logica condivisa in lib/images.ts)
+  const handleImageUpload = async (file: File): Promise<string> => {
+    if (!user) throw new Error('Utente non autenticato')
+    return uploadRecipeImage(file, user.id, isEditing && id ? id : undefined)
+  }
+
+  const handleFileSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+
+    setUploading(true)
+    setUploadError(null)
+
+    try {
+      const publicUrl = await handleImageUpload(file)
+      setImages(prev => [...prev, publicUrl])
+      setValue('immagini', [...getValues('immagini'), publicUrl])
+      toast.success('Foto caricata!')
+    } catch (err: any) {
+      setUploadError(err.message)
+      toast.error('Errore nel caricamento della foto')
+    } finally {
+      setUploading(false)
+      if (fileInputRef.current) fileInputRef.current.value = ''
+    }
+  }
+
+  const handleRemoveImage = (index: number) => {
+    setImages(prev => prev.filter((_, i) => i !== index))
+    const current = getValues('immagini') || []
+    setValue('immagini', current.filter((_, i) => i !== index))
+    toast.success('Foto rimossa')
+  }
 
   const {
     register,
@@ -81,6 +123,7 @@ function RecipeFormComponent({ isEditing }: RecipeFormComponentProps) {
       passaggi: [],
       varianti: [],
       note: '',
+      immagini: [],
     },
     mode: 'onChange',
   })
@@ -103,6 +146,7 @@ function RecipeFormComponent({ isEditing }: RecipeFormComponentProps) {
           const data = await getRecipeById(id)
           if (data) {
             const formData = normalizeRecipeFromDb(data)
+            setImages(formData.immagini || [])
             reset({
               ...formData,
               categoria: formData.categoria ?? undefined,
@@ -172,6 +216,7 @@ function RecipeFormComponent({ isEditing }: RecipeFormComponentProps) {
 
     try {
       await save(payload)
+      toast.success(isEditing ? 'Ricetta aggiornata!' : 'Ricetta creata!')
       navigate('/')
     } catch (err) {
       // Se la colonna non esiste ancora nel DB (PGRST204, es. 'difficolta' prima
@@ -198,7 +243,9 @@ function RecipeFormComponent({ isEditing }: RecipeFormComponentProps) {
       const e = err as { code?: string; message?: string; details?: string; hint?: string }
       console.error('Supabase Error:', e?.message, e?.details, e?.hint, e?.code)
       const detail = [e?.code, e?.message, e?.details, e?.hint].filter(Boolean).join(' — ')
-      setError(detail ? `Errore durante il salvataggio: ${detail}` : 'Errore durante il salvataggio. Riprova.')
+      const errorMsg = detail ? `Errore durante il salvataggio: ${detail}` : 'Errore durante il salvataggio. Riprova.'
+      setError(errorMsg)
+      toast.error(errorMsg)
     } finally {
       setSaving(false)
     }
@@ -254,6 +301,69 @@ function RecipeFormComponent({ isEditing }: RecipeFormComponentProps) {
               {...register('autore')}
               className="form-input w-full px-4 py-3 rounded-xl border border-[var(--bordo)] bg-[var(--sfondo)] text-[var(--testo)] placeholder-[var(--secondario)] focus:outline-none focus:ring-2 focus:ring-[var(--accento)] focus:border-transparent transition-all duration-150"
             />
+          </div>
+        </section>
+
+        {/* Immagini */}
+        <section className="form-section card bg-[var(--card)] rounded-2xl border border-[var(--bordo)] p-4 mb-4">
+          <label className="block text-sm font-medium text-[var(--testo)] mb-3">Foto ricetta (opzionale)</label>
+          <div className="space-y-3">
+            {/* Input file */}
+            <div className="relative">
+              <input
+                ref={fileInputRef}
+                id="immagini"
+                type="file"
+                accept="image/*"
+                onChange={handleFileSelect}
+                disabled={uploading}
+                className="sr-only"
+                aria-describedby="immagini-hint"
+              />
+              <label
+                htmlFor="immagini"
+                className={clsx(
+                  'file-drop-zone flex flex-col items-center justify-center gap-3 p-6 border-2 border-dashed rounded-xl cursor-pointer transition-all duration-150',
+                  uploading ? 'opacity-50 cursor-wait' : 'border-[var(--bordo)] hover:border-[var(--accento)] hover:bg-[var(--accento)]/5'
+                )}
+              >
+                <Image size={32} className="text-[var(--secondario)]" aria-hidden="true" />
+                <div className="text-center">
+                  <p className="text-[var(--testo)] font-medium">Clicca o trascina per caricare una foto</p>
+                  <p id="immagini-hint" className="text-xs text-[var(--secondario)] mt-1">JPG, PNG, WebP, HEIC — max 5MB</p>
+                </div>
+                {uploading && <Loader2 size={24} className="animate-spin text-[var(--accento)]" />}
+              </label>
+            </div>
+
+            {uploadError && (
+              <p className="text-sm text-[var(--accento)]" role="alert">{uploadError}</p>
+            )}
+
+            {/* Anteprime immagini caricate */}
+            {images.length > 0 && (
+              <div className="image-previews flex flex-wrap gap-2">
+                {images.map((url, idx) => (
+                  <div key={idx} className="relative">
+                    <div className="overflow-hidden rounded-xl border border-[var(--bordo)]">
+                      <img
+                        src={url}
+                        alt={`Anteprima foto ${idx + 1}`}
+                        className="w-20 h-20 object-cover"
+                      />
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => handleRemoveImage(idx)}
+                      className="absolute -top-2 -right-2 z-20 w-7 h-7 rounded-full bg-black/50 text-white flex items-center justify-center shadow-md hover:bg-black/70 active:scale-95 transition-all duration-150 touch-manipulation focus-visible:outline-2 focus-visible:outline-white focus-visible:outline-offset-2"
+                      aria-label={`Rimuovi foto ${idx + 1}`}
+                    >
+                      <X size={16} strokeWidth={3} fill="none" stroke="currentColor" />
+                    </button>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
         </section>
 
@@ -327,8 +437,10 @@ function RecipeFormComponent({ isEditing }: RecipeFormComponentProps) {
                         ingredienti: [...currentIngredients, ...newIngredients],
                       })
                       setImportText('')
+                      toast.success('Ricetta importata! Controlla e modifica i campi.')
                     } catch (e: any) {
                       setImportError(e?.message ?? 'Errore durante l\'importazione.')
+                      toast.error('Errore durante l\'importazione. Riprova.')
                     } finally {
                       setImportLoading(false)
                     }
@@ -394,8 +506,10 @@ function RecipeFormComponent({ isEditing }: RecipeFormComponentProps) {
                         ingredienti: [...currentIngredients, ...newIngredients],
                       })
                       setFillDescrizione('')
+                      toast.success('Campi completati dall\'AI! Controlla prima di salvare.')
                     } catch (e: any) {
                       setFillError(e?.message ?? 'Errore durante il completamento.')
+                      toast.error('Errore durante il completamento. Riprova.')
                     } finally {
                       setFillLoading(false)
                     }

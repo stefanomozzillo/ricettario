@@ -212,6 +212,8 @@ const baseRecipeSchema = z.object({
   varianti: z.array(varianteSchema).default([]),
   note: z.string().optional().nullable(),
   descrizione: z.string().optional().nullable(),
+  // Immagini: array di URL pubblici da Supabase Storage
+  immagini: z.array(z.string().url()).default([]),
 })
 
 // Ricetta per INSERT (senza id, created_at, updated_at, contatori)
@@ -246,6 +248,7 @@ export const recipeFormSchema = baseRecipeSchema.extend({
   varianti: z.array(varianteSchema).default([]),
   tags: z.array(enumValidator(ALL_TAGS, 'Tag')).default([]),
   porzioni_unita: z.string().default(DEFAULT_PORZIONI_UNITA),
+  immagini: z.array(z.string().url()).default([]),
 })
 
 // Tipo output esplicito per il form (array sempre required) - RIMOSSO fonte_url
@@ -265,6 +268,7 @@ export type RecipeFormData = {
   varianti: Variante[]
   note: string | null
   descrizione: string | null
+  immagini: string[]  // Array di URL pubblici delle immagini
 }
 
 // ============================================
@@ -328,6 +332,7 @@ export function normalizeRecipeFromDb(data: unknown): RecipeFormData {
     varianti: ((r.varianti as unknown[]) ?? []).map(normalizeVarianteFromDb),
     note: (r.note as string | null) ?? null,
     descrizione: (r.descrizione as string | null) ?? null,
+    immagini: (r.immagini as string[]) ?? [],
   }
 }
 
