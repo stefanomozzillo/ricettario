@@ -205,7 +205,7 @@ export function Roulette() {
 
   return (
     <div className="page-container roulette-page">
-      <main className="roulette-content max-w-[720px] mx-auto px-4 pt-4 pb-[calc(5rem+env(safe-area-inset-bottom))] flex flex-col gap-4">
+      <main className="roulette-content max-w-[720px] mx-auto px-4 pt-4 pb-[calc(4.5rem+env(safe-area-inset-bottom,0px))] flex flex-col gap-4">
         <div className="flex items-center gap-2">
           <Shuffle size={24} className="text-[var(--accento)]" aria-hidden="true" />
           <h1 className="text-xl font-semibold text-[var(--testo)] m-0">Roulette</h1>

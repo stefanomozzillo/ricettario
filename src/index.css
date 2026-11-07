@@ -105,11 +105,22 @@
   .header-spacer { @apply flex-1; }
   .app-title { @apply font-titoli text-lg font-bold text-secondario m-0; transition: color 0.4s ease; }
   .app-logo { @apply w-8 h-8 rounded-lg object-cover shadow-[var(--elevazione-1)] flex-shrink-0; transition: box-shadow 0.4s ease; }
-  .app-main { @apply flex-1 w-full max-w-3xl mx-auto px-4 pt-4 pb-28; }
+  .app-main { @apply flex-1 w-full max-w-3xl mx-auto px-4 pt-4 pb-[calc(4.5rem+env(safe-area-inset-bottom,0px))]; }
   .bottom-nav { @apply fixed bottom-0 inset-x-0 z-40 flex bg-card border-t border-card-bordo; padding-bottom: env(safe-area-inset-bottom); transition: background-color 0.4s ease, color 0.4s ease, border-color 0.4s ease; }
-  .nav-item { @apply flex-1 flex flex-col items-center gap-0.5 py-2 text-testo/50; transition: color 0.4s ease; }
-  .nav-item.active { @apply text-accento font-semibold; }
-  .nav-label { @apply text-[11px] leading-tight; }
+  .nav-item { @apply relative flex-1 flex items-center justify-center min-h-[44px] min-w-[44px] rounded-lg text-testo/60; transition: color 0.4s ease; }
+  .nav-item.active { @apply text-accento; }
+  .nav-item.active::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 24px;
+    height: 3px;
+    border-radius: 9999px;
+    background-color: var(--accento);
+  }
+  .nav-item:focus-visible { outline: 2px solid var(--accento); outline-offset: 2px; }
   .mood-selector { @apply relative; }
   .mood-trigger { @apply flex items-center gap-1 px-3 py-2 rounded-full bg-badge-sfondo text-badge-testo text-sm font-semibold; transition: background-color 0.4s ease, color 0.4s ease; }
   .mood-label { @apply whitespace-nowrap; }
@@ -467,11 +478,11 @@
 
   .app-main {
     @apply flex-1 w-full max-w-[720px] mx-auto px-4 pt-4;
-    padding-bottom: calc(5rem + env(safe-area-inset-bottom, 0px));
+    padding-bottom: calc(4.5rem + env(safe-area-inset-bottom, 0px));
   }
 
   .bottom-nav {
-    @apply fixed bottom-0 left-0 right-0 z-40 h-16 bg-[var(--sfondo)]/95 backdrop-blur supports-[backdrop-filter]:bg-[var(--sfondo)]/80 border-t border-[var(--bordo)] shadow-[var(--elevazione-3)];
+    @apply fixed bottom-0 left-0 right-0 z-40 h-14 bg-[var(--sfondo)]/95 backdrop-blur supports-[backdrop-filter]:bg-[var(--sfondo)]/80 border-t border-[var(--bordo)] shadow-[var(--elevazione-3)];
     padding-bottom: env(safe-area-inset-bottom, 0px);
   }
 
@@ -489,10 +500,6 @@
 
   .bottom-nav-item.active {
     @apply text-[var(--accento)];
-  }
-
-  .nav-label {
-    @apply text-xs leading-none;
   }
 
   .bottom-nav-spacer {
@@ -662,7 +669,7 @@
   }
 
   .detail-content {
-    @apply max-w-[720px] mx-auto px-4 pb-24 pt-4;
+    @apply max-w-[720px] mx-auto px-4 pb-[calc(4.5rem+env(safe-area-inset-bottom,0px))] pt-4;
   }
 
   .list-page {
@@ -674,7 +681,7 @@
   }
 
   .list-content {
-    @apply max-w-[720px] mx-auto px-4 pb-24 pt-4;
+    @apply max-w-[720px] mx-auto px-4 pb-[calc(4.5rem+env(safe-area-inset-bottom,0px))] pt-4;
   }
 
   .settings-page {
@@ -682,7 +689,7 @@
   }
 
   .settings-content {
-    @apply max-w-[720px] mx-auto px-4 pt-6 pb-24;
+    @apply max-w-[720px] mx-auto px-4 pt-6 pb-[calc(4.5rem+env(safe-area-inset-bottom,0px))];
   }
 
   .pantry-page {
@@ -690,7 +697,7 @@
   }
 
   .pantry-content {
-    @apply max-w-[720px] mx-auto px-4 pb-24 pt-4;
+    @apply max-w-[720px] mx-auto px-4 pb-[calc(4.5rem+env(safe-area-inset-bottom,0px))] pt-4;
   }
 
   .roulette-page {
@@ -698,7 +705,7 @@
   }
 
   .roulette-content {
-    @apply max-w-[720px] mx-auto px-4 pb-24 pt-4;
+    @apply max-w-[720px] mx-auto px-4 pb-[calc(4.5rem+env(safe-area-inset-bottom,0px))] pt-4;
   }
 
   /* ===== Card & Badge ===== */
@@ -979,7 +986,7 @@
   }
 
   .drawer-content {
-    @apply overflow-y-auto p-4 pb-24;
+    @apply overflow-y-auto p-4 pb-[calc(4.5rem+env(safe-area-inset-bottom,0px))];
     height: calc(100% - 60px);
   }
 

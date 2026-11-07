@@ -199,7 +199,7 @@ export function Gallery() {
   if (loading) {
     return (
       <div className="page-container gallery-page">
-        <main className="gallery-content max-w-[720px] mx-auto px-4 pt-4 pb-[calc(5rem+env(safe-area-inset-bottom))]">
+        <main className="gallery-content max-w-[720px] mx-auto px-4 pt-4 pb-[calc(4.5rem+env(safe-area-inset-bottom,0px))]">
           <header className="flex items-center justify-between mb-4">
             <h1 className="text-xl font-semibold text-[var(--testo)]">Galleria</h1>
             <Button variant="ghost" size="sm" disabled className="opacity-50">
@@ -217,7 +217,7 @@ export function Gallery() {
   if (error) {
     return (
       <div className="page-container gallery-page">
-        <main className="gallery-content max-w-[720px] mx-auto px-4 pt-4 pb-[calc(5rem+env(safe-area-inset-bottom))]">
+        <main className="gallery-content max-w-[720px] mx-auto px-4 pt-4 pb-[calc(4.5rem+env(safe-area-inset-bottom,0px))]">
           <header className="flex items-center justify-between mb-4">
             <h1 className="text-xl font-semibold text-[var(--testo)]">Galleria</h1>
             <Button variant="primary" onClick={loadPhotos}>
@@ -232,11 +232,11 @@ export function Gallery() {
 
   return (
     <div className="page-container gallery-page">
-      <main className="gallery-content max-w-[720px] mx-auto px-4 pt-4 pb-[calc(5rem+env(safe-area-inset-bottom))]">
+      <main className="gallery-content max-w-[720px] mx-auto px-4 pt-4 pb-[calc(4.5rem+env(safe-area-inset-bottom,0px))]">
         <header className="flex items-center justify-between mb-4">
           <h1 className="text-xl font-semibold text-[var(--testo)]">Galleria</h1>
-          <Button variant="primary" size="md" onClick={openModal} className="gap-2" aria-label="Aggiungi foto a una ricetta">
-            <Plus size={18} /> Aggiungi foto a una ricetta
+          <Button variant="primary" size="sm" onClick={openModal} className="gap-1.5" aria-label="Aggiungi foto a una ricetta">
+            <Plus size={16} /> Aggiungi foto
           </Button>
         </header>
 
@@ -245,7 +245,6 @@ export function Gallery() {
             icon={<Image size={48} className="text-[var(--secondario)]" />}
             title="Nessuna foto ancora"
             description="Aggiungi la prima foto a una ricetta per iniziare la galleria."
-            action={{ label: 'Aggiungi foto', onClick: openModal }}
             className="py-12"
           />
         ) : (

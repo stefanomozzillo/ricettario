@@ -268,7 +268,7 @@ export function Pantry() {
 
   return (
     <div className="page-container pantry-page">
-      <main className="pantry-content max-w-[720px] mx-auto px-4 pt-4 pb-[calc(5rem+env(safe-area-inset-bottom))]">
+      <main className="pantry-content max-w-[720px] mx-auto px-4 pt-4 pb-[calc(4.5rem+env(safe-area-inset-bottom,0px))]">
         {/* Toast message */}
         {message && (
           <div className={`fixed top-16 left-4 right-4 max-w-[720px] mx-auto z-50 animate-in slide-in-from-top-2 duration-200`}>

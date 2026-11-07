@@ -17,18 +17,18 @@ import { SettingsPage } from '../pages/Settings'
 interface NavItem {
   path: string
   label: string
-  shortLabel?: string
   icon: React.ElementType
   exact?: boolean
 }
 
 // NAV_ITEMS senza Impostazioni (ora accessibile da header)
 // Ordine: Elenco, Roulette, Galleria, Cosa ho in casa, Cronologia
+// Solo icone (senza etichette visibili): il nome completo resta in aria-label/title
 const NAV_ITEMS: NavItem[] = [
   { path: '/', label: 'Elenco', icon: BookOpen, exact: true },
   { path: '/roulette', label: 'Roulette', icon: Shuffle },
   { path: '/gallery', label: 'Galleria', icon: Images },
-  { path: '/pantry', label: 'Cosa ho in casa', shortLabel: 'In casa', icon: Home },
+  { path: '/pantry', label: 'Cosa ho in casa', icon: Home },
   { path: '/history', label: 'Cronologia', icon: History },
 ]
 
@@ -265,13 +265,13 @@ export function Layout() {
             <button
               key={item.path}
               type="button"
-              className={clsx('nav-item min-w-0', isActive && 'active')}
+              className={clsx('nav-item', isActive && 'active')}
               onClick={() => navigate(item.path)}
               aria-current={isActive ? 'page' : undefined}
               aria-label={item.label}
+              title={item.label}
             >
-              <Icon size={24} className="flex-shrink-0" />
-              <span className="nav-label max-w-full truncate">{item.shortLabel ?? item.label}</span>
+              <Icon size={27} className="flex-shrink-0" aria-hidden="true" />
             </button>
           )
         })}
@@ -316,7 +316,7 @@ export function Layout() {
               </button>
             </div>
             {/* Contenuto del drawer */}
-            <div className="drawer-content overflow-y-auto h-[calc(100%-60px)] p-4 pb-24">
+            <div className="drawer-content overflow-y-auto h-[calc(100%-60px)] p-4 pb-[calc(4.5rem+env(safe-area-inset-bottom,0px))]">
               <SettingsPage onClose={handleCloseSettings} />
             </div>
           </aside>

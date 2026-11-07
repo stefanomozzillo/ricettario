@@ -225,7 +225,7 @@ export function RecipeList() {
 
   if (loading) {
     return (
-      <div className="page-container min-h-screen pb-24">
+      <div className="page-container min-h-screen pb-[calc(4.5rem+env(safe-area-inset-bottom,0px))]">
         <div className="max-w-[720px] mx-auto px-4">
           <div className="loading-skeleton space-y-4">
             {[...Array(5)].map((_, i) => (
@@ -247,7 +247,7 @@ export function RecipeList() {
 
   if (error) {
     return (
-      <div className="page-container min-h-screen pb-24 flex flex-col items-center justify-center px-4">
+      <div className="page-container min-h-screen pb-[calc(4.5rem+env(safe-area-inset-bottom,0px))] flex flex-col items-center justify-center px-4">
         <div className="error-state card bg-[var(--card)] rounded-2xl border border-[var(--bordo)] p-8 text-center w-full max-w-md">
           <AlertCircle size={48} className="mx-auto mb-4 text-[var(--accento)]" />
           <h2 className="text-xl font-semibold text-[var(--testo)] mb-2">Errore</h2>
@@ -259,7 +259,7 @@ export function RecipeList() {
   }
 
   return (
-    <div className="page-container min-h-screen pb-24">
+    <div className="page-container min-h-screen pb-[calc(4.5rem+env(safe-area-inset-bottom,0px))]">
       {/* Header title + filters toggle - senza Header component */}
       <div className="list-header max-w-[720px] mx-auto px-4 pt-4">
         <div className="flex items-center justify-between gap-2">
@@ -498,7 +498,7 @@ export function RecipeList() {
       {/* Lista ricette: resta montata anche durante la ricerca (refreshing),
           così il campo di ricerca sopra non perde il focus */}
       <main className={clsx(
-        'max-w-[720px] mx-auto px-4 pt-6 pb-24 transition-opacity duration-150',
+        'max-w-[720px] mx-auto px-4 pt-6 pb-[calc(4.5rem+env(safe-area-inset-bottom,0px))] transition-opacity duration-150',
         refreshing && 'opacity-60 pointer-events-none'
       )}>
         {finalRecipes.length === 0 ? (

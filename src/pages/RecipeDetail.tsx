@@ -271,7 +271,7 @@ export function RecipeDetail() {
 
   return (
     <div className="page-container detail-page">
-      <main className="detail-content max-w-[720px] mx-auto px-4 pt-4 pb-[calc(5rem+env(safe-area-inset-bottom))]">
+      <main className="detail-content max-w-[720px] mx-auto px-4 pt-4 pb-[calc(4.5rem+env(safe-area-inset-bottom,0px))]">
         {/* Back button - top left */}
         <Link
           to="/"
@@ -644,7 +644,7 @@ export function RecipeDetail() {
               transform: 'translateY(0)',
               transition: 'transform 300ms var(--ease-drawer)',
             }}>
-            <div className="p-4 pb-[calc(5rem+env(safe-area-inset-bottom))]">
+            <div className="p-4 pb-[calc(4.5rem+env(safe-area-inset-bottom,0px))]">
               <div className="flex items-center gap-3 mb-6">
                 <button
                   type="button"

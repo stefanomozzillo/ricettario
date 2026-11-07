@@ -131,7 +131,7 @@ export function SettingsPage({ onClose }: SettingsPageProps) {
   if (!user) {
     return (
       <div className="page-container settings-page">
-        <main className="max-w-[720px] mx-auto px-4 pb-24">
+        <main className="max-w-[720px] mx-auto px-4 pb-[calc(4.5rem+env(safe-area-inset-bottom,0px))]">
           <div className="card bg-[var(--card)] rounded-2xl border border-[var(--bordo)] p-8 text-center">
             <AlertCircle size={48} className="mx-auto mb-4 text-[var(--accento)]" />
             <h2 className="text-xl font-semibold text-[var(--testo)] mb-2">Accesso richiesto</h2>
@@ -144,7 +144,7 @@ export function SettingsPage({ onClose }: SettingsPageProps) {
 
   return (
     <div className="page-container settings-page">
-      <main className="max-w-[720px] mx-auto px-4 pt-6 pb-24">
+      <main className="max-w-[720px] mx-auto px-4 pt-6 pb-[calc(4.5rem+env(safe-area-inset-bottom,0px))]">
         {/* Toast message */}
         {message && (
           <div className={clsx('toast fixed top-4 left-4 right-4 max-w-[720px] mx-auto z-50 px-4', message.type === 'success' ? 'bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-300' : 'bg-red-100 dark:bg-red-900/30 text-red-800 dark:text-red-300')}>

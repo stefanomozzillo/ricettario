@@ -45,7 +45,7 @@ export function HistoryPage() {
 
   return (
     <div className="page-container history-page">
-      <main className="history-content max-w-[720px] mx-auto px-4 pt-4 pb-[calc(5rem+env(safe-area-inset-bottom))]">
+      <main className="history-content max-w-[720px] mx-auto px-4 pt-4 pb-[calc(4.5rem+env(safe-area-inset-bottom,0px))]">
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-xl font-semibold text-[var(--testo)] flex items-center gap-2">
             <HistoryIcon size={24} className="text-[var(--accento)]" aria-hidden="true" />
