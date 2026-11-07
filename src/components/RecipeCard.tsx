@@ -21,20 +21,20 @@ interface RecipeCardProps {
   onClick: () => void
 }
 
-// Helper per valori numerici: evita di mostrare "0", usa placeholder
-const formatNumberOrPlaceholder = (value: number | null | undefined, unit: string = '') => {
-  if (value == null || value === 0) return 'da aggiungere'
-  return `${value} ${unit}`.trim()
+// Helper per valori numerici: placeholder compatti per evitare overflow
+const formatTime = (value: number | null | undefined) => {
+  if (value == null || value === 0) return <span className="text-[11px] text-[var(--secondario)]">—</span>
+  return <span className="font-medium text-[var(--testo)]">{value} min</span>
+}
+
+const formatPortions = (value: number | null | undefined, unit: string | null) => {
+  if (value == null || value === 0) return <span className="text-[11px] text-[var(--secondario)]">—</span>
+  return <span className="font-medium text-[var(--testo)]">{value} {unit || 'porzioni'}</span>
 }
 
 const formatAutore = (value: string | null) => value || 'Autore non indicato'
-const formatPorzioni = (value: number | null, unit: string | null) => {
-  if (value == null || value === 0) return 'Porzioni non indicate'
-  return `${value} ${unit || 'porzioni'}`
-}
 
 export function RecipeCard({ recipe, onClick }: RecipeCardProps) {
-  console.log('Recipe in card:', recipe.id, recipe.difficolta)
   const moodLabel = recipe.mood ? MOOD_LABELS[recipe.mood as Mood] : '—'
   const categoriaLabel = recipe.categoria ? CATEGORIE_LABELS[recipe.categoria as keyof typeof CATEGORIE_LABELS] : '—'
   const tags = recipe.tags || []
@@ -57,7 +57,6 @@ export function RecipeCard({ recipe, onClick }: RecipeCardProps) {
       role="listitem"
       tabIndex={0}
       style={{
-        // Subtle mood-based accent border on hover
         '--mood-accent': recipe.mood ? 'var(--accento)' : 'transparent'
       } as React.CSSProperties}
     >
@@ -103,27 +102,35 @@ export function RecipeCard({ recipe, onClick }: RecipeCardProps) {
           </div>
         )}
 
-        <div className="flex items-center gap-4 sm:gap-5 text-sm text-[var(--secondario)] pt-3 border-t border-[var(--card-bordo)]">
-          <span className="flex items-center gap-1.5">
-            <Clock size={14} aria-hidden="true" className="text-[var(--accento)]" />
-            <span className="font-medium text-[var(--testo)]">{formatNumberOrPlaceholder(recipe.tempo_minuti, 'min')}</span>
-          </span>
-          <span className="flex items-center gap-1.5">
-            <Users size={14} aria-hidden="true" className="text-[var(--accento)]" />
-            <span className="font-medium text-[var(--testo)]">{formatPorzioni(recipe.porzioni, recipe.porzioni_unita)}</span>
-          </span>
+        {/* Footer: Grid rigida 3 colonne — Tempo | Porzioni | Difficoltà */}
+        <div className="grid grid-cols-3 items-center gap-2 pt-3 border-t border-[var(--card-bordo)] w-full min-w-0">
+          {/* Colonna 1: Tempo */}
+          <div className="flex items-center gap-1.5 min-w-0 text-xs text-[var(--secondario)]">
+            <Clock size={14} aria-hidden="true" className="text-[var(--accento)] flex-shrink-0" />
+            {formatTime(recipe.tempo_minuti)}
+          </div>
+
+          {/* Colonna 2: Porzioni */}
+          <div className="flex items-center gap-1.5 min-w-0 text-xs text-[var(--secondario)] justify-center">
+            <Users size={14} aria-hidden="true" className="text-[var(--accento)] flex-shrink-0" />
+            {formatPortions(recipe.porzioni, recipe.porzioni_unita)}
+          </div>
+
+          {/* Colonna 3: Difficoltà (ancorata a destra) */}
           {recipe.difficolta && (
-            <span className="flex items-center gap-1.5">
-              <Flame
-                size={14}
-                role="img"
-                aria-label={`Difficoltà: ${DIFFICOLTA_LABELS[recipe.difficolta as Difficolta]}`}
-                className={clsx('fill-current', DIFFICOLTA_ICON_CLASSES[recipe.difficolta as Difficolta])}
-              />
-              <span className={DIFFICOLTA_BADGE_CLASSES[recipe.difficolta as Difficolta]}>
-                {DIFFICOLTA_LABELS[recipe.difficolta as Difficolta]}
+            <div className="flex justify-end shrink-0">
+              <span className="flex items-center gap-1.5">
+                <Flame
+                  size={14}
+                  role="img"
+                  aria-label={`Difficoltà: ${DIFFICOLTA_LABELS[recipe.difficolta as Difficolta]}`}
+                  className={clsx('fill-current', DIFFICOLTA_ICON_CLASSES[recipe.difficolta as Difficolta])}
+                />
+                <span className={DIFFICOLTA_BADGE_CLASSES[recipe.difficolta as Difficolta]}>
+                  {DIFFICOLTA_LABELS[recipe.difficolta as Difficolta]}
+                </span>
               </span>
-            </span>
+            </div>
           )}
         </div>
       </div>

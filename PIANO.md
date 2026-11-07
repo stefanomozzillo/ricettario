@@ -1,6 +1,6 @@
 # PIANO — Ricettario
 
-Ultimo aggiornamento: 2026-11-01
+Ultimo aggiornamento: 2026-11-06
 
 ## Stato generale
 
@@ -46,9 +46,17 @@ FASE A in corso — codice completato, **verifiche mancanti**.
 
 ## FASE C
 
-- Edge Function `ai-assistant` (Gemini, modello da verificare su docs ufficiali), secret GEMINI_API_KEY
-- Chat contestuale nel dettaglio, sostituzioni in pantry, importa da testo
-- GitHub Actions keep-alive ogni 3 giorni
+- [x] Edge Function `ai-assistant` (Gemini, modello `gemini-3.8-flash` default, variabile `GEMINI_MODEL`)
+- [x] Migrazione `supabase/migrations/06-ai-usage.sql` (tabella `ai_usage` + RLS solo service_role)
+- [x] 4 azioni: `import`, `fill`, `chat`, `substitutions` con structured output (responseJsonSchema)
+- [x] Sicurezza: verify_jwt, is_authorized(), rate limit giornaliero (default 100), input limit 20k char, timeout 25s
+- [x] CORS limitato: localhost:5173/5174 + `ALLOWED_ORIGIN`
+- [x] Errori distinti (401/403/400/429/502/503/504) con messaggi italiani, no log sensibili
+- [x] README aggiornato con variabili, deploy, tabella azioni e codici errore
+- [ ] Secret `GEMINI_API_KEY` in dashboard Supabase (da fare dall'utente)
+- [ ] Migrazione `06-ai-usage.sql` eseguita in SQL Editor (da fare dall'utente)
+- [ ] Deploy `supabase functions deploy ai-assistant` (da fare dall'utente)
+- [ ] GitHub Actions keep-alive ogni 3 giorni
 
 ## Note operative
 

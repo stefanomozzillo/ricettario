@@ -29,6 +29,7 @@ import {
 import { type Ingrediente, type Passaggio, type Variante, normalizeRecipeFromDb } from '../lib/types'
 import { Button } from '../components/Button'
 import { Badge } from '../components/Badge'
+import { AIChat } from '../components/AIChat'
 
 interface RecipeDetailData {
   id: string
@@ -588,8 +589,27 @@ export function RecipeDetail() {
           </section>
         )}
 
-        {/* AI Chat placeholder - FASE C */}
-        {/* <AIChat recipeId={recipe.id} /> */}
+        {/* AI Chat - FASE C */}
+        {recipe && (
+          <AIChat
+            recipe={{
+              ...recipe,
+              autore: recipe.autore ?? undefined,
+              categoria: recipe.categoria ?? undefined,
+              mood: recipe.mood ?? undefined,
+              difficolta: recipe.difficolta ?? undefined,
+              tags: recipe.tags ?? undefined,
+              note: recipe.note ?? undefined,
+              descrizione: recipe.descrizione ?? undefined,
+              tempo_minuti: recipe.tempo_minuti ?? undefined,
+              porzioni: recipe.porzioni ?? undefined,
+              porzioni_unita: recipe.porzioni_unita ?? undefined,
+              ingredienti: recipe.ingredienti,
+              passaggi: recipe.passaggi,
+              varianti: recipe.varianti,
+            }}
+          />
+        )}
       </main>
 
       {/* Modalità cucina overlay per mobile */}

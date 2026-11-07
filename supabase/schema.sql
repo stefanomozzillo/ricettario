@@ -88,7 +88,7 @@ create table if not exists public.ricette (
     'zuppe', 'lievitati', 'dolci', 'colazione_merende', 'salse_basi', 'bevande'
   )),
   mood text check (mood in ('gourmet', 'pasticceria', 'comfort', 'fresca', 'etnici')),
-  difficolta text check (difficolta in ('facile', 'media', 'difficile')),
+  difficolta text check (difficolta in ('base', 'facile', 'media', 'difficile')),
   tags text[] default '{}',
 
   -- Contenuto

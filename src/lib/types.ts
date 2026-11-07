@@ -106,10 +106,11 @@ export const MOOD_LABELS: Record<Mood, string> = {
   etnici: 'Piatti etnici',
 }
 
-export const DIFFICOLTA = ['facile', 'media', 'difficile'] as const
+export const DIFFICOLTA = ['base', 'facile', 'media', 'difficile'] as const
 export type Difficolta = (typeof DIFFICOLTA)[number]
 
 export const DIFFICOLTA_LABELS: Record<Difficolta, string> = {
+  base: 'Base',
   facile: 'Facile',
   media: 'Media',
   difficile: 'Difficile',

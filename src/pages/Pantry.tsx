@@ -6,19 +6,21 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Home, Plus, Trash2, CheckCircle, AlertCircle, Search, X, RotateCcw } from 'lucide-react'
+import { Home, Plus, Trash2, CheckCircle, AlertCircle, Search, X, RotateCcw, Sparkles } from 'lucide-react'
 import { supabase } from '../lib/supabase'
+import { useAuth } from '../contexts/AuthContext'
 import { useMood } from '../contexts/MoodContext'
 import { DEFAULT_IGNORED_INGREDIENTS } from '../lib/config'
 import { Button } from '../components/Button'
 import { RecipeCard } from '../components/RecipeCard'
 import { MOOD_LABELS } from '../lib/config'
+import { aiSubstitutions, useAiAvailable } from '../lib/ai'
+import { clsx } from 'clsx'
 import {
   normalizeIngredientName,
   collectAllIngredients,
   computeMatches,
 } from '../utils/pantry'
-import { clsx } from 'clsx'
 
 const STORAGE_KEY_PANTRY = 'ricettario-pantry-ingredients'
 const STORAGE_KEY_IGNORED = 'ricettario-ignored-ingredients'
@@ -26,6 +28,7 @@ const STORAGE_KEY_IGNORED = 'ricettario-ignored-ingredients'
 export function Pantry() {
   const navigate = useNavigate()
   const { mood, setMood } = useMood()
+  const { user } = useAuth()
 
   // Ingredienti scelti dall'utente (persistiti)
   const [ingredients, setIngredients] = useState<string[]>(() => {
@@ -58,6 +61,12 @@ export function Pantry() {
   const [recipes, setRecipes] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
   const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null)
+
+  // AI Sostituzioni
+  const { available: aiAvailable } = useAiAvailable()
+  const [substitutions, setSubstitutions] = useState<Record<string, Array<{ nome: string; nota: string }>>>({})
+  const [subLoading, setSubLoading] = useState(false)
+  const [subError, setSubError] = useState<string | null>(null)
 
   const inputRef = useRef<HTMLInputElement>(null)
 
@@ -489,9 +498,63 @@ export function Pantry() {
               {/* Ti manca poco */}
               {results.almost.length > 0 && (
                 <div className="match-section">
-                  <h3 className="section-subtitle flex items-center gap-2 text-amber-500 mb-3" style={{ color: 'var(--accento)' }}>
-                    <AlertCircle size={20} aria-hidden="true" /> Ti manca poco ({results.almost.length})
-                  </h3>
+                  <div className="flex items-center justify-between mb-3">
+                    <h3 className="section-subtitle flex items-center gap-2 text-amber-500" style={{ color: 'var(--accento)' }}>
+                      <AlertCircle size={20} aria-hidden="true" /> Ti manca poco ({results.almost.length})
+                    </h3>
+                    {aiAvailable && (
+                      <Button
+                        variant="secondary"
+                        size="sm"
+                        onClick={async () => {
+                          if (!user) return
+                          setSubLoading(true)
+                          setSubError(null)
+                          try {
+                            // Raccoglie tutti gli ingredienti mancanti unici
+                            const allMissing = [...new Set(results.almost.flatMap(m => m.missing))]
+                            // Prepara ingredienti della ricetta per il contesto
+                            const recipeIngredients = results.almost.flatMap(m =>
+                              m.recipe.ingredienti?.map((ing: any) => ({ nome: ing.nome })) ?? []
+                            )
+                            const { sostituzioni } = await aiSubstitutions(
+                              'Ricette con ingredienti mancanti',
+                              recipeIngredients,
+                              allMissing
+                            )
+                            // Converte in mappa per accesso facile
+                            const map: Record<string, Array<{ nome: string; nota: string }>> = {}
+                            sostituzioni.forEach(s => {
+                              map[s.ingrediente_mancante] = s.sostituzioni
+                            })
+                            setSubstitutions(map)
+                          } catch (e: any) {
+                            setSubError(e?.message ?? 'Errore durante la ricerca sostituzioni.')
+                          } finally {
+                            setSubLoading(false)
+                          }
+                        }}
+                        disabled={subLoading}
+                        isLoading={subLoading}
+                        className="touch-manipulation min-h-[44px]"
+                      >
+                        <Sparkles size={16} className="mr-1" /> Sostituzioni AI
+                      </Button>
+                    )}
+                    {!aiAvailable && user && (
+                      <span className="text-xs text-[var(--secondario)] px-2 py-1 bg-[var(--sfondo)] rounded-full">
+                        AI non disponibile
+                      </span>
+                    )}
+                  </div>
+                  {subError && (
+                    <div className="mb-3 p-2 bg-[var(--accento)]/10 border border-[var(--accento)]/30 rounded-xl text-sm text-[var(--accento)]" role="alert">
+                      {subError}
+                      <Button variant="ghost" size="sm" className="ml-2" onClick={() => setSubstitutions({})}>
+                        Chiudi
+                      </Button>
+                    </div>
+                  )}
                   <ul className="space-y-2">
                     {results.almost.map(m => (
                       <li key={m.recipe.id}>
@@ -503,9 +566,30 @@ export function Pantry() {
                           {m.missing.map(name => (
                             <span key={name} className="missing inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold" style={{ backgroundColor: 'color-mix(in srgb, var(--accento) 20%, transparent)', color: 'var(--accento)' }}>
                               {name}
+                              {substitutions[name] && substitutions[name].length > 0 && (
+                                <span className="ml-1 cursor-help" title={substitutions[name].map(s => `${s.nome}: ${s.nota}`).join('; ')}>
+                                  💡
+                                </span>
+                              )}
                             </span>
                           ))}
                         </div>
+                        {m.missing.some(name => substitutions[name]?.length > 0) && (
+                          <div className="mt-2 ml-1 space-y-1 text-xs text-[var(--secondario)]">
+                            {m.missing
+                              .filter(name => substitutions[name]?.length > 0)
+                              .map(name => (
+                                <div key={name} className="flex flex-wrap gap-1.5">
+                                  <span className="font-medium text-[var(--testo)]">{name}:</span>
+                                  {substitutions[name].map((s, idx) => (
+                                    <span key={idx} className="inline-flex items-center px-2 py-0.5 rounded-full text-xs" style={{ backgroundColor: 'color-mix(in srgb, var(--accento) 15%, transparent)', color: 'var(--accento)' }}>
+                                      {s.nome} <span className="text-[var(--secondario)] ml-1">— {s.nota}</span>
+                                    </span>
+                                  ))}
+                                </div>
+                              ))}
+                          </div>
+                        )}
                       </li>
                     ))}
                   </ul>

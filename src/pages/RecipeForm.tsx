@@ -10,11 +10,12 @@ import { useState, useEffect, useCallback } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { useForm, useFieldArray, Controller } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { Plus, GripVertical, Trash2, AlertCircle, CheckCircle, Loader2, Info } from 'lucide-react'
+import { Plus, GripVertical, Trash2, AlertCircle, CheckCircle, Loader2, Info, FileText, Sparkles } from 'lucide-react'
 import { clsx } from 'clsx'
 import { useAuth } from '../contexts/AuthContext'
 import { useMood } from '../contexts/MoodContext'
 import { getRecipeById, createRecipe, updateRecipe, getAllIngredients } from '../lib/supabase'
+import { aiImport, aiFill, useAiAvailable, filterNewIngredients } from '../lib/ai'
 import {
   CATEGORIE, CATEGORIE_LABELS, ALL_TAGS, TAG_LABELS, MOODS, MOOD_LABELS,
   COMMON_UNITS, COMMON_GROUPS, STATO_RICETTA, STATO_LABELS, DEFAULT_PORZIONI_UNITA,
@@ -44,6 +45,15 @@ function RecipeFormComponent({ isEditing }: RecipeFormComponentProps) {
   const [error, setError] = useState<string | null>(null)
   const [allIngredients, setAllIngredients] = useState<string[]>([])
   const [showAutocomplete, setShowAutocomplete] = useState<string | null>(null)
+
+  // === AI: Importa da testo / Compila da descrizione ===
+  const { available: aiAvailable, reason: aiUnavailableReason } = useAiAvailable()
+  const [importText, setImportText] = useState('')
+  const [importLoading, setImportLoading] = useState(false)
+  const [importError, setImportError] = useState<string | null>(null)
+  const [fillDescrizione, setFillDescrizione] = useState('')
+  const [fillLoading, setFillLoading] = useState(false)
+  const [fillError, setFillError] = useState<string | null>(null)
 
   const {
     register,
@@ -273,6 +283,161 @@ function RecipeFormComponent({ isEditing }: RecipeFormComponentProps) {
             Solo titolo, autore, categoria, mood e difficoltà sono obbligatori. Tutti gli altri campi sono facoltativi.
           </p>
         </section>
+
+        {/* === AI: Importa da testo === */}
+        {aiAvailable && (
+          <section className="form-section card bg-[var(--card)] rounded-2xl border border-[var(--bordo)] p-4 mb-4">
+            <h2 className="text-lg font-semibold text-[var(--testo)] flex items-center gap-2 mb-3">
+              <Sparkles size={20} className="text-[var(--accento)]" />
+              Importa da testo
+            </h2>
+            <p className="text-sm text-[var(--secondario)] mb-3">
+              Incolla una ricetta (anche da un sito o messaggio): l'AI estrarrà titolo, ingredienti, passaggi, ecc.
+            </p>
+            <div className="space-y-3">
+              <textarea
+                value={importText}
+                onChange={e => { setImportText(e.target.value); setImportError(null); }}
+                placeholder="Incolla qui il testo della ricetta..."
+                rows={4}
+                className="form-textarea w-full px-4 py-3 rounded-xl border border-[var(--bordo)] bg-[var(--sfondo)] text-[var(--testo)] placeholder-[var(--secondario)] focus:outline-none focus:ring-2 focus:ring-[var(--accento)] focus:border-transparent transition-all duration-150 resize-y"
+                disabled={importLoading}
+              />
+              {importError && <p className="text-sm text-[var(--accento)]" role="alert">{importError}</p>}
+              <div className="flex gap-2">
+                <Button
+                  type="button"
+                  variant="primary"
+                  onClick={async () => {
+                    if (!importText.trim()) return
+                    setImportLoading(true)
+                    setImportError(null)
+                    try {
+                      const { ricetta } = await aiImport(importText)
+                      // Filtra ingredienti duplicati rispetto a quelli già nel form
+                      const currentIngredients = getValues('ingredienti') || []
+                      const newIngredients = filterNewIngredients(
+                        (ricetta.ingredienti as Array<{ nome: string }>) || [],
+                        currentIngredients as any[]
+                      )
+                      // Riempie il form con i dati estratti (react-hook-form reset)
+                      reset({
+                        ...getValues(),
+                        ...ricetta,
+                        ingredienti: [...currentIngredients, ...newIngredients],
+                      })
+                      setImportText('')
+                    } catch (e: any) {
+                      setImportError(e?.message ?? 'Errore durante l\'importazione.')
+                    } finally {
+                      setImportLoading(false)
+                    }
+                  }}
+                  disabled={importLoading || !importText.trim() || !aiAvailable}
+                  isLoading={importLoading}
+                  className="flex-1 touch-manipulation min-h-[44px]"
+                >
+                  <FileText size={18} /> Importa e riempi form
+                </Button>
+                <Button
+                  type="button"
+                  variant="secondary"
+                  onClick={() => { setImportText(''); setImportError(null); }}
+                  className="touch-manipulation min-h-[44px]"
+                >
+                  Annulla
+                </Button>
+              </div>
+            </div>
+          </section>
+        )}
+
+        {/* === AI: Compila i campi dalla descrizione === */}
+        {aiAvailable && (watch('descrizione') || '').trim() && (
+          <section className="form-section card bg-[var(--card)] rounded-2xl border border-[var(--bordo)] p-4 mb-4">
+            <h2 className="text-lg font-semibold text-[var(--testo)] flex items-center gap-2 mb-3">
+              <Sparkles size={20} className="text-[var(--accento)]" />
+              Compila i campi dalla descrizione
+            </h2>
+            <p className="text-sm text-[var(--secondario)] mb-3">
+              Hai scritto una descrizione: l'AI può completare i campi vuoti (categoria, mood, ingredienti, passaggi, ecc.).
+            </p>
+            <div className="space-y-3">
+              <textarea
+                value={fillDescrizione}
+                onChange={e => { setFillDescrizione(e.target.value); setFillError(null); }}
+                placeholder="Descrivi la ricetta a parole tue... (opzionale, usa la descrizione sopra se lasci vuoto)"
+                rows={3}
+                className="form-textarea w-full px-4 py-3 rounded-xl border border-[var(--bordo)] bg-[var(--sfondo)] text-[var(--testo)] placeholder-[var(--secondario)] focus:outline-none focus:ring-2 focus:ring-[var(--accento)] focus:border-transparent transition-all duration-150 resize-y"
+                disabled={fillLoading}
+              />
+              {fillError && <p className="text-sm text-[var(--accento)]" role="alert">{fillError}</p>}
+              <div className="flex gap-2">
+                <Button
+                  type="button"
+                  variant="primary"
+                  onClick={async () => {
+                    const descrizione = fillDescrizione.trim() || (watch('descrizione') || '').trim()
+                    if (!descrizione) return
+                    setFillLoading(true)
+                    setFillError(null)
+                    try {
+                      const { ricetta } = await aiFill(descrizione, getValues())
+                      const currentIngredients = getValues('ingredienti') || []
+                      const newIngredients = filterNewIngredients(
+                        (ricetta.ingredienti as Array<{ nome: string }>) || [],
+                        currentIngredients as any[]
+                      )
+                      reset({
+                        ...getValues(),
+                        ...ricetta,
+                        ingredienti: [...currentIngredients, ...newIngredients],
+                      })
+                      setFillDescrizione('')
+                    } catch (e: any) {
+                      setFillError(e?.message ?? 'Errore durante il completamento.')
+                    } finally {
+                      setFillLoading(false)
+                    }
+                  }}
+                  disabled={fillLoading || !aiAvailable}
+                  isLoading={fillLoading}
+                  className="flex-1 touch-manipulation min-h-[44px]"
+                >
+                  <Sparkles size={18} /> Completa i campi vuoti
+                </Button>
+                <Button
+                  type="button"
+                  variant="secondary"
+                  onClick={() => { setFillDescrizione(''); setFillError(null); }}
+                  className="touch-manipulation min-h-[44px]"
+                >
+                  Annulla
+                </Button>
+              </div>
+            </div>
+          </section>
+        )}
+
+        {/* AI non disponibile */}
+        {!aiAvailable && (
+          <section className="form-section card bg-[var(--card)] rounded-2xl border border-[var(--bordo)] p-4 mb-4">
+            <div className="flex items-center gap-3 text-[var(--secondario)]">
+              <AlertCircle size={20} className="flex-shrink-0" />
+              <span className="text-sm">
+                Assistente AI non disponibile: {(() => {
+                  switch (aiUnavailableReason) {
+                    case 'unauthorized': return 'Effettua il login.'
+                    case 'rate_limited': return 'Limite giornaliero raggiunto.'
+                    case 'service_unavailable': return 'Servizio temporaneamente non disponibile.'
+                    case 'offline': return 'Sei offline.'
+                    default: return 'Riprova più tardi.'
+                  }
+                })()}
+              </span>
+            </div>
+          </section>
+        )}
 
         {/* Campi opzionali per tutte le ricette */}
         <section className="form-section card bg-[var(--card)] rounded-2xl border border-[var(--bordo)] p-4 mb-4">

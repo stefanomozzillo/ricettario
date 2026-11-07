@@ -200,22 +200,25 @@ export interface Variante {
 // ============================================
 // DIFFICOLTÀ
 // ============================================
-export const DIFFICOLTA = ['facile', 'media', 'difficile'] as const;
+export const DIFFICOLTA = ['base', 'facile', 'media', 'difficile'] as const;
 export type Difficolta = (typeof DIFFICOLTA)[number];
 
 export const DIFFICOLTA_LABELS: Record<Difficolta, string> = {
+  base: 'Base',
   facile: 'Facile',
   media: 'Media',
   difficile: 'Difficile',
 };
 
 export const DIFFICOLTA_BADGE_CLASSES: Record<Difficolta, string> = {
+  base: 'bg-sky-600 !text-white font-bold text-xs px-2.5 py-1 rounded-full shadow-sm',
   facile: 'bg-emerald-700 !text-white font-semibold text-xs px-2.5 py-1 rounded-full shadow-sm',
   media: 'bg-amber-700 !text-white font-semibold text-xs px-2.5 py-1 rounded-full shadow-sm',
   difficile: 'bg-red-700 !text-white font-semibold text-xs px-2.5 py-1 rounded-full shadow-sm',
 };
 
 export const DIFFICOLTA_ICON_CLASSES: Record<Difficolta, string> = {
+  base: 'text-sky-600',
   facile: 'text-emerald-600',
   media: 'text-amber-600',
   difficile: 'text-red-600',

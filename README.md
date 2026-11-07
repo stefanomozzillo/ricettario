@@ -23,6 +23,58 @@ cp .env.example .env.local
 npm run dev
 ```
 
+## FASE C — Assistente AI (Edge Function + Gemini)
+
+### Variabili d'ambiente richieste
+
+| Variabile | Descrizione | Obbligatoria | Default |
+|-----------|-------------|--------------|---------|
+| `GEMINI_API_KEY` | Chiave API Google AI Studio (Gemini) | **Sì** | — |
+| `GEMINI_MODEL` | Modello Gemini da usare | No | `gemini-3.8-flash` |
+| `ALLOWED_ORIGIN` | Origin di produzione per CORS (es. `https://tuo-dominio.pages.dev`) | No | `http://localhost:5173` |
+| `AI_DAILY_LIMIT` | Limite richieste AI al giorno per utente | No | `100` |
+
+La `GEMINI_API_KEY` va impostata come **secret** della Edge Function nel dashboard Supabase (Project Settings → Edge Functions → Secrets), **non** in `.env.local`.
+
+### Migrazione database
+
+Esegui `supabase/migrations/06-ai-usage.sql` nell'SQL Editor di Supabase. Crea la tabella `ai_usage` per il rate limit giornaliero (RLS attiva, accesso solo via `service_role`).
+
+### Deploy Edge Function
+
+```bash
+# 1. Imposta i secret (GEMINI_API_KEY obbligatoria)
+supabase secrets set GEMINI_API_KEY=your-key GEMINI_MODEL=gemini-3.8-flash ALLOWED_ORIGIN=https://tuo-dominio.pages.dev AI_DAILY_LIMIT=100
+
+# 2. Deploy della funzione
+supabase functions deploy ai-assistant
+```
+
+La funzione ha `verify_jwt` attivo (default). Chiama l'endpoint:
+```
+https://<project-ref>.supabase.co/functions/v1/ai-assistant
+```
+con header `Authorization: Bearer <access_token>` e body JSON `{action, ...}`.
+
+### Azioni disponibili
+
+| Azione | Body | Descrizione |
+|--------|------|-------------|
+| `import` | `{testo}` | Incolla ricetta → JSON strutturato |
+| `fill` | `{descrizione, ricetta}` | Completa campi vuoti da descrizione libera |
+| `chat` | `{ricetta, messaggi[]}` | Chat contestuale sulla ricetta |
+| `substitutions` | `{titolo, ingredienti[], mancanti[]}` | Suggerimenti sostituzioni per ingredienti mancanti |
+
+### Codici errore
+
+- `401` — Autenticazione richiesta / token non valido
+- `403` — Utente non in `utenti_abilitati`
+- `400` — Body non valido / testo troppo lungo (max 20.000 char)
+- `429` — Limite giornaliero AI raggiunto
+- `502` — Risposta AI non valida (struttura)
+- `503` — Quota Gemini esaurita / modello non disponibile
+- `504` — Timeout chiamata Gemini (25 s)
+
 ## Struttura
 
 ```
