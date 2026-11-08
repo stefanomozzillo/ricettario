@@ -340,9 +340,9 @@ export function RecipeDetail() {
           </section>
         )}
 
-        {/* Info principali - 3 riquadri di uguale larghezza */}
+        {/* Info principali - responsive: colonna su mobile, 3 colonne da md in su */}
         <section className="card bg-[var(--card)] rounded-2xl border border-[var(--card-bordo)] p-4 mb-4 shadow-[var(--elevazione-1)]">
-          <div className="grid grid-cols-3 gap-3 mb-4">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mb-4">
             {/* Riquadro Tempo */}
             <div className="info-box flex flex-col items-center justify-center p-4 bg-[var(--sfondo)] rounded-xl min-h-[80px] border border-[var(--card-bordo)]">
               <Clock size={24} className="text-[var(--accento)] mb-2" aria-hidden="true" />
