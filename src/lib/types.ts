@@ -172,7 +172,6 @@ export const ingredienteSchema = z.object({
   quantita: z.union([z.number().min(0), z.string()]).optional().nullable(),
   unita: z.string().optional().nullable(),
   gruppo: z.string().optional().nullable(),
-  note: z.string().optional().nullable(),
 })
 
 export type Ingrediente = z.infer<typeof ingredienteSchema>
@@ -285,7 +284,6 @@ export function normalizeIngredientFromDb(ing: unknown): Ingrediente {
     quantita: (i.quantita as number | string | null) ?? null,
     unita: (i.unita as string | null) ?? null,
     gruppo: (i.gruppo as string | null) ?? null,
-    note: (i.note as string | null) ?? null,
   }
 }
 
@@ -368,7 +366,6 @@ export function prepareRecipeForDb(data: RecipeFormData): RecipeInsert {
       quantita: typeof ing.quantita === 'string' && ing.quantita.trim() === '' ? null : ing.quantita,
       unita: ing.unita?.trim() || null,
       gruppo: ing.gruppo?.trim() || null,
-      note: ing.note?.trim() || null,
     })),
     passaggi: isIncomplete ? [] : data.passaggi.map(p => ({
       titolo: p.titolo?.trim() || null,

@@ -176,7 +176,6 @@ export interface Ingrediente {
   quantita: number | string | null
   unita: string | null
   gruppo: string | null
-  note: string | null
 }
 
 // ============================================
@@ -213,14 +212,14 @@ export const DIFFICOLTA_LABELS: Record<Difficolta, string> = {
 export const DIFFICOLTA_BADGE_CLASSES: Record<Difficolta, string> = {
   base: 'bg-sky-600 !text-white font-bold text-xs px-2.5 py-1 rounded-full shadow-sm',
   facile: 'bg-emerald-700 !text-white font-semibold text-xs px-2.5 py-1 rounded-full shadow-sm',
-  media: 'bg-amber-700 !text-white font-semibold text-xs px-2.5 py-1 rounded-full shadow-sm',
+  media: 'bg-orange-600 !text-white font-semibold text-xs px-2.5 py-1 rounded-full shadow-sm',
   difficile: 'bg-red-700 !text-white font-semibold text-xs px-2.5 py-1 rounded-full shadow-sm',
 };
 
 export const DIFFICOLTA_ICON_CLASSES: Record<Difficolta, string> = {
   base: 'text-sky-600',
   facile: 'text-emerald-600',
-  media: 'text-amber-600',
+  media: 'text-orange-600',
   difficile: 'text-red-600',
 };
 

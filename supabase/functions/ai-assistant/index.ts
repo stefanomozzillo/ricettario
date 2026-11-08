@@ -222,6 +222,15 @@ function coerceNumber(v: unknown): number | null {
   return null
 }
 
+/** Estrae note tra parentesi da una stringa quantità (es. "60 (fuso)" → {value: "60", note: "fuso"}) */
+function extractNoteFromQuantity(q: string): { value: string; note: string | null } {
+  const match = q.match(/^(.+?)\s*\(([^)]+)\)\s*$/)
+  if (match) {
+    return { value: match[1].trim(), note: match[2].trim() }
+  }
+  return { value: q, note: null }
+}
+
 function validateRecipe(raw: unknown): any | null {
   if (!raw || typeof raw !== "object") return null
   const r = raw as Record<string, unknown>
@@ -243,16 +252,39 @@ function validateRecipe(raw: unknown): any | null {
   if (Array.isArray(r.ingredienti)) {
     ingredienti = r.ingredienti
       .filter((i): i is Record<string, unknown> => i && typeof i === "object")
-      .map((i) => ({
-        nome: normalizeIngredientName(i.nome),
-        quantita: (() => {
-          const q = coerceNumber(i.quantita)
-          return q !== null ? q : (typeof i.quantita === "string" && i.quantita.trim() ? i.quantita.trim() : null)
-        })(),
-        unita: normalizeText(i.unita) || null,
-        gruppo: normalizeText(i.gruppo) || null,
-        note: normalizeText(i.note) || null,
-      }))
+      .map((i) => {
+        // Estrai nome pulito (rimuovi eventuali parentesi dal nome)
+        const rawNome = typeof i.nome === "string" ? i.nome.trim() : ""
+        const { value: nomePulito } = extractNoteFromQuantity(rawNome)
+
+        // Estrai quantità e nota dalla quantità
+        const rawQuantita = typeof i.quantita === "string" ? i.quantita.trim() : ""
+        const { value: quantitaValue } = extractNoteFromQuantity(rawQuantita)
+        const coercedQuantita = coerceNumber(quantitaValue)
+
+        // Estrai unità e nota dall'unità
+        const rawUnita = typeof i.unita === "string" ? i.unita.trim() : ""
+        const { value: unitaPulita } = extractNoteFromQuantity(rawUnita)
+
+        // Default unit: "pezzi" per ingredienti discreti se manca
+        let unita = unitaPulita
+        if (!unita) {
+          // Heuristica: se il nome suggerisce unità discrete o quantità è un numero intero piccolo
+          const nome = normalizeIngredientName(nomePulito)
+          const quantitaNum = coercedQuantita
+          const isDiscrete = ["uovo", "uova", "spicchio", "spicchi", "foglia", "foglie", "rametto", "rametti", "pezzo", "pezzi", "frutto", "frutti", "testa", "costa", "coste", "spicchio"].some(k => nome.includes(k))
+          if (isDiscrete || (quantitaNum !== null && Number.isInteger(quantitaNum) && quantitaNum <= 20)) {
+            unita = "pezzi"
+          }
+        }
+
+        return {
+          nome: normalizeIngredientName(nomePulito),
+          quantita: coercedQuantita,
+          unita: unita || null,
+          gruppo: normalizeText(i.gruppo) || null,
+        }
+      })
       .filter((i) => i.nome)
       .slice(0, 50)
   }
@@ -334,6 +366,42 @@ REGOLE FONDAMENTALI:
 - Nomi ingredienti in minuscolo, quantità come numeri quando possibile.
 - Categorie ammesse: ${CATEGORIE.join(", ")}. Mood ammessi: ${MOODS.join(", ")}.
 - Tag ammessi: ${ALL_TAGS.join(", ")}.
+
+REGOLE PER INGREDIENTI (OBBLIGATORIE - RISPETTARE ALLA LETTERA):
+Ogni ingrediente deve avere 4 campi separati e puliti:
+
+1. "nome" (stringa): SOLO il nome dell'ingrediente, MAI note o parentesi.
+   ✅ "burro", "uova", "farina 00", "zucchero semolato", "spicchio aglio"
+   ❌ "burro (fuso)", "uova (grandi)", "farina 00 qb"
+
+2. "quantita" (numero o null): SOLO il valore numerico, senza unità né note.
+   ✅ 60, 300, 2, 3, 0.5
+   ❌ "60 g", "2 pezzi", "qb", "a piacere"
+   Se la quantità non è specificata o è "qb"/"a piacere", usa null.
+
+3. "unita" (stringa o null): L'unità di misura pulita, SENZA note tra parentesi.
+   ✅ "g", "kg", "ml", "l", "pezzi", "cucchiaio", "spicchio", "foglia"
+   ❌ "g (fuso)", "pezzi (grandi)", "cucchiai rasi"
+   REGOLE DI DEFAULT per "unita":
+   - Se il testo non specifica unità: usa "pezzi" per elementi contabili (uova, spicchi, foglie, rametti, pezzi, frutti interi)
+   - Se il testo non specifica unità per solidi: usa "g"
+   - Se il testo non specifica unità per liquidi: usa "ml"
+
+4. "note" (stringa o null): Note aggiuntive come "fuso", "grandi", "a temperatura ambiente", "tritato", "sbucciato".
+   ✅ "fuso", "grandi", "a temperatura ambiente"
+   ❌ null (se non ci sono note)
+
+ESEMPI DI PARSING CORRETTO:
+- "60 g burro fuso"           → nome: "burro", quantita: 60, unita: "g", note: "fuso"
+- "2 uova grandi"             → nome: "uova", quantita: 2, unita: "pezzi", note: "grandi"
+- "300 g farina 00"           → nome: "farina 00", quantita: 300, unita: "g", note: null
+- "qb sale"                   → nome: "sale", quantita: null, unita: null, note: "qb"
+- "1 spicchio aglio"          → nome: "aglio", quantita: 1, unita: "spicchio", note: null
+- "200 ml latte"              → nome: "latte", quantita: 200, unita: "ml", note: null
+- "3 cucchiai olio evo"       → nome: "olio evo", quantita: 3, unita: "cucchiaio", note: null
+- "500 g pomodori pelati"     → nome: "pomodori pelati", quantita: 500, unita: "g", note: "pelati"
+
+MAI unire note nel nome, nella quantità o nell'unità. I campi DEVONO essere separati.
 `.trim()
 
 // ============================================

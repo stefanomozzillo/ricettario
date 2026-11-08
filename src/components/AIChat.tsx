@@ -177,7 +177,7 @@ export function AIChat({ recipe }: AIChatProps) {
           value={input}
           onChange={e => setInput(e.target.value)}
           onKeyDown={handleKeyDown}
-          placeholder={loading ? 'Attendi risposta...' : 'Scrivi un messaggio... (Shift+Enter per nuova riga)'}
+          placeholder={loading ? 'Attendi risposta...' : 'Scrivi un messaggio...'}
           rows={1}
           disabled={loading}
           className={clsx(
